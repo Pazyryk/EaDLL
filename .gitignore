@@ -1,5 +1,7 @@
-#ignore everything except h and cpp files
+#Ignore rules
 *
+BuildOutput/
+BuildTemp/
 !*/
 !*.h
 !*.cpp
