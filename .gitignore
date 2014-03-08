@@ -1,7 +1,5 @@
 #Ignore rules
 *
-/BuildOutput
-/BuildTemp
 !*/
 !*.h
 !*.cpp
@@ -17,3 +15,5 @@
 !*.sln
 !*.txt
 !*.gitignore
+/BuildOutput/
+/BuildTemp/
