@@ -533,6 +533,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsGoldenAgeCultureBonusDisabled);
 
+#ifdef EA_CIV_LEADER_CHANGING
+	Method(ChangeCivilizationType);
+	Method(ChangeLeaderType);
+#endif
+
 	Method(IsMinorCiv);
 	Method(GetMinorCivType);
 	Method(GetMinorCivTrait);
@@ -615,7 +620,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsEverAlive);
 	Method(IsExtendedGame);
 	Method(IsFoundedFirstCity);
-
+#ifdef EA_SET_FOUNDED_FIRST_CITY
+	Method(SetFoundedFirstCity);
+#endif
 	Method(GetEndTurnBlockingType);
 	Method(GetEndTurnBlockingNotificationIndex);
 	Method(HasReceivedNetTurnComplete);
@@ -749,6 +756,14 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoBeginDiploWithHuman);
 	Method(DoTradeScreenOpened);
 	Method(DoTradeScreenClosed);
+	// Paz
+#ifdef EA_PLAYER_DEAL_API
+	Method(DoHumanOfferDealToThisAI);
+	//Method(DoAcceptedDeal);
+	//Method(DoHumanDemand);
+	//Method(DoAcceptedDemand);
+	Method(DoEqualizeDealWithHuman);
+#endif
 	Method(GetMajorCivApproach);
 	Method(GetApproachTowardsUsGuess);
 	Method(IsWillAcceptPeaceWithPlayer);
@@ -5840,7 +5855,38 @@ int CvLuaPlayer::lIsGoldenAgeCultureBonusDisabled(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::IsGoldenAgeCultureBonusDisabled);
 }
 
+#ifdef EA_CIV_LEADER_CHANGING
+//------------------------------------------------------------------------------
+//void ChangeCivilizationType(eNewCivType);
+int CvLuaPlayer::lChangeCivilizationType(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const CivilizationTypes eNewCivType = (CivilizationTypes) lua_tointeger(L, 2);
 
+	CvPreGame::setCivilization(pkPlayer->GetID(), eNewCivType);
+	
+	pkPlayer->GetPlayerTraits()->Reset();
+	pkPlayer->GetPlayerTraits()->InitPlayerTraits();
+
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//void ChangeLeaderType(eNewLeaderType);
+int CvLuaPlayer::lChangeLeaderType(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const LeaderHeadTypes eNewLeaderType = (LeaderHeadTypes) lua_tointeger(L, 2);
+
+	CvPreGame::setLeaderHead(pkPlayer->GetID(), eNewLeaderType);
+	pkPlayer->setPersonalityType(eNewLeaderType);
+
+	pkPlayer->GetPlayerTraits()->Reset();
+	pkPlayer->GetPlayerTraits()->InitPlayerTraits();
+
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool isMinorCiv();
 int CvLuaPlayer::lIsMinorCiv(lua_State* L)
@@ -6635,8 +6681,15 @@ int CvLuaPlayer::lIsFoundedFirstCity(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::isFoundedFirstCity);
 }
-
 //------------------------------------------------------------------------------
+#ifdef EA_SET_FOUNDED_FIRST_CITY
+//bool isFoundedFirstCity();
+int CvLuaPlayer::lSetFoundedFirstCity(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::setFoundedFirstCity);
+}
+//------------------------------------------------------------------------------
+#endif
 //EndTurnBlockingType GetEndTurnBlockingType()
 int CvLuaPlayer::lGetEndTurnBlockingType(lua_State* L)
 {
@@ -7452,6 +7505,48 @@ int CvLuaPlayer::lDoTradeScreenClosed(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+
+// Paz - These needed to bypass leader scene UI
+#ifdef EA_PLAYER_DEAL_API
+//void DoHumanOfferDealToThisAI(CvDeal* pDeal)
+int CvLuaPlayer::lDoHumanOfferDealToThisAI(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	CvDeal* pDeal = CvLuaDeal::GetInstance(L, 2);
+
+	DealOfferResponseTypes eResponse = pkPlayer->GetDealAI()->DoHumanOfferDealToThisAI(pDeal);
+	lua_pushinteger(L, eResponse);
+	return 1;
+}
+
+//DoAcceptedDeal
+//DoHumanDemand
+//DoAcceptedDemand
+
+//bDealGoodToBeginWith, bCantMatchOffer DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eHumanPlayer, bool bDontChangeMyExistingItems, bool bDontChangeTheirExistingItems);
+int CvLuaPlayer::lDoEqualizeDealWithHuman(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	CvDeal* pDeal = CvLuaDeal::GetInstance(L, 2);
+	PlayerTypes eHumanPlayer = (PlayerTypes) lua_tointeger(L, 3);
+	bool bDontChangeMyExistingItems = lua_toboolean(L, 4);
+	bool bDontChangeTheirExistingItems = lua_toboolean(L, 5);
+
+	bool bDealGoodToBeginWith;
+	bool bCantMatchOffer;
+	const bool bMakeOffer = pkPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, eHumanPlayer, bDontChangeMyExistingItems, bDontChangeTheirExistingItems, bDealGoodToBeginWith, bCantMatchOffer);
+	lua_pushboolean(L, bMakeOffer);
+	lua_pushboolean(L, bDealGoodToBeginWith);
+	lua_pushboolean(L, bCantMatchOffer);
+	return 3;
+}
+
+
+
+#endif
+
 //void GetApproachTowardsUsGuess(PlayerTypes ePlayer);
 int CvLuaPlayer::lGetApproachTowardsUsGuess(lua_State* L)
 {
@@ -8330,11 +8425,42 @@ int CvLuaPlayer::lDoForceDenounce(lua_State* L)
 
 	pkPlayer->GetDiplomacyAI()->DoDenouncePlayer(eOtherPlayer);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz block contact; players can still DoW
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam());
+		args->Push(GET_PLAYER(eOtherPlayer).getTeam());
+		bool bResult = false;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+			if (bResult == false)
+				return 1;
+	}
+#endif
+
 	// Show leader if active player is being denounced
 	if(GC.getGame().getActivePlayer() == eOtherPlayer)
 	{
 		const char* strText = pkPlayer->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_NO);
+
+		// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(pkPlayer->GetID());
+			args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI);
+			args->Push(strText, strlen(strText));
+			args->Push(LEADERHEAD_ANIM_NEGATIVE);
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+		}
+#else
 		gDLL->GameplayDiplomacyAILeaderMessage(pkPlayer->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 	}
 
 	return 1;

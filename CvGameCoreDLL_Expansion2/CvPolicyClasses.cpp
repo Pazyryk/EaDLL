@@ -161,6 +161,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bAbleToAnnexCityStates(false),
 	m_bOneShot(false),
 	m_bIncludesOneShotFreeUnits(false),
+#ifdef EA_DONT_COUNT_UTILITY_POLICIES
+	m_bIsUtility(false),
+#endif
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
 	m_piPolicyDisables(NULL),
@@ -370,7 +373,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
-
+#ifdef EA_DONT_COUNT_UTILITY_POLICIES
+	m_bIsUtility = kResults.GetBool("Utility");
+#endif
 	m_strWeLoveTheKingKey = kResults.GetText("WeLoveTheKing");
 	m_wstrWeLoveTheKing = GetLocalizedText(m_strWeLoveTheKingKey);
 
@@ -1734,6 +1739,14 @@ int CvPolicyEntry::GetImprovementCultureChanges(int i) const
 	return m_piImprovementCultureChange[i];
 }
 
+#ifdef EA_DONT_COUNT_UTILITY_POLICIES
+bool CvPolicyEntry::IsUtility() const
+{
+	return m_bIsUtility;
+}
+#endif
+
+
 /// Free building in each city conquered
 BuildingTypes CvPolicyEntry::GetFreeBuildingOnConquest() const
 {
@@ -2357,7 +2370,11 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 	for(int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 	{
 		// Do we have this policy?
+#ifdef EA_DONT_COUNT_UTILITY_POLICIES	// Paz - don't count utility techs
+		if(m_pabHasPolicy[i] && !m_pPolicies->GetPolicyEntry(i)->IsUtility())
+#else
 		if(m_pabHasPolicy[i])
+#endif
 		{
 			rtnValue++;
 		}

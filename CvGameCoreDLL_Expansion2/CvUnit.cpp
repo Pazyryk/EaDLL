@@ -288,6 +288,17 @@ CvUnit::CvUnit() :
 	, m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility("CvUnit::m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility", m_syncArchive, "")
 	, m_strScriptData("CvUnit::m_szScriptData", m_syncArchive)
 	, m_iScenarioData(0)
+	// Paz
+#ifdef EA_UNIT_MORALE
+	, m_iMorale(0)
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+	, m_iPersonIndex(-1)
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+	, m_iGPAttackState(-1)
+#endif
+
 	, m_terrainDoubleMoveCount("CvUnit::m_terrainDoubleMoveCount", m_syncArchive)
 	, m_featureDoubleMoveCount("CvUnit::m_featureDoubleMoveCount", m_syncArchive)
 	, m_terrainImpassableCount("CvUnit::m_terrainImpassableCount", m_syncArchive)
@@ -902,6 +913,17 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_strScriptData ="";
 	m_iScenarioData = 0;
 
+	// Paz
+#ifdef EA_UNIT_MORALE
+	m_iMorale = 0;
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+	m_iPersonIndex = -1;
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+	m_iGPAttackState = -1;
+#endif
+
 	m_unitMoveLocs.clear();
 
 	uninitInfos();
@@ -917,6 +939,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
 	m_iNumGoodyHutsPopped = 0;
 	m_iLastGameTurnAtFullHealth = -1;
+
+
 
 	if(!bConstructorCall)
 	{
@@ -1806,6 +1830,24 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 	if(pAttacker)
 	{
+
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL		// Paz - Warrior GP is always best defender against Warrior GP; otherwise, GP is always terrible defender 
+		if(pAttacker->IsGreatPerson() && pAttacker->getGPAttackState() > -1)	// attacker is Warrior GP
+		{
+			if(IsGreatPerson() && getGPAttackState() > -1 && (!pDefender->IsGreatPerson() || !pDefender->getGPAttackState() > -1))	// this unit is Warrior GP, test defender is not
+				return true;
+			else if((!IsGreatPerson() || !getGPAttackState() > -1) && (pDefender->IsGreatPerson() && pDefender->getGPAttackState() > -1))	// this unit is not Warrior GP, test defender is
+				return false;
+		}
+		else	// attacker is not Warrior GP, so any GP should be last to defend
+		{
+			if(IsGreatPerson() && !pDefender->IsGreatPerson())
+				return false;
+			else if(!IsGreatPerson() && pDefender->IsGreatPerson())
+				return true;
+		}
+#endif
+
 		if(getDamage() >= pAttacker->GetCombatLimit() && pDefender->getDamage() < pAttacker->GetCombatLimit())
 		{
 			return false;
@@ -2479,13 +2521,34 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	}
 
 	// Barbarians have special restrictions early in the game
+#ifdef EA_ANIMAL_BEHAVIOR		// Paz - Animals don't enter enemy owned lands, but can enter non enemy lands
+	if(isBarbarian() && (plot.isOwned()))
+	{
+		if(getOwner() == ANIMAL_PLAYER)
+		{
+			if(GET_TEAM(ANIMAL_TEAM).isAtWar(GET_PLAYER(plot.getOwner()).getTeam()))
+				return false;
+		}
+		else if(GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+			return false;
+	}
+#else
 	if(isBarbarian() && (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn()) && (plot.isOwned()))
 	{
 		return false;
 	}
+#endif
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type
+#ifdef EA_BREAK_CIVILIAN_OTHER_RESTRICTIONS		// Paz - disregard above for civilians
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS			// ...and combat GPs
+	if(IsCombatUnit() && !IsGreatPerson() && (bMoveFlags & MOVEFLAG_DESTINATION))
+#else
+	if(IsCombatUnit() && (bMoveFlags & MOVEFLAG_DESTINATION))
+#endif
+#else
 	if(bMoveFlags & MOVEFLAG_DESTINATION)
+#endif
 	{
 		// Don't let another player's unit inside someone's city
 		if(!(bMoveFlags & MOVEFLAG_ATTACK) && !(bMoveFlags & MOVEFLAG_DECLARE_WAR))
@@ -2570,6 +2633,55 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 				return false;
 			}
 
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL	// Paz - GPs are now combat units with very special rules
+			if(IsGreatPerson())
+			{
+				const int iGPAttackState = getGPAttackState();	
+				bool bIsNormalCombatDefender = false;
+				bool bIsGPWarriorDefender = false;
+
+				const IDInfo* pUnitNode = plot.headUnitNode();
+				const CvUnit* pLoopUnit;
+				while(pUnitNode != NULL)
+				{
+					pLoopUnit = ::getUnit(*pUnitNode);
+					CvAssertMsg(pLoopUnit, "pUnitNode data should lead to a unit");
+					pUnitNode = plot.nextUnitNode(pUnitNode);
+					if(pLoopUnit)
+					{
+						if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pLoopUnit->getOwner()).getTeam()))
+						{
+							if(pLoopUnit->IsCombatUnit())
+							{
+								if(pLoopUnit->IsGreatPerson())
+								{
+									if(pLoopUnit->getGPAttackState() == 0)
+										bIsGPWarriorDefender = true;
+								}
+								else
+								{
+									if(iGPAttackState < 1)
+										return false;
+									bIsNormalCombatDefender = true;
+								}
+							}
+							else
+								return false;		// GPs can't capture civilians
+						}
+					}
+				}
+				if(iGPAttackState == 1)				// -1  GP Default: can only attack other GPs; weak defender for defender unit selection
+				{									//  0  Warrior Default: strong defender if attack is from GP
+					if(!bIsNormalCombatDefender)	//  1  Warrior Charge (temp): must be a normal combat unit to attack
+						return false;				//  2  Warrior Challenge (temp): must be a Warrior GP to attack
+				}
+				else if(iGPAttackState == 2)
+				{
+						if(!bIsGPWarriorDefender)
+						return false;
+				}
+			}
+#endif
 			if(!isHuman() || (plot.isVisible(getTeam())))
 			{
 				// This stuff to the next if statement is to get units to advance into a tile with an enemy if that enemy is dying...
@@ -5709,6 +5821,12 @@ bool CvUnit::changeAdmiralPort(int iX, int iY)
 //	--------------------------------------------------------------------------------
 bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 {
+	
+#ifdef EA_ANIMAL_BEHAVIOR	
+	if (getOwner() == ANIMAL_PLAYER)
+		return false;
+#endif
+	
 	if (!IsCombatUnit())
 	{
 		return false;
@@ -8063,7 +8181,22 @@ void CvUnit::PerformCultureBomb(int iRadius)
 
 					DLLUI->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
 					const char* strText = pPlayer->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_CULTURE_BOMBED);
+					// Paz - Should I worry about DLLUI call above?
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(pPlayer->GetID());
+						args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(pPlayer->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
 				}
 			}
 		}
@@ -9733,6 +9866,12 @@ bool CvUnit::isInCombat() const
 int CvUnit::GetMaxHitPoints() const
 {
 	VALIDATE_OBJECT
+#ifdef EA_GP_MAX_HIT_POINTS
+	if (IsGreatPerson())
+	{
+		return GC.getMAX_GP_HIT_POINTS();
+	}
+#endif
 	return GC.getMAX_HIT_POINTS();
 }
 
@@ -9881,11 +10020,15 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(kPlayer.GetID());
 
+#ifdef EA_UNIT_MORALE	// Paz - Morale replaces unhappiness effect
+	iModifier += getMorale();
+#else
 	// If the empire is unhappy, then Units get a combat penalty
 	if(kPlayer.IsEmpireUnhappy())
 	{
 		iModifier += GetUnhappinessCombatPenalty();
 	}
+#endif
 
 	// Over our strategic resource limit?
 	iTempModifier = GetStrategicResourceCombatPenalty();
@@ -10486,11 +10629,15 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(getKamikazePercent() != 0)
 		iModifier += getKamikazePercent();
 
+#ifdef EA_UNIT_MORALE	// Paz - Morale replaces unhappiness effect
+	iModifier += getMorale();
+#else
 	// If the empire is unhappy, then Units get a combat penalty
 	if(kPlayer.IsEmpireUnhappy())
 	{
 		iModifier += GetUnhappinessCombatPenalty();
 	}
+#endif
 
 	// Over our strategic resource limit?
 	iTempModifier = GetStrategicResourceCombatPenalty();
@@ -16586,8 +16733,68 @@ void CvUnit::setScenarioData(int iNewValue)
 	VALIDATE_OBJECT
 	m_iScenarioData = iNewValue;
 }
-
 //	--------------------------------------------------------------------------------
+	// Paz
+#ifdef EA_UNIT_MORALE
+
+int CvUnit::getMorale() const
+{
+	VALIDATE_OBJECT
+	return m_iMorale;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::setMorale(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iMorale = iNewValue;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeMorale(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iMorale = getMorale() + iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::decayMorale(int iDecayTo)
+{
+	VALIDATE_OBJECT
+	const int iCurrent = getMorale();
+	const int iDiff = iCurrent - iDecayTo;
+	m_iMorale = iDecayTo + (iDiff / 2);
+}
+//	--------------------------------------------------------------------------------
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+
+int CvUnit::getPersonIndex() const
+{
+	VALIDATE_OBJECT
+	return m_iPersonIndex;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::setPersonIndex(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iPersonIndex = iNewValue;
+}
+//	--------------------------------------------------------------------------------	
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+
+int CvUnit::getGPAttackState() const
+{
+	VALIDATE_OBJECT
+	return m_iGPAttackState;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::setGPAttackState(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iGPAttackState = iNewValue;
+}
+//	--------------------------------------------------------------------------------	
+#endif
+
 int CvUnit::getTerrainDoubleMoveCount(TerrainTypes eIndex) const
 {
 	VALIDATE_OBJECT
@@ -17548,6 +17755,22 @@ void CvUnit::read(FDataStream& kStream)
 
 	kStream >> m_iScenarioData;
 
+#ifdef EA_PERSISTENT_SETTABLE_INVISIBILITY	// Paz
+	kStream >> m_eInvisibleType;
+#endif
+#ifdef EA_UNIT_MORALE
+	kStream >> m_iMorale;
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+	kStream >> m_iPersonIndex;
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+	kStream >> m_iGPAttackState;
+#endif
+#ifdef EA_PERSISTENT_SETTABLE_COMBAT
+	kStream >> m_iBaseCombat;
+#endif
+
 	kStream >> *m_pReligion;
 
 	m_eGreatWork = NO_GREAT_WORK;
@@ -17670,6 +17893,23 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_strName;
 
 	kStream << m_iScenarioData;
+
+#ifdef EA_PERSISTENT_SETTABLE_INVISIBILITY	// Paz
+	kStream << m_eInvisibleType;
+#endif
+#ifdef EA_UNIT_MORALE
+	kStream << m_iMorale;
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+	kStream << m_iPersonIndex;
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+	kStream << m_iGPAttackState;
+#endif
+#ifdef EA_PERSISTENT_SETTABLE_COMBAT
+	kStream << m_iBaseCombat;
+#endif
+
 	kStream << *m_pReligion;
 
 	if (m_eGreatWork != NO_GREAT_WORK)
@@ -18659,6 +18899,11 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 	{
 		return false;
 	}
+
+#ifdef EA_BREAK_CIVILIAN_OTHER_RESTRICTIONS		// Paz - Should a civilian ever initiate an attack?
+	if (!IsCombatUnit())
+		return false;
+#endif
 
 	if(isHuman() && getOwner() == GC.getGame().getActivePlayer())
 	{

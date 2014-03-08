@@ -126,6 +126,8 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		{
 			GC.GetEngineUserInterface()->SetDealInTransit(true);
 			auto_ptr<ICvDeal1> pDllDeal = GC.WrapDealPointer(&kDeal);
+
+			//Paz note: This does not seem to cause leader scene, so leave it; but we need a visible response from AI
 			gDLL->sendNetDealAccepted(eFromPlayer, GetPlayer()->GetID(), pDllDeal.get(), iDealValueToMe, iValueImOffering, iValueTheyreOffering);
 		}
 		// Deal between AI players, we can process it immediately
@@ -160,6 +162,8 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		}
 	}
 
+	// Paz notes: Only bad deals piped through GameplayDiplomacyAILeaderMessage
+
 	if(bFromIsActivePlayer)
 	{
 		// Modify response if the player's offered a deal lot
@@ -176,7 +180,24 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 			}
 
 			GC.GetEngineUserInterface()->ChangeOfferTradeRepeatCount(1);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(GetPlayer()->GetID());
+				args->Push(eUIState);
+				args->Push(szText, strlen(szText));
+				args->Push(eAnimation);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eUIState, szText, eAnimation);
+#endif
+
 		}
 	}
 
@@ -219,10 +240,29 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		// We made a demand and they gave in
 		if(kDeal.GetDemandingPlayer() == GetPlayer()->GetID())
 		{
+			
+			
 			if(GC.getGame().getActivePlayer() == eFromPlayer)
 			{
 				szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_AI_DEMAND);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(GetPlayer()->GetID());
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI);
+					args->Push(szText, strlen(szText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI, szText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 
 			return;
@@ -234,7 +274,24 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 			if(GC.getGame().getActivePlayer() == eFromPlayer)
 			{
 				szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_THANKFUL);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(GetPlayer()->GetID());
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(szText, strlen(szText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 			GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -iDealValueToMe);
 			return;
@@ -269,7 +326,26 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 
 		// Send message back to diplo UI
 		if(GC.getGame().getActivePlayer() == eFromPlayer)
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			{
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(GetPlayer()->GetID());
+					args->Push(eUIState);
+					args->Push(szText, strlen(szText));
+					args->Push(eAnimation);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eUIState, szText, eAnimation);
+#endif
+
 	}
 
 	if(GC.getGame().getActivePlayer() == eFromPlayer || GC.getGame().getActivePlayer() == GetPlayer()->GetID())

@@ -19,16 +19,36 @@
 #define REALLY_MAX_PLAYERS (80)
 #define REALLY_MAX_TEAMS (80)
 
+#ifdef EA_ANIMAL_PLAYER										// Paz - Add Animal player & team
+#define MAX_CIV_PLAYERS										(62)
+#else
 #define MAX_CIV_PLAYERS										(63)
+#endif
 #define MAX_CIV_TEAMS										(MAX_CIV_PLAYERS)
 
 #define MAX_MAJOR_CIVS										(22)
+
 #define MAX_MINOR_CIVS										(MAX_CIV_PLAYERS - MAX_MAJOR_CIVS)
 
+#ifdef EA_ANIMAL_PLAYER
+#define MAX_PLAYERS											(MAX_CIV_PLAYERS + 2)
+#else
 #define MAX_PLAYERS											(MAX_CIV_PLAYERS + 1)
+#endif
+
 #define MAX_TEAMS											(MAX_PLAYERS)
+
+#ifdef EA_ANIMAL_PLAYER
+#define ANIMAL_PLAYER										((PlayerTypes)MAX_CIV_PLAYERS)
+#define ANIMAL_TEAM											((TeamTypes)MAX_CIV_TEAMS)
+#define BARBARIAN_PLAYER									((PlayerTypes)(MAX_CIV_PLAYERS + 1))
+#define BARBARIAN_TEAM										((TeamTypes)(MAX_CIV_TEAMS + 1))
+#else
 #define BARBARIAN_PLAYER									((PlayerTypes)MAX_CIV_PLAYERS)
 #define BARBARIAN_TEAM										((TeamTypes)MAX_CIV_TEAMS)
+#endif
+
+
 #define OBSERVER_TEAM											((TeamTypes)(MAX_MAJOR_CIVS-1))		//This only works because observer mode is multiplayer/debug only																																		//and multiplayer only supports 12 max players 																																	//(due to map player restrictions)
 
 #define MAX_DAMAGE_MEMBER_COUNT								32

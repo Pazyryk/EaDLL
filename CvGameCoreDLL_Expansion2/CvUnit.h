@@ -1022,6 +1022,22 @@ public:
 	int getScenarioData() const;
 	void setScenarioData(int iNewValue);
 
+	// Paz
+#ifdef EA_UNIT_MORALE
+	int getMorale() const;
+	void setMorale(int iNewValue);
+	void changeMorale(int iChange);
+	void decayMorale(int iDecayTo);
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+	int getPersonIndex() const;
+	void setPersonIndex(int iNewValue);	
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+	int getGPAttackState() const;
+	void setGPAttackState(int iNewValue);		
+#endif
+
 	int getTerrainDoubleMoveCount(TerrainTypes eIndex) const;
 	bool isTerrainDoubleMove(TerrainTypes eIndex) const;
 	void changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange);
@@ -1424,6 +1440,17 @@ protected:
 	FAutoVariable<CvString, CvUnit> m_strScriptData;
 	int m_iScenarioData;
 
+	// Paz
+#ifdef EA_UNIT_MORALE
+	int m_iMorale;
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+	int m_iPersonIndex;
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+	int m_iGPAttackState;
+#endif
+
 	CvUnitPromotions  m_Promotions;
 	CvUnitReligion* m_pReligion;
 
@@ -1464,7 +1491,7 @@ protected:
 	int m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	int m_iNumGoodyHutsPopped;
 	int m_iLastGameTurnAtFullHealth;
-		
+	
 	CvString m_strName;
 	GreatWorkType m_eGreatWork;
 	int m_iTourismBlastStrength;

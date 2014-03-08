@@ -336,6 +336,9 @@ protected:
 
 	static int lFoundPantheon(lua_State* L);
 	static int lFoundReligion(lua_State* L);
+#ifdef EA_FOUND_RELIGION_NO_FOUNDER
+	static int lFoundReligionNoFounder(lua_State* L);
+#endif
 	static int lEnhanceReligion(lua_State* L);
 	static int lSetHolyCity(lua_State* L);
 	static int lGetFounder(lua_State* L);

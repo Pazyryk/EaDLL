@@ -205,6 +205,12 @@ bool CvGameQueries::AreUnitsSameType(UnitTypes eFirstUnitType, UnitTypes eSecond
 	if(pkFirstUnitInfo == NULL || pkSecondUnitInfo == NULL)
 		return false;
 
+#ifdef EA_BREAK_GP_1UPT	// Paz - Ea GPs turned into combat, so civ break below won't work
+	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
+	if(pkFirstUnitInfo->GetSpecialUnitType() == eSpecialUnitGreatPerson || pkSecondUnitInfo->GetSpecialUnitType() == eSpecialUnitGreatPerson)
+		return false;
+#endif
+
 	int eFirstDomain = pkFirstUnitInfo->GetDomainType();
 	int eSecondDomain = pkSecondUnitInfo->GetDomainType();
 
@@ -240,6 +246,11 @@ bool CvGameQueries::AreUnitsSameType(UnitTypes eFirstUnitType, UnitTypes eSecond
 		{
 			bUnit1Combat = true;
 		}
+
+#ifdef EA_BREAK_CIVILIAN_1UPT	// Paz - good riddance!
+		if(!bUnit1Combat)
+			return false;
+#endif
 
 		// Unit 2 is a combat unit?
 		if(pkSecondUnitInfo->GetCombat() > 0 || pkSecondUnitInfo->GetRange() > 0)

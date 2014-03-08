@@ -1984,6 +1984,9 @@ CvCivilizationInfo::CvCivilizationInfo():
 	m_pbCivilizationDisableTechs(NULL),
 	m_bCoastalCiv(NULL),
 	m_bPlaceFirst(NULL),
+#ifdef EA_CIVILIZATION_TRAITS
+	m_pbCivTraits(NULL),
+#endif
 	m_pbReligions(NULL)
 {
 
@@ -1999,6 +2002,9 @@ CvCivilizationInfo::~CvCivilizationInfo()
 	SAFE_DELETE_ARRAY(m_pbCivilizationFreeBuildingClass);
 	SAFE_DELETE_ARRAY(m_pbCivilizationFreeTechs);
 	SAFE_DELETE_ARRAY(m_pbCivilizationDisableTechs);
+#ifdef EA_CIVILIZATION_TRAITS
+	SAFE_DELETE_ARRAY(m_pbCivTraits);
+#endif
 	SAFE_DELETE_ARRAY(m_pbReligions);
 }
 
@@ -2248,6 +2254,15 @@ bool CvCivilizationInfo::isFirstCoastalStart() const
 	return m_bPlaceFirst;
 }
 //------------------------------------------------------------------------------
+#ifdef EA_CIVILIZATION_TRAITS
+bool CvCivilizationInfo::hasTrait(int i) const
+{
+	CvAssertMsg(i < GC.getNumTraitInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_pbCivTraits ? m_pbCivTraits[i] : false;
+}
+#endif
+//------------------------------------------------------------------------------
 bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvCivilizationBaseInfo::CacheResults(kResults, kUtility))
@@ -2482,6 +2497,10 @@ bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 		pResults->Reset();
 	}
+
+#ifdef EA_CIVILIZATION_TRAITS
+	kUtility.PopulateArrayByExistence(m_pbCivTraits, "Traits", "Civilization_Traits", "TraitType", "CivilizationType", szType);
+#endif
 
 	return true;
 }

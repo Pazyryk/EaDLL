@@ -5288,6 +5288,22 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		iDecayMod += GET_PLAYER(ePlayer).GetMinorFriendshipDecayMod();
 		iDecayMod += (-1) * (iTraitMod / 2);
 		iDecayMod += (-1) * (iReligionMod / 2);
+
+#ifdef EA_EVENT_MINOR_FRIENDSHIP	// Paz - GameEvents.PlayerMinorFriendshipDecay(iMajorPlayer, iMinorPlayer)
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(ePlayer);
+			args->Push(m_pPlayer->GetID());
+
+			int iDecayModMod = 0;
+			if (LuaSupport::CallAccumulator(pkScriptSystem, "PlayerMinorFriendshipDecayMod", args.get(), iDecayModMod))
+			{
+				iDecayMod += iDecayModMod;
+			}
+		}
+#endif
 		
 		if (iDecayMod < 0)
 			iDecayMod = 0;
@@ -5303,7 +5319,23 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		int iRecoveryMod = 100;
 		iRecoveryMod += iTraitMod;
 		iRecoveryMod += iReligionMod;
-		
+
+#ifdef EA_EVENT_MINOR_FRIENDSHIP	// Paz - GameEvents.PlayerMinorFriendshipRecovery(iMajorPlayer, iMinorPlayer)
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(ePlayer);
+			args->Push(m_pPlayer->GetID());
+
+			int iRecoveryModMod = 0;
+			if (LuaSupport::CallAccumulator(pkScriptSystem, "PlayerMinorFriendshipRecoveryMod", args.get(), iRecoveryModMod))
+			{
+				iRecoveryMod += iRecoveryModMod;
+			}
+		}
+#endif
+
 		if (iRecoveryMod < 0)
 			iRecoveryMod = 0;
 
@@ -5460,6 +5492,22 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	CvPlayer* pMajor = &GET_PLAYER(eMajor);
 	CvAssertMsg(pMajor, "MINOR CIV AI: pMajor not expected to be NULL.  Please send Anton your save file and version.");
 	if (!pMajor) return iAnchor;
+
+#ifdef EA_EVENT_MINOR_FRIENDSHIP	// Paz - mod anchor for race, etc.
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(eMajor);
+		args->Push(m_pPlayer->GetID());
+
+		int iFriendshipMod = 0;	// +/- % modifier
+		if (LuaSupport::CallAccumulator(pkScriptSystem, "PlayerMinorFriendshipAnchor", args.get(), iFriendshipMod))
+		{
+			iAnchor += iFriendshipMod;
+		}
+	}
+#endif
 
 	// Pledge to Protect
 	if (IsProtectedByMajor(eMajor))

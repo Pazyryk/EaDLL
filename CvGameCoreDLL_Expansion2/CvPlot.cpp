@@ -152,6 +152,13 @@ CvPlot::CvPlot() :
 
 	m_szScriptData = NULL;
 
+#ifdef EA_PLOTS
+	m_iLivingTerrainType = -1;
+	m_iLivingTerrainStrength = 0;
+	m_iLivingTerrainChopTurn = -100;
+	m_bLivingTerrainPresent = false;
+#endif
+
 	m_cContinentType = 0;
 	m_cRiverCrossing = 0;
 
@@ -1523,7 +1530,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							pPlotToCheck->setScratchPad(iHighestLevel);
 							if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 							{								
+#ifdef EA_INVISIBILITY_YOU_CANT_SEE
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false);
+#else
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 							}
 						}
 						else if(fSecondDist - fFirstDist > 0.05)   // we are closer to the first point
@@ -1532,7 +1543,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							pPlotToCheck->setScratchPad(iHighestLevel);
 							if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 							{								
+#ifdef EA_INVISIBILITY_YOU_CANT_SEE
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false);
+#else
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 							}
 						}
 						else
@@ -1551,7 +1566,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							}
 							if(iLowestInwardLevel < iThisPlotLevel || ((iCenterLevel >= iLowestInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 							{								
+#ifdef EA_INVISIBILITY_YOU_CANT_SEE
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false);
+#else
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 							}
 						}
 					}
@@ -1561,7 +1580,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{							
+#ifdef EA_INVISIBILITY_YOU_CANT_SEE
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else if(iSecondInwardLevel != INVALID_RING && !bSecondHalfBlocked)
@@ -1570,7 +1593,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{							
+#ifdef EA_INVISIBILITY_YOU_CANT_SEE
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else if(iFirstInwardLevel != INVALID_RING)
@@ -1579,7 +1606,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{
+#ifdef EA_INVISIBILITY_YOU_CANT_SEE
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else if(iSecondInwardLevel != INVALID_RING)
@@ -1588,7 +1619,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						pPlotToCheck->setScratchPad(iHighestLevel);
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{							
+#ifdef EA_INVISIBILITY_YOU_CANT_SEE
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false);
+#else
 							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 						}
 					}
 					else // I have no idea how this can happen, but...
@@ -1599,7 +1634,11 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 				}
 				else // this is the center point
 				{					
+#ifdef EA_INVISIBILITY_YOU_CANT_SEE
+					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false);
+#else
 					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
+#endif
 					pPlotToCheck->setScratchPad(0);
 				}
 			}
@@ -3162,7 +3201,11 @@ bool CvPlot::isOwned() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBarbarian() const
 {
+#ifdef EA_ANIMAL_PLAYER
+	return (getOwner() == BARBARIAN_PLAYER || getOwner() == ANIMAL_PLAYER);
+#else
 	return (getOwner() == BARBARIAN_PLAYER);
+#endif
 }
 
 
@@ -3825,7 +3868,15 @@ int CvPlot::getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 			if(!kUnitTeam.isAtWar(pLoopUnit->getTeam()))
 			{
 				// Units of the same type OR Units belonging to different civs
+
+				// Paz: This change allows co-ocupation by foreigners
+				//		AreUnitsOfSameType will return true for ANY embarked, but false for non-embarked civilians
+#ifdef EA_BREAK_CIVILIAN_OTHER_RESTRICTIONS
+				if(pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked))	// Paz - Blocks co-ocupation of foreign combat or embarked by itself (well, not of different domains...)
+#else
 				if(pUnit->getOwner() != pLoopUnit->getOwner() || pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked))
+#endif
+
 				{
 					// We should allow as many cargo units as we want
 					if(!pLoopUnit->isCargo())
@@ -9235,6 +9286,50 @@ void CvPlot::setScriptData(const char* szNewValue)
 	m_szScriptData = _strdup(szNewValue);
 }
 
+#ifdef EA_PLOTS
+//	--------------------------------------------------------------------------------
+int CvPlot::getLivingTerrainType() const
+{
+	return m_iLivingTerrainType;
+}
+//	--------------------------------------------------------------------------------
+void CvPlot::setLivingTerrainType(const int iValue)
+{
+	m_iLivingTerrainType = iValue;
+}
+//	--------------------------------------------------------------------------------
+int CvPlot::getLivingTerrainStrength() const
+{
+	return m_iLivingTerrainStrength;
+}
+//	--------------------------------------------------------------------------------
+void CvPlot::setLivingTerrainStrength(const int iValue)
+{
+	m_iLivingTerrainStrength = iValue;
+}
+//	--------------------------------------------------------------------------------
+int CvPlot::getLivingTerrainChopTurn() const
+{
+	return m_iLivingTerrainChopTurn;
+}
+//	--------------------------------------------------------------------------------
+void CvPlot::setLivingTerrainChopTurn(const int iValue)
+{
+	m_iLivingTerrainChopTurn = iValue;
+}
+//	--------------------------------------------------------------------------------
+bool CvPlot::getLivingTerrainPresent() const
+{
+	return m_bLivingTerrainPresent;
+}
+//	--------------------------------------------------------------------------------
+void CvPlot::setLivingTerrainPresent(const bool bPresent)
+{
+	m_bLivingTerrainPresent = bPresent;
+}
+
+#endif
+
 // Protected Functions...
 
 //	--------------------------------------------------------------------------------
@@ -9515,6 +9610,13 @@ void CvPlot::read(FDataStream& kStream)
 		setScriptData(scriptData.c_str());
 	}
 
+#ifdef EA_PLOTS
+	kStream >> m_iLivingTerrainType;
+	kStream >> m_iLivingTerrainStrength;
+	kStream >> m_iLivingTerrainChopTurn;
+	kStream >> m_bLivingTerrainPresent;
+#endif
+
 	SAFE_DELETE_ARRAY(m_paiBuildProgress);
 	kStream >> iCount;
 	if(iCount > 0)
@@ -9669,6 +9771,13 @@ void CvPlot::write(FDataStream& kStream) const
 		const std::string scriptData(m_szScriptData);
 		kStream << scriptData;
 	}
+
+#ifdef EA_PLOTS
+	kStream << m_iLivingTerrainType;
+	kStream << m_iLivingTerrainStrength;
+	kStream << m_iLivingTerrainChopTurn;
+	kStream << m_bLivingTerrainPresent;
+#endif
 
 	if(NULL == m_paiBuildProgress)
 	{

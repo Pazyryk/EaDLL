@@ -3754,7 +3754,11 @@ bool CvPlayer::isObserver() const
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isBarbarian() const
 {
+#ifdef EA_ANIMAL_PLAYER
+	return (GetID() == BARBARIAN_PLAYER || GetID() == ANIMAL_PLAYER);
+#else
 	return (GetID() == BARBARIAN_PLAYER);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -15632,6 +15636,14 @@ void CvPlayer::verifyAlive()
 
 	if(isAlive())
 	{
+#ifdef EA_RELIGIOUS_MINORS_DONT_DIE		// Paz - Religious Minors are Gods and never die
+		if(isMinorCiv())
+		{
+			if (GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+				return;
+		}
+#endif
+		
 		bKill = false;
 
 		if(!bKill)

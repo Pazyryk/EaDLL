@@ -919,7 +919,16 @@ int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder)
 		}
 	}
 
+#ifdef EA_BREAK_CIVILIAN_OTHER_RESTRICTIONS		// Paz
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS
+	if(bToPlotRevealed && (pUnit->IsCombatUnit() || pUnit->IsGreatPerson()))
+#else
+	if(bToPlotRevealed && pUnit->IsCombatUnit())
+#endif
+#else
 	if(bToPlotRevealed)
+#endif
+
 	{
 		CvCity* pCity = pToPlot->getPlotCity();
 		if(pCity)
@@ -1239,6 +1248,9 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	int iUnitPlotLimit           = GC.getPLOT_UNIT_LIMIT();
 	bool bFromPlotOwned          = pFromPlot->isOwned();
 	TeamTypes eFromPlotTeam      = pFromPlot->getTeam();
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS
+	bool bUnitIsGreatPerson      = pUnit->IsGreatPerson();
+#endif
 
 	// We have determined that this node is not the origin above (parent == NULL)
 	CvAStarNode* pNode = node;
@@ -1310,8 +1322,16 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 							return FALSE;
 						}
 					}
-
+			
+#ifdef EA_BREAK_CIVILIAN_OTHER_RESTRICTIONS		// Paz
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS
+					if(bUnitIsCombat && !bUnitIsGreatPerson && kNodeCacheData.bIsRevealedToTeam)
+#else
+					if(bUnitIsCombat && kNodeCacheData.bIsRevealedToTeam)
+#endif
+#else
 					if(kNodeCacheData.bIsRevealedToTeam)
+#endif
 					{
 						if (kNodeCacheData.bContainsOtherFriendlyTeamCity && !(iFinderIgnoreStacking))
 							return FALSE;
@@ -1367,6 +1387,8 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		}
 	}
 
+	// Paz - Break civilian 1upt
+#ifndef EA_BREAK_CIVILIAN_OTHER_RESTRICTIONS
 	if(!bUnitIsCombat && unit_domain_type != DOMAIN_AIR)
 	{
 		const PlayerTypes eUnitPlayer = unit_owner;
@@ -1380,6 +1402,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 			}
 		}
 	}
+#endif
 
 	// slewis - Added to catch when the unit is adjacent to an enemy unit while it is stacked with a friendly unit.
 	//          The logic above (with bPreviousNodeHostile) catches this problem with a path that's longer than one step
@@ -1981,6 +2004,7 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		}
 	}
 
+	// Paz - Need something here?
 	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
 	if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != eEnemy && !pNewPlot->IsFriendlyTerritory(ePlayer))
 	{
@@ -3349,6 +3373,9 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 	int iOldNumTurns = -1;
 	int iNumTurns;
 	TeamTypes eTeam = eUnitTeam; // this may get modified later is eTEam == NO_TEAM
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS
+	bool bUnitIsGreatPerson      = pUnit->IsGreatPerson();
+#endif
 
 	// First run special case for checking "node" since it doesn't have a parent set yet
 	bool bFirstRun = true;
@@ -3411,8 +3438,17 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 							return FALSE;
 						}
 					}
-
+			
+#ifdef EA_BREAK_CIVILIAN_OTHER_RESTRICTIONS		// Paz
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS
+					if(bUnitIsCombat && !bUnitIsGreatPerson && kNodeCacheData.bIsRevealedToTeam)
+#else
+					if(bUnitIsCombat && kNodeCacheData.bIsRevealedToTeam)
+#endif
+#else
 					if(kNodeCacheData.bIsRevealedToTeam)
+#endif
+
 					{
 						if (kNodeCacheData.bContainsOtherFriendlyTeamCity && !(iFinderIgnoreStacking))
 							return FALSE;
@@ -3469,6 +3505,8 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 		}
 	}
 
+	// Paz - Break civilian 1upt
+#ifndef EA_BREAK_CIVILIAN_OTHER_RESTRICTIONS
 	if(!bUnitIsCombat && unit_domain_type != DOMAIN_AIR)
 	{
 		const PlayerTypes eUnitPlayer = unit_owner;
@@ -3482,6 +3520,7 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 			}
 		}
 	}
+#endif
 
 	// slewis - Added to catch when the unit is adjacent to an enemy unit while it is stacked with a friendly unit.
 	//          The logic above (with bPreviousNodeHostile) catches this problem with a path that's longer than one step

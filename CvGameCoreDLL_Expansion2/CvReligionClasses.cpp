@@ -774,6 +774,30 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
+
+#ifdef EA_FOUND_RELIGION_NO_FOUNDER		// Paz - No founder, holy city, or notifications (otherwise copied from FoundReligion)
+void CvGameReligions::FoundReligionNoFounder(ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4)
+{
+	CvReligion kReligion(eReligion, NO_PLAYER, NULL, false);
+
+	kReligion.m_Beliefs.AddBelief(eBelief1);
+	kReligion.m_Beliefs.AddBelief(eBelief2);
+
+	if(eBelief3 != NO_BELIEF)
+	{
+		kReligion.m_Beliefs.AddBelief(eBelief3);
+	}
+
+	if(eBelief4 != NO_BELIEF)
+	{
+		kReligion.m_Beliefs.AddBelief(eBelief4);
+	}
+	// Found it
+	m_CurrentReligions.push_back(kReligion);
+}
+#endif
+
+
 /// Create a new religion
 void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity)
 {

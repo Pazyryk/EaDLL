@@ -773,6 +773,7 @@ public:
 	void Write(FDataStream& kStream);
 
 private:
+
 	bool ConvertBarbarianCamp(CvPlot* pPlot);
 	bool ConvertBarbarianNavalUnit(UnitHandle pUnit);
 

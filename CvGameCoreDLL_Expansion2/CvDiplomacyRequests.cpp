@@ -181,7 +181,41 @@ bool CvDiplomacyRequests::Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploT
 //	Send the request immediately
 void CvDiplomacyRequests::Send(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
 {
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz block contact
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam());
+		args->Push(GET_PLAYER(eFromPlayer).getTeam());
+		bool bResult = false;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+			if (bResult == false)
+				return;
+	}
+
+#endif
+	
+#ifdef EA_LEADER_SCENE_BYPASS
+#ifndef EA_EVENT_CAN_CONTACT_MAJOR_TEAM
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+#endif
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(eFromPlayer);
+		args->Push(eDiploType);
+		args->Push(pszMessage, strlen(pszMessage));
+		args->Push(eAnimationType);
+		args->Push(iExtraGameData);
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+	}
+#else
 	gDLL->GameplayDiplomacyAILeaderMessage(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+#endif
+
 	m_bRequestActiveFromPlayer = eFromPlayer;
 	m_bRequestActive = true;
 }

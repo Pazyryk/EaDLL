@@ -478,7 +478,7 @@ bool CvDangerPlots::IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlo
 /// Should this player be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 {
-	if(GET_PLAYER(m_ePlayer).isMinorCiv() != GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian() && !GET_PLAYER(m_ePlayer).isBarbarian())
+	if(GET_PLAYER(m_ePlayer).isMinorCiv() != GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian() && !GET_PLAYER(m_ePlayer).isBarbarian())	// Paz - mod for Animals
 	{
 		CvPlayer* pMinor = NULL;
 		CvPlayer* pMajor;
@@ -531,6 +531,12 @@ bool CvDangerPlots::ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility)
 	{
 		return true;
 	}
+
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+	// Paz note - Should add some logic here to distiguish dangerous GP (Warrior, Sorcerer) from safe GP (Merchant).
+	//			  Threat level for GP unit could be held in a new member variable set on Lua side.
+	//			  Could help AI by putting above visiblility tests.
+#endif
 
 	CvPlot* pPlot = pUnit->plot();
 	CvAssertMsg(pPlot, "Plot is null?")

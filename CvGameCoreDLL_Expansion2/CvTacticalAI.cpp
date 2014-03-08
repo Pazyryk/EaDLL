@@ -1317,8 +1317,29 @@ void CvTacticalAI::FindTacticalTargets()
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
 		{
 			// Make sure I am not a barbarian who can not move into owned territory this early in the game
+
+#ifdef EA_ANIMAL_BEHAVIOR		// Paz - restrict Animals here (don't target on enemy owned plots)
+			if(m_pPlayer->isBarbarian())
+			{
+				if(m_pPlayer->GetID() == ANIMAL_PLAYER)
+				{
+					if(!pLoopPlot->isOwned())
+						bValidPlot = true;
+					else if(!GET_TEAM(ANIMAL_TEAM).isAtWar(GET_PLAYER(pLoopPlot->getOwner()).getTeam()))
+						bValidPlot = true;
+				}
+				else
+				{
+					if(bBarbsAllowedYet || !pLoopPlot->isOwned())
+						bValidPlot = true;
+				}
+			}
+			else
+				bValidPlot = true;
+#else
 			if(!m_pPlayer->isBarbarian() || bBarbsAllowedYet)
 			{
+
 				bValidPlot = true;
 			}
 			else
@@ -1328,6 +1349,7 @@ void CvTacticalAI::FindTacticalTargets()
 					bValidPlot = true;
 				}
 			}
+#endif	
 			if(bValidPlot)
 			{
 				if(PlotAlreadyTargeted(pLoopPlot) != -1)
@@ -2395,7 +2417,7 @@ void CvTacticalAI::PlotBarbarianCivilianEscortMove()
 	list<int>::iterator it;
 	CvTacticalUnit unit;
 
-	if(m_pPlayer->isBarbarian())
+	if(m_pPlayer->isBarbarian())	// Paz - not Animals!
 	{
 		m_CurrentMoveUnits.clear();
 

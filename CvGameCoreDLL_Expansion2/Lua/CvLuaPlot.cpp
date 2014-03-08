@@ -131,6 +131,25 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetY);
 	Method(At);
 	Method(GetPlotIndex);
+
+#ifdef EA_PLOTS
+	Method(GetXY);
+	Method(GetXYIndex);
+	Method(GetLivingTerrainType);
+	Method(SetLivingTerrainType);
+	Method(GetLivingTerrainStrength);
+	Method(SetLivingTerrainStrength);
+	Method(GetLivingTerrainChopTurn);
+	Method(SetLivingTerrainChopTurn);
+	Method(GetLivingTerrainPresent);
+	Method(SetLivingTerrainPresent);
+	Method(GetLivingTerrainData);
+	Method(SetLivingTerrainData);
+#endif
+#ifdef SHOW_PLOT_FLOATUP
+	Method(AddFloatUpMessage);
+#endif
+
 	Method(GetLatitude);
 	Method(Area);
 	Method(WaterArea);
@@ -935,6 +954,137 @@ int CvLuaPlot::lGetPlotIndex(lua_State* L)
 	return BasicLuaMethod(L, &CvPlot::GetPlotIndex);
 }
 //------------------------------------------------------------------------------
+#ifdef EA_PLOTS
+//int, int GetXY();
+int CvLuaPlot::lGetXY(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	lua_pushinteger(L, pkPlot->getX());
+	lua_pushinteger(L, pkPlot->getY());
+	return 2;
+}
+//------------------------------------------------------------------------------
+//int, int, int GetXYIndex()
+int CvLuaPlot::lGetXYIndex(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	lua_pushinteger(L, pkPlot->getX());
+	lua_pushinteger(L, pkPlot->getY());
+	lua_pushinteger(L, pkPlot->GetPlotIndex());
+	return 3;
+}
+//------------------------------------------------------------------------------
+//int GetLivingTerrainType()
+int CvLuaPlot::lGetLivingTerrainType(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	lua_pushinteger(L, pkPlot->getLivingTerrainType());
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void SetLivingTerrainType(int)
+int CvLuaPlot::lSetLivingTerrainType(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkPlot->setLivingTerrainType(iValue);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//int GetLivingTerrainStrength()
+int CvLuaPlot::lGetLivingTerrainStrength(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	lua_pushinteger(L, pkPlot->getLivingTerrainStrength());
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void SetLivingTerrainStrength(int)
+int CvLuaPlot::lSetLivingTerrainStrength(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkPlot->setLivingTerrainStrength(iValue);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//int GetLivingTerrainChopTurn()
+int CvLuaPlot::lGetLivingTerrainChopTurn(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	lua_pushinteger(L, pkPlot->getLivingTerrainChopTurn());
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void SetLivingTerrainChopTurn(int)
+int CvLuaPlot::lSetLivingTerrainChopTurn(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkPlot->setLivingTerrainChopTurn(iValue);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//bool GetLivingTerrainPresent()
+int CvLuaPlot::lGetLivingTerrainPresent(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	lua_pushboolean(L, pkPlot->getLivingTerrainPresent());
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void SetLivingTerrainPresent(bool)
+int CvLuaPlot::lSetLivingTerrainPresent(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	const bool bPresent = lua_toboolean(L, 2);
+	pkPlot->setLivingTerrainPresent(bPresent);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//int, bool, int, int GetLivingTerrainData()
+int CvLuaPlot::lGetLivingTerrainData(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	lua_pushinteger(L, pkPlot->getLivingTerrainType());
+	lua_pushboolean(L, pkPlot->getLivingTerrainPresent());
+	lua_pushinteger(L, pkPlot->getLivingTerrainStrength());
+	lua_pushinteger(L, pkPlot->getLivingTerrainChopTurn());
+	return 4;
+}
+//------------------------------------------------------------------------------
+//void SetLivingTerrainData(int, bool, int, int)
+int CvLuaPlot::lSetLivingTerrainData(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	const int iType = lua_tointeger(L, 2);
+	const bool bPresent = lua_toboolean(L, 3);
+	const int iStrength = lua_tointeger(L, 4);
+	const int iChopTurn = lua_tointeger(L, 5);
+	pkPlot->setLivingTerrainType(iType);
+	pkPlot->setLivingTerrainPresent(bPresent);
+	pkPlot->setLivingTerrainStrength(iStrength);
+	pkPlot->setLivingTerrainChopTurn(iChopTurn);
+	return 0;
+}
+//------------------------------------------------------------------------------
+
+#endif
+#ifdef SHOW_PLOT_FLOATUP
+//void AddFloatUpMessage(sMessage, fDelay, iForPlayer)
+int CvLuaPlot::lAddFloatUpMessage(lua_State* L)
+{
+  CvPlot* pPlot = GetInstance(L);
+  const char* szMessage = lua_tostring(L, 2);
+  const float fDelay = (float) luaL_optnumber(L, 3, 0.0);
+  const PlayerTypes ePlayer = (PlayerTypes) luaL_optinteger(L, 4, GC.getGame().getActivePlayer());
+
+  SHOW_PLOT_FLOATUP(pPlot, ePlayer, szMessage, fDelay);
+  return 0;
+}
+//------------------------------------------------------------------------------
+#endif
+
 //int getLatitude();
 int CvLuaPlot::lGetLatitude(lua_State* L)
 {

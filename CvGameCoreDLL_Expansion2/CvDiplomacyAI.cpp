@@ -5570,10 +5570,42 @@ void CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 		m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 
 		// Show scene to human
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz block contact; players can still DoW
+		bool bAllowContact = true;
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetTeam());
+			args->Push(GET_PLAYER(ePlayer).getTeam());
+			bool bResult = false;
+			if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+				if (bResult == false)
+					bAllowContact = false;
+		}
+
+		if(bAllowContact && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == ePlayer)
+#else		
 		if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == ePlayer)
+#endif
 		{
 			const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(GetPlayer()->GetID());
+				args->Push(DIPLO_UI_STATE_AI_DECLARED_WAR);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_DECLARE_WAR);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
+#endif
 		}
 
 		LogWarDeclaration(ePlayer);
@@ -10054,6 +10086,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 
 	if(ePlayer != GetPlayer()->GetID())
 	{
+			
 		DoFirstContactInitRelationship(ePlayer);
 
 		//// Major Civ
@@ -10213,10 +10246,41 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 /// Player killed us
 void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 {
+	
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz block contact
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GetTeam());
+		args->Push(GET_PLAYER(ePlayer).getTeam());
+		bool bResult = false;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+			if (bResult == false)
+				return;
+	}
+#endif
+		
 	if(ePlayer == GC.getGame().getActivePlayer() && !GC.getGame().isNetworkMultiPlayer())
 	{
 		const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_DEFEATED);
+
+		// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetPlayer()->GetID());
+			args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+			args->Push(szText, strlen(szText));
+			args->Push(LEADERHEAD_ANIM_DEFEATED);
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+		}
+#else
 		gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_DEFEATED);
+#endif
 
 		if(!GC.getGame().isGameMultiPlayer())
 		{
@@ -11551,6 +11615,21 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 {
 	if(!IsValidUIDiplomacyTarget(ePlayer))
 		return;		// Can't contact the this player at the moment.
+
+	// Paz
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GetTeam());
+		args->Push(GET_PLAYER(ePlayer).getTeam());
+		bool bResult = false;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+			if (bResult == false)
+				return;
+	}
+#endif
 
 	int iDiploLogStatement;
 	DiploStatementTypes eStatement;
@@ -15122,10 +15201,44 @@ void CvDiplomacyAI::DoBeginDiploWithHuman()
 {
 	if(!GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 	{
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM	// Paz block contact
+		// Should deal with this on Lua side:		UI.SetRepeatActionPlayer(ePlayer);
+		//											UI.ChangeStartDiploRepeatCount(1);
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam());
+			args->Push(GetTeam());
+			bool bResult = false;
+			if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+				if (bResult == false)
+					return;
+		}
+#endif
+
 		LeaderheadAnimationTypes eAnimation = LEADERHEAD_ANIM_NEUTRAL_HELLO;
 		const char* szText = GetGreetHumanMessage(eAnimation);
 
+#ifdef EA_LEADER_SCENE_BYPASS
+#ifndef EA_EVENT_CAN_CONTACT_MAJOR_TEAM
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+#endif
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetPlayer()->GetID());
+			args->Push(DIPLO_UI_STATE_DEFAULT_ROOT);
+			args->Push(szText, strlen(szText));
+			args->Push(eAnimation);
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+		}
+#else
 		gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_DEFAULT_ROOT, szText, eAnimation);
+#endif
+
 	}
 }
 
@@ -15134,9 +15247,40 @@ void CvDiplomacyAI::DoBeginDiploWithHumanEspionageResult()
 {
 	if(!GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) && !IsAtWar(GC.getGame().getActivePlayer()))
 	{
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM	// Paz block contact
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam());
+			args->Push(GetTeam());
+			bool bResult = false;
+			if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+				if (bResult == false)
+					return;
+		}
+#endif
 		LeaderheadAnimationTypes eAnimation = LEADERHEAD_ANIM_NEUTRAL_HELLO;
 		const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_CONFRONT_YOU_KILLED_MY_SPY, GC.getGame().getActivePlayer());
+
+#ifdef EA_LEADER_SCENE_BYPASS
+#ifndef EA_EVENT_CAN_CONTACT_MAJOR_TEAM
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+#endif
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetPlayer()->GetID());
+			args->Push(DIPLO_UI_STATE_CONFRONT_YOU_KILLED_MY_SPY);
+			args->Push(szText, strlen(szText));
+			args->Push(eAnimation);
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+		}
+#else
 		gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_CONFRONT_YOU_KILLED_MY_SPY, szText, eAnimation);
+#endif
+
 	}
 }
 
@@ -15145,9 +15289,41 @@ void CvDiplomacyAI::DoBeginDiploWithHumanInDiscuss()
 {
 	if(!GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 	{
+		#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM	// Paz block contact
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam());
+			args->Push(GetTeam());
+			bool bResult = false;
+			if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+				if (bResult == false)
+					return;
+		}
+#endif
 		LeaderheadAnimationTypes eAnimation = LEADERHEAD_ANIM_NEUTRAL_HELLO;
 		const char* szText = GetGreetHumanMessage(eAnimation);
+
+
+#ifdef EA_LEADER_SCENE_BYPASS
+#ifndef EA_EVENT_CAN_CONTACT_MAJOR_TEAM
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+#endif
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetPlayer()->GetID());
+			args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+			args->Push(szText, strlen(szText));
+			args->Push(eAnimation);
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+		}
+#else
 		gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, szText, eAnimation);
+#endif
+
 	}
 }
 
@@ -16358,6 +16534,21 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+	bool bAllowContact = true;
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GetTeam());
+		args->Push(GET_PLAYER(eFromPlayer).getTeam());
+		bool bResult = false;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+			if (bResult == false)
+				bAllowContact = false;
+	}
+#endif
+
 	switch(eEvent)
 	{
 		// *********************************************
@@ -16367,10 +16558,32 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		GET_TEAM(eFromTeam).declareWar(GetTeam());
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+		if(bActivePlayer && bAllowContact)
+#else
 		if(bActivePlayer)
+#endif
 		{
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_ROOT);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(eMyPlayer);
+				args->Push(DIPLO_UI_STATE_WAR_DECLARED_BY_HUMAN);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_ATTACKED);
+				args->Push(iArg1);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_WAR_DECLARED_BY_HUMAN, strText, LEADERHEAD_ANIM_ATTACKED, iArg1);
+#endif
+
 		}
 
 		break;
@@ -16381,7 +16594,12 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	// *********************************************
 	case FROM_UI_DIPLO_EVENT_HUMAN_NEGOTIATE_PEACE:
 	{
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+		if(bActivePlayer && bAllowContact)
+#else
 		if(bActivePlayer)
+#endif
 		{
 			PeaceTreatyTypes ePeaceTreatyImWillingToOffer = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToOffer(eFromPlayer);
 			PeaceTreatyTypes ePeaceTreatyImWillingToAccept = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToAccept(eFromPlayer);
@@ -16405,7 +16623,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				GetPlayer()->GetDealAI()->DoTradeScreenOpened();
 
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PEACE_WHAT_WILL_HUMAN_OFFER);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_TRADE);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_LETS_HEAR_IT);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_TRADE, strText, LEADERHEAD_ANIM_LETS_HEAR_IT);
+#endif
+
 			}
 			else
 			{
@@ -16416,7 +16651,23 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_NO_PEACE);
 
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_WAR_DECLARED_BY_HUMAN);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NO);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_WAR_DECLARED_BY_HUMAN, strText, LEADERHEAD_ANIM_NO);
+#endif
+
 			}
 		}
 
@@ -16428,10 +16679,32 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	// *********************************************
 	case FROM_UI_DIPLO_EVENT_HUMAN_WANTS_DISCUSSION:
 	{
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+		if(bActivePlayer && bAllowContact)
+#else
 		if(bActivePlayer)
+#endif
 		{
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_LETS_HEAR_IT);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(eMyPlayer);
+				args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_LETS_HEAR_IT);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_LETS_HEAR_IT);
+#endif
+
 		}
 
 		break;
@@ -16445,10 +16718,32 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Player has asked this before
 		if(IsDontSettleMessageTooSoon(eFromPlayer))
 		{
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_NO);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NO);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
+#endif
+
 			}
 		}
 		// AI gives a new answer
@@ -16468,17 +16763,56 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if(bAcceptable)
 				SetPlayerNoSettleRequestAccepted(eFromPlayer, true);
 
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				if(bAcceptable)
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_DONT_SETTLE_YES);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eMyPlayer);
+						args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_NEGATIVE);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 				}
 				else
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_DONT_SETTLE_NO);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eMyPlayer);
+						args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_NO);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
+#endif
+
 				}
 			}
 		}
@@ -16494,10 +16828,32 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Player has asked this before
 		if(IsStopSpyingMessageTooSoon(eFromPlayer))
 		{
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_NO);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NO);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
+#endif
+
 			}
 		}
 		// AI gives a new answer
@@ -16524,7 +16880,12 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				m_pPlayer->GetEspionageAI()->EvaluateSpiesAssignedToTargetPlayer(eFromPlayer);
 			}
 
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				DiploUIStateTypes eStateType = DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED;
 				if(iArg1 == 1)
@@ -16545,7 +16906,23 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					eAnimType = LEADERHEAD_ANIM_NO;
 				}
 
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(eStateType);
+					args->Push(strText, strlen(strText));
+					args->Push(eAnimType);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, eStateType, strText, eAnimType);
+#endif
+
 			}
 		}
 
@@ -16581,7 +16958,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 
 				SetPlayerAgreeNotToConvert(eFromPlayer, bIsYes);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(eStateType);
+					args->Push(strText, strlen(strText));
+					args->Push(eAnimType);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, eStateType, strText, eAnimType);
+#endif
+
 			}
 			break;
 		}
@@ -16615,7 +17009,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 
 				SetPlayerAgreeNotToDig(eFromPlayer, bIsYes);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(eStateType);
+					args->Push(strText, strlen(strText));
+					args->Push(eAnimType);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, eStateType, strText, eAnimType);
+#endif
+
 			}
 			break;
 		}
@@ -16631,19 +17042,63 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetDoFCounter(eFromPlayer, 0);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, 0);
 
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_TOO_SOON_FOR_DOF);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NO);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
+#endif
+
 			}
 		}
 		// Player has asked this before
 		else if(IsDoFMessageTooSoon(eFromPlayer))
 		{
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_NO);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NO);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
+#endif
+
 			}
 		}
 		// AI gives a new answer
@@ -16659,17 +17114,56 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, true);
 			}
 
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				if(bAcceptable)
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_WORK_WITH_US_YES);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eMyPlayer);
+						args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_POSITIVE);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 				}
 				else
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_WORK_WITH_US_NO);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eMyPlayer);
+						args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_NO);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
+#endif
+
 				}
 			}
 		}
@@ -16687,10 +17181,32 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		SetDoFCounter(eFromPlayer, -666);
 		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
 
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+		if(bActivePlayer && bAllowContact)
+#else
 		if(bActivePlayer)
+#endif
 		{
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(eMyPlayer);
+				args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_NEGATIVE);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 		}
 
 		break;
@@ -16715,17 +17231,55 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
 		}
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+		if(bActivePlayer && bAllowContact)
+#else
 		if(bActivePlayer)
+#endif
 		{
 			if(bDeclareWar)
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_WAR_DEMAND_REFUSED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
 			else
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_SO_BE_IT);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
 		}
 
@@ -16739,10 +17293,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iArg1);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+		if(bActivePlayer && bAllowContact)
+#else
 		if(bActivePlayer)
+#endif
 		{
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(eMyPlayer);
+				args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_NEGATIVE);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 		}
 
 		break;
@@ -16761,14 +17336,34 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetPlayerMadeMilitaryPromise(eFromPlayer, true);
 			SetPlayerMilitaryPromiseCounter(eFromPlayer, 0);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				if(IsActHostileTowardsHuman(eFromPlayer))
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_AGGRESSIVE_MILITARY_WARNING_GOOD);
 				else
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_AGGRESSIVE_MILITARY_WARNING_GOOD);
 
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 		// Human told the AI to die
@@ -16778,14 +17373,34 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			SetPlayerIgnoredMilitaryPromise(eFromPlayer, true);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				if(IsActHostileTowardsHuman(eFromPlayer))
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_AGGRESSIVE_MILITARY_WARNING_BAD);
 				else
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_AGGRESSIVE_MILITARY_WARNING_BAD);
 
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
 		}
 
@@ -16805,7 +17420,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			// Fail gracefully, allow UI to continue
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_BAD);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(eMyPlayer);
+				args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_NEGATIVE);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			break;
 		}
 
@@ -16815,7 +17447,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			// Fail gracefully, allow UI to continue
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_BAD);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(eMyPlayer);
+				args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_NEGATIVE);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			break;
 		}
 		
@@ -16833,7 +17482,23 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_WE_ATTACKED_MINOR_GOOD);
 
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 		// Human said he'd get revenge
@@ -16848,7 +17513,23 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_WE_ATTACKED_MINOR_BAD);
 
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			}
 		}
 
@@ -16868,7 +17549,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			// Fail gracefully, allow UI to continue
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_BAD);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(eMyPlayer);
+				args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_NEGATIVE);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			break;
 		}
 		
@@ -16878,7 +17576,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			// Fail gracefully, allow UI to continue
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_BAD);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(eMyPlayer);
+				args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_NEGATIVE);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			break;
 		}
 		
@@ -16896,7 +17611,23 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_WE_BULLIED_MINOR_GOOD);
 
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 		// Human said he'd get revenge
@@ -16911,7 +17642,23 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_WE_BULLIED_MINOR_BAD);
 
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			}
 		}
 
@@ -16930,10 +17677,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetPlayerIgnoredAttackCityStatePromise(eFromPlayer, true);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_ATTACKED_MINOR_BAD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
 		}
 		// Human said he'd withdraw
@@ -16941,10 +17709,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetPlayerMadeAttackCityStatePromise(eFromPlayer, true);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_ATTACKED_MINOR_GOOD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 
@@ -16971,10 +17760,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetPlayerIgnoredBullyCityStatePromise(eFromPlayer, true);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_BULLIED_MINOR_BAD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
 		}
 		// Human said he'd withdraw
@@ -16982,10 +17792,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetPlayerMadeBullyCityStatePromise(eFromPlayer, true);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_BULLIED_MINOR_GOOD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 
@@ -17016,10 +17847,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 			SetPlayerIgnoredExpansionPromise(eFromPlayer, true);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_EXPANSION_WARNING_BAD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
 		}
 		// Human said he wouldn't settle near us again
@@ -17028,10 +17880,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetPlayerMadeExpansionPromise(eFromPlayer, true);
 			SetPlayerExpansionPromiseData(eFromPlayer, GetExpansionAggressivePosture(eFromPlayer));
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_EXPANSION_WARNING_GOOD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 
@@ -17062,10 +17935,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 			SetPlayerIgnoredBorderPromise(eFromPlayer, true);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_PLOT_BUYING_WARNING_BAD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
 		}
 		// Human said he wouldn't buy land near us again
@@ -17074,10 +17968,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetPlayerMadeBorderPromise(eFromPlayer, true);
 			SetPlayerBorderPromiseData(eFromPlayer, GetPlotBuyingAggressivePosture(eFromPlayer));
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_PLOT_BUYING_WARNING_GOOD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 
@@ -17100,19 +18015,61 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetDoFAccepted(eFromPlayer, true);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, true);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 		// Human says sorry, no
 		else if(iArg1 == 2)
 		{
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			}
 		}
 
@@ -17165,10 +18122,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DoDenouncePlayer(eMyPlayer);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+		if(bActivePlayer && bAllowContact)
+#else
 		if(bActivePlayer)
+#endif
 		{
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_RESPONSE_TO_BEING_DENOUNCED);
+
+			// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(eMyPlayer);
+				args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+				args->Push(strText, strlen(strText));
+				args->Push(LEADERHEAD_ANIM_NEGATIVE);
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+			}
+#else
 			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 		}
 
 		break;
@@ -17186,10 +18164,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Too soon?
 		if(IsCoopWarMessageTooSoon(eFromPlayer, eAgainstPlayer))
 		{
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_NO);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			}
 		}
 		else
@@ -17223,28 +18222,91 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
 				GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+				if(bActivePlayer && bAllowContact)
+#else
 				if(bActivePlayer)
+#endif
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_COOP_WAR_YES);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eMyPlayer);
+						args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_POSITIVE);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 				}
 			}
 			// Soon
 			else if(eAcceptableState == COOP_WAR_STATE_SOON)
 			{
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+				if(bActivePlayer && bAllowContact)
+#else
 				if(bActivePlayer)
+#endif
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_COOP_WAR_SOON);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eMyPlayer);
+						args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_POSITIVE);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 				}
 			}
 			// Rejected
 			else
 			{
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+				if(bActivePlayer && bAllowContact)
+#else
 				if(bActivePlayer)
+#endif
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_COOP_WAR_NO);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eMyPlayer);
+						args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_NEGATIVE);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 				}
 			}
 		}
@@ -17267,10 +18329,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		if(iArg1 == 1 || iArg1 == 2)
 		{
 			// TODO: diplo penalty if we were friends
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			}
 		}
 		// Human says "soon"
@@ -17278,10 +18361,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_SOON);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 		// Human agrees
@@ -17289,10 +18393,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_ACCEPTED);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 
 			// AI declaration
@@ -17327,10 +18452,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_ACCEPTED);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 
 			// AI declaration
@@ -17351,10 +18497,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, NO_COOP_WAR_STATE);
 			SetPlayerBrokenCoopWarPromise(eFromPlayer, true);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			}
 		}
 
@@ -17372,13 +18539,34 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// THIS is the important part of the message - it seeds the demand timer on all players' machines
 		DoDemandMade(eFromPlayer);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+		if(bActivePlayer && bAllowContact)
+#else
 		if(bActivePlayer)
+#endif
 		{
 			// Demand agreed to
 			if(eResponse == DEMAND_RESPONSE_ACCEPT)
 			{
 				strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_YES);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION_RETURN_TO_ROOT);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_YES);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_RETURN_TO_ROOT, strText, LEADERHEAD_ANIM_YES);
+#endif
+
 			}
 			// Demand rebuffed
 			else
@@ -17395,7 +18583,23 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else if(eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON)
 					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_SOON);
 
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION_RETURN_TO_ROOT);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NO);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_RETURN_TO_ROOT, strText, LEADERHEAD_ANIM_NO);
+#endif
+
 			}
 		}
 
@@ -17412,19 +18616,61 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human agrees
 		if(iArg1 == 1)
 		{
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 		// Human says sorry, no
 		else if(iArg1 == 2)
 		{
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			}
 
 			DoCancelWantsResearchAgreementWithPlayer(eFromPlayer);
@@ -17446,10 +18692,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DoDenouncePlayer(eAgainstPlayer);
 
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 		// Human says sorry, no
@@ -17462,12 +18729,50 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				LogDenounce(eFromPlayer, /*bBackstab*/ false, /*bRefusal*/ true);
 
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_NOT_HONORED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			else if(bActivePlayer && bAllowContact)
+#else
 			else if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			}
 		}
 
@@ -17485,20 +18790,62 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		if(iArg1 == 1)
 		{
 			SetPlayerIgnoredSpyPromise(eFromPlayer, true);
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_CAUGHT_YOUR_SPY_BAD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
 		}
 		// Human said he'd withdraw
 		else if(iArg1 == 2)
 		{
 			SetPlayerMadeSpyPromise(eFromPlayer, true);
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_CAUGHT_YOUR_SPY_GOOD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 
@@ -17515,20 +18862,62 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human did not forgive AI player
 		if(iArg1 == 1)
 		{
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_KILLED_MY_SPY_UNFORGIVEN);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+#endif
+
 			}
 		}
 		// Human forgave AI player
 		else if(iArg1 == 2)
 		{
 			SetPlayerForgaveForSpying(eFromPlayer, true);
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_KILLED_MY_SPY_FORGIVEN);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 
@@ -17558,7 +18947,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_WARNED_ABOUT_INTRIGUE, NO_PLAYER, GET_PLAYER(ePlottingPlayer).getCivilizationAdjectiveKey());
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 		break;
@@ -17575,10 +18981,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		if(iArg1 == 1)
 		{
 			SetPlayerIgnoredNoConvertPromise(eFromPlayer, true);
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_STOP_CONVERSIONS_BAD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 			}
 		}
 		// Human said he'd withdraw
@@ -17587,10 +19014,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetPlayerMadeNoConvertPromise(eFromPlayer, true);
 			int iAdjustmentToJustBelowThreshold = GC.getRELIGION_DIPLO_HIT_THRESHOLD() - GetNegativeReligiousConversionPoints(eFromPlayer) - 1;
 			ChangeNegativeReligiousConversionPoints(eFromPlayer, iAdjustmentToJustBelowThreshold);
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+			if(bActivePlayer && bAllowContact)
+#else
 			if(bActivePlayer)
+#endif
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_STOP_CONVERSIONS_GOOD);
+
+				// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(eMyPlayer);
+					args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+					args->Push(strText, strlen(strText));
+					args->Push(LEADERHEAD_ANIM_POSITIVE);
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+				}
+#else
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 			}
 		}
 
@@ -17609,10 +19057,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if(iArg1 == 1)
 			{
 				SetPlayerIgnoredNoDiggingPromise(eFromPlayer, true);
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+				if(bActivePlayer && bAllowContact)
+#else
 				if(bActivePlayer)
+#endif
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_STOP_DIGGING_BAD);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eMyPlayer);
+						args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_HATE_NEGATIVE);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+#endif
+
 				}
 			}
 			// Human said he'd withdraw
@@ -17621,10 +19090,31 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				SetPlayerMadeNoDiggingPromise(eFromPlayer, true);
 				// TODO: arch -- do something here
 				ChangeNegativeArchaeologyPoints(eFromPlayer, -10);
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz - Block Contact
+				if(bActivePlayer && bAllowContact)
+#else
 				if(bActivePlayer)
+#endif
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_STOP_DIGGING_GOOD);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eMyPlayer);
+						args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_POSITIVE);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 				}
 			}
 
@@ -20964,7 +22454,24 @@ void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iCha
 				{
 					GC.GetEngineUserInterface()->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
 					const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_RETURNED_CIVILIAN);
+
+					// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(GetPlayer()->GetID());
+						args->Push(DIPLO_UI_STATE_BLANK_DISCUSSION);
+						args->Push(strText, strlen(strText));
+						args->Push(LEADERHEAD_ANIM_POSITIVE);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+					}
+#else
 					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+#endif
+
 				}
 			}
 		}

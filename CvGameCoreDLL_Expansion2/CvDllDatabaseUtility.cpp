@@ -257,6 +257,10 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		InsertGameDefine(kInsertDefine, "MAX_MINOR_CIVS", MAX_MINOR_CIVS);
 		InsertGameDefine(kInsertDefine, "MAX_PLAYERS", MAX_PLAYERS);
 		InsertGameDefine(kInsertDefine, "MAX_TEAMS", MAX_TEAMS);
+#ifdef EA_ANIMAL_PLAYER
+		InsertGameDefine(kInsertDefine, "ANIMAL_PLAYER", ANIMAL_PLAYER);
+		InsertGameDefine(kInsertDefine, "ANIMAL_TEAM", ANIMAL_TEAM);
+#endif
 		InsertGameDefine(kInsertDefine, "BARBARIAN_PLAYER", BARBARIAN_PLAYER);
 		InsertGameDefine(kInsertDefine, "BARBARIAN_TEAM", BARBARIAN_TEAM);
 
@@ -264,6 +268,10 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		InsertGameDefine(kInsertDefine, "CITY_HOME_PLOT", CITY_HOME_PLOT);
 		InsertGameDefine(kInsertDefine, "CITY_PLOTS_RADIUS", CITY_PLOTS_RADIUS);
 		InsertGameDefine(kInsertDefine, "CITY_PLOTS_DIAMETER", CITY_PLOTS_DIAMETER);
+	
+		#ifdef EA_DLL_VERSION	// Paz
+		InsertGameDefine(kInsertDefine, "EA_DLL_VERSION", EA_DLL_VERSION);
+		#endif
 	}
 
 	db->EndTransaction();

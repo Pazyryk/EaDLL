@@ -341,6 +341,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(FoundPantheon);
 	Method(FoundReligion);
+#ifdef EA_FOUND_RELIGION_NO_FOUNDER
+	Method(FoundReligionNoFounder);
+#endif
 	Method(EnhanceReligion);
 	Method(SetHolyCity);
 	Method(GetFounder);
@@ -1800,7 +1803,40 @@ int CvLuaGame::lGameplayDiplomacyAILeaderMessage(lua_State* L)
 	const int iPlayer = lua_tointeger(L, 1);
 	const int eMessage = lua_tointeger(L, 2);
 	const int iData1 = lua_tointeger(L, 3);
+
+#ifdef EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// Paz block contact; players can still DoW
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam());
+		args->Push(GET_PLAYER((PlayerTypes) iPlayer).getTeam());
+		bool bResult = false;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanContactMajorTeam", args.get(), bResult))
+			if (bResult == false)
+				return 1;
+	}
+#endif
+
+
+	// Paz
+#ifdef EA_LEADER_SCENE_BYPASS
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push((PlayerTypes) iPlayer);
+		args->Push(DIPLO_UI_STATE_DEFAULT_ROOT);
+		args->Push("TEMP", strlen("TEMP"));
+		args->Push((LeaderheadAnimationTypes) eMessage);
+		args->Push(iData1);
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "EaLeaderSceneBypass", args.get(), bResult);
+	}
+#else
 	gDLL->GameplayDiplomacyAILeaderMessage((PlayerTypes) iPlayer, DIPLO_UI_STATE_DEFAULT_ROOT, "TEMP", (LeaderheadAnimationTypes) eMessage, iData1);
+#endif
+
 
 	return 1;
 }
@@ -2386,6 +2422,21 @@ int CvLuaGame::lFoundReligion(lua_State* L)
 	return 0;
 }
 //------------------------------------------------------------------------------
+#ifdef EA_FOUND_RELIGION_NO_FOUNDER
+int CvLuaGame::lFoundReligionNoFounder(lua_State* L)
+{
+	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 1));
+	const BeliefTypes eBelief1 = static_cast<BeliefTypes>(luaL_checkint(L, 2));
+	const BeliefTypes eBelief2 = static_cast<BeliefTypes>(luaL_checkint(L, 3));
+	const BeliefTypes eBelief3 = static_cast<BeliefTypes>(luaL_checkint(L, 4));
+	const BeliefTypes eBelief4 = static_cast<BeliefTypes>(luaL_checkint(L, 5));
+
+	GC.getGame().GetGameReligions()->FoundReligionNoFounder(eReligion, eBelief1, eBelief2, eBelief3, eBelief4);
+
+	return 0;
+}
+#endif
+
 int CvLuaGame::lEnhanceReligion(lua_State* L)
 {
 	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));

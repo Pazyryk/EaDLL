@@ -1746,7 +1746,13 @@ bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 	{
 		CvAssertMsg((m_pPlayer->getLeaderType() >= 0), "getLeaderType() is less than zero");
 		CvAssertMsg((eTrait >= 0), "eTrait is less than zero");
+
+#ifdef EA_CIVILIZATION_TRAITS		// Paz - Civilizations can have Traits too!
+		return (m_pPlayer->getCivilizationInfo().hasTrait(eTrait) || m_pPlayer->getLeaderInfo().hasTrait(eTrait)) && !m_pTraits->GetEntry(eTrait)->IsObsoleteByTech(m_pPlayer->getTeam()) && m_pTraits->GetEntry(eTrait)->IsEnabledByTech(m_pPlayer->getTeam());
+#else
 		return m_pPlayer->getLeaderInfo().hasTrait(eTrait) && !m_pTraits->GetEntry(eTrait)->IsObsoleteByTech(m_pPlayer->getTeam()) && m_pTraits->GetEntry(eTrait)->IsEnabledByTech(m_pPlayer->getTeam());
+#endif
+
 	}
 	else
 	{

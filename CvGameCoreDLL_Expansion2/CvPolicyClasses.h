@@ -208,6 +208,9 @@ public:
 	int GetNumFreeUnitsByClass(int i) const;
 	int GetTourismByUnitClassCreated(int i) const;
 	int GetImprovementCultureChanges(int i) const;
+#ifdef EA_DONT_COUNT_UTILITY_POLICIES
+	bool IsUtility() const;
+#endif
 
 	int GetHurryModifier(int i) const;
 	bool IsSpecialistValid(int i) const;
@@ -365,6 +368,9 @@ private:
 
 	bool m_bOneShot;
 	bool m_bIncludesOneShotFreeUnits;
+#ifdef EA_DONT_COUNT_UTILITY_POLICIES
+	bool m_bIsUtility;
+#endif
 
 	CvString m_strWeLoveTheKingKey;
 	CvString m_wstrWeLoveTheKing;

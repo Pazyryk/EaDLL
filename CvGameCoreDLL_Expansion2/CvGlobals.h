@@ -6169,6 +6169,12 @@ public:
 	{
 		return m_iMAX_HIT_POINTS;
 	}
+#ifdef EA_GP_MAX_HIT_POINTS
+	inline int getMAX_GP_HIT_POINTS()
+	{
+		return m_iMAX_GP_HIT_POINTS;
+	}
+#endif
 	inline int getMAX_CITY_HIT_POINTS()
 	{
 		return m_iMAX_CITY_HIT_POINTS;
@@ -6963,6 +6969,12 @@ public:
 	{
 		return m_iBARBARIAN_CIVILIZATION;
 	}
+#ifdef EA_ANIMAL_PLAYER
+	inline int getANIMAL_CIVILIZATION()
+	{
+		return m_iANIMAL_CIVILIZATION;
+	}
+#endif
 	inline int getBARBARIAN_LEADER()
 	{
 		return m_iBARBARIAN_LEADER;
@@ -8988,6 +9000,9 @@ protected:
 	int m_iZONE_OF_CONTROL_ENABLED;
 	int m_iFIRE_SUPPORT_DISABLED;
 	int m_iMAX_HIT_POINTS;
+#ifdef EA_GP_MAX_HIT_POINTS
+	int m_iMAX_GP_HIT_POINTS;
+#endif
 	int m_iMAX_CITY_HIT_POINTS;
 	int m_iCITY_HIT_POINTS_HEALED_PER_TURN;
 	int m_iFLAT_LAND_EXTRA_DEFENSE;
@@ -9279,6 +9294,9 @@ protected:
 	int m_iSTANDARD_CALENDAR;
 	int m_iBARBARIAN_HANDICAP;
 	int m_iBARBARIAN_CIVILIZATION;
+#ifdef EA_ANIMAL_PLAYER			// Paz - Animals
+	int m_iANIMAL_CIVILIZATION;
+#endif
 	int m_iBARBARIAN_LEADER;
 	int m_iMINOR_CIV_HANDICAP;
 	int m_iMINOR_CIVILIZATION;

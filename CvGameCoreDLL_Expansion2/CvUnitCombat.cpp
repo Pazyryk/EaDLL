@@ -2288,6 +2288,110 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pDefenderSupport));
 		gDLL->GameplayUnitVisibility(pDllUnit.get(), !pDefenderSupport->isInvisible(eActiveTeam, false));
 	}
+
+#ifdef EA_COMBAT_EVENTS
+	// Copied from RED 
+
+	// CombatResult
+	// iAttackingPlayer, iAttackingUnit, attackerDamage, attackerFinalDamage, attackerMaxHP
+	// iDefendingPlayer, iDefendingUnit, defenderDamage, defenderFinalDamage, defenderMaxHP
+	// iInterceptingPlayer, iInterceptingUnit, interceptorDamage
+	// plotX, plotY		    
+	bool bCanAttack = true;
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{	
+		PlayerTypes iAttackingPlayer = NO_PLAYER;
+		PlayerTypes iDefendingPlayer = NO_PLAYER;
+		PlayerTypes iInterceptingPlayer = NO_PLAYER;
+
+		int plotX = -1;
+		int plotY = -1;
+
+		int iAttackingUnit = -1;
+		int iDefendingUnit = -1;
+		int iInterceptingUnit = -1;
+
+		int attackerMaxHP = GC.getMAX_HIT_POINTS();
+		int defenderMaxHP = GC.getMAX_HIT_POINTS();
+		
+		int attackerDamage = kInfo.getDamageInflicted( BATTLE_UNIT_DEFENDER );
+		int defenderDamage = kInfo.getDamageInflicted( BATTLE_UNIT_ATTACKER );
+		int interceptorDamage = kInfo.getDamageInflicted( BATTLE_UNIT_INTERCEPTOR );
+		
+		int attackerFinalDamage = kInfo.getFinalDamage( BATTLE_UNIT_ATTACKER );
+		int defenderFinalDamage = kInfo.getFinalDamage( BATTLE_UNIT_DEFENDER );
+
+		CvUnit* pkAttacker = kInfo.getUnit(BATTLE_UNIT_ATTACKER);
+		CvUnit* pkDefender = kInfo.getUnit(BATTLE_UNIT_DEFENDER);
+		CvUnit* pInterceptor = kInfo.getUnit(BATTLE_UNIT_INTERCEPTOR);
+		CvPlot* pkTargetPlot = kInfo.getPlot();
+		
+		if (pkTargetPlot)
+		{
+			plotX = pkTargetPlot->getX();
+			plotY = pkTargetPlot->getY();
+			CvCity* pCity = pkTargetPlot->getPlotCity();			
+			if (pCity)
+			{
+				iDefendingPlayer = pCity->getOwner();
+				defenderMaxHP = GC.getMAX_CITY_HIT_POINTS();
+			}
+		}
+		if (pkAttacker)
+		{
+			iAttackingPlayer = pAttacker->getOwner();
+			iAttackingUnit = pAttacker->GetID();
+		}
+		if (pkDefender)
+		{
+			iDefendingPlayer = pkDefender->getOwner();
+			iDefendingUnit = pkDefender->GetID();
+		}
+		if (pInterceptor)
+		{
+			iInterceptingPlayer = pInterceptor->getOwner();
+			iInterceptingUnit = pInterceptor->GetID();
+		}
+
+		CvLuaArgsHandle args;
+
+		args->Push(iAttackingPlayer);
+		args->Push(iAttackingUnit);
+		args->Push(attackerDamage);
+		args->Push(attackerFinalDamage);
+		args->Push(attackerMaxHP);
+		args->Push(iDefendingPlayer);
+		args->Push(iDefendingUnit);
+		args->Push(defenderDamage);
+		args->Push(defenderFinalDamage);
+		args->Push(defenderMaxHP);
+		args->Push(iInterceptingPlayer);
+		args->Push(iInterceptingUnit);
+		args->Push(interceptorDamage);		
+		args->Push(plotX);
+		args->Push(plotY);
+
+
+		bool bResult;
+		
+		if(LuaSupport::CallTestAll(pkScriptSystem, "MustAbortAttack", args.get(), bResult))
+		{
+			// Check the result.
+			if(bResult == true)
+			{
+				// Abort the attack
+				// to do : this is a hack, fix that in CvTacticalAI.cpp instead.
+				bCanAttack = false;
+			}
+		}
+		if (bCanAttack)
+			LuaSupport::CallHook(pkScriptSystem, "CombatResult", args.get(), bResult);
+	}
+	if (bCanAttack)
+	{		// note missing indent in this block
+#endif
+
 	// Nuclear Mission
 	if(kInfo.getAttackIsNuclear())
 	{
@@ -2346,6 +2450,120 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 			}
 		}
 	}
+
+#ifdef EA_COMBAT_EVENTS
+	// note missing indend in block above
+
+		// Copied from RED : CombatEnded
+		// iAttackingPlayer, iAttackingUnit, attackerDamage, attackerFinalDamage, attackerMaxHP
+		// iDefendingPlayer, iDefendingUnit, defenderDamage, defenderFinalDamage, defenderMaxHP
+		// iInterceptingPlayer, iInterceptingUnit, interceptorDamage
+		// plotX, plotY		    
+
+		if(pkScriptSystem)
+		{	
+			PlayerTypes iAttackingPlayer = NO_PLAYER;
+			PlayerTypes iDefendingPlayer = NO_PLAYER;
+			PlayerTypes iInterceptingPlayer = NO_PLAYER;
+
+			int plotX = -1;
+			int plotY = -1;
+
+			int iAttackingUnit = -1;
+			int iDefendingUnit = -1;
+			int iInterceptingUnit = -1;
+
+			int attackerMaxHP = GC.getMAX_HIT_POINTS();
+			int defenderMaxHP = GC.getMAX_HIT_POINTS();
+		
+			int attackerDamage = kInfo.getDamageInflicted( BATTLE_UNIT_DEFENDER );
+			int defenderDamage = kInfo.getDamageInflicted( BATTLE_UNIT_ATTACKER );
+			int interceptorDamage = kInfo.getDamageInflicted( BATTLE_UNIT_INTERCEPTOR );
+		
+			int attackerFinalDamage = kInfo.getFinalDamage( BATTLE_UNIT_ATTACKER );
+			int defenderFinalDamage = kInfo.getFinalDamage( BATTLE_UNIT_DEFENDER );
+
+			CvUnit* pkAttacker = kInfo.getUnit(BATTLE_UNIT_ATTACKER);
+			CvUnit* pkDefender = kInfo.getUnit(BATTLE_UNIT_DEFENDER);
+			CvUnit* pInterceptor = kInfo.getUnit(BATTLE_UNIT_INTERCEPTOR);
+			CvPlot* pkTargetPlot = kInfo.getPlot();
+		
+			if (pkTargetPlot)
+			{
+				plotX = pkTargetPlot->getX();
+				plotY = pkTargetPlot->getY();
+				CvCity* pCity = pkTargetPlot->getPlotCity();			
+				if (pCity)
+				{
+					iDefendingPlayer = pCity->getOwner();
+					defenderMaxHP = GC.getMAX_CITY_HIT_POINTS();
+				}
+			}
+			if (pkAttacker)
+			{
+				iAttackingPlayer = pAttacker->getOwner();
+				iAttackingUnit = pAttacker->GetID();
+			}
+			if (pkDefender)
+			{
+				iDefendingPlayer = pkDefender->getOwner();
+				iDefendingUnit = pkDefender->GetID();
+			}
+			if (pInterceptor)
+			{
+				iInterceptingPlayer = pInterceptor->getOwner();
+				iInterceptingUnit = pInterceptor->GetID();
+			}
+
+			CvLuaArgsHandle args;
+
+			args->Push(iAttackingPlayer);
+			args->Push(iAttackingUnit);
+			args->Push(attackerDamage);
+			args->Push(attackerFinalDamage);
+			args->Push(attackerMaxHP);
+			args->Push(iDefendingPlayer);
+			args->Push(iDefendingUnit);
+			args->Push(defenderDamage);
+			args->Push(defenderFinalDamage);
+			args->Push(defenderMaxHP);
+			args->Push(iInterceptingPlayer);
+			args->Push(iInterceptingUnit);
+			args->Push(interceptorDamage);		
+			args->Push(plotX);
+			args->Push(plotY);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "CombatEnded", args.get(), bResult);
+		}
+
+	}
+	else
+	{
+		if (pAttacker)
+		{
+			pAttacker->setCombatUnit(NULL);
+			pAttacker->ClearMissionQueue(/*iUnitCycleTimer*/ 110);
+			GET_PLAYER(pAttacker->getOwner()).GetTacticalAI()->CombatResolved(pAttacker, false);
+		}
+		
+		if (pDefender)
+		{
+			pDefender->setCombatUnit(NULL);
+			pDefender->ClearMissionQueue();
+		}
+
+		CvCity* pCity = kInfo.getCity(BATTLE_UNIT_DEFENDER);
+		if (pCity)
+		{
+			pCity->clearCombat();
+		}
+
+
+
+}
+#endif
+
 
 	// Clear popup blocking after combat resolves
 	if(eAttackingPlayer == GC.getGame().getActivePlayer())

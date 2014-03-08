@@ -141,6 +141,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetDomainType);
 	Method(GetInvisibleType);
 	Method(GetSeeInvisibleType);
+#ifdef EA_PERSISTENT_SETTABLE_INVISIBILITY	// Paz
+	Method(SetInvisibleType);
+	Method(SetSeeInvisibleType);
+#endif
 	Method(GetDropRange);
 
 	Method(FlavorValue);
@@ -455,6 +459,25 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(GetGreatWorkSlotType);
 
+	// Paz: Ea API
+#ifdef EA_UNIT_MORALE
+	Method(GetMorale);
+	Method(SetMorale);
+	Method(ChangeMorale);
+	Method(DecayMorale);
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+	Method(GetPersonIndex);
+	Method(SetPersonIndex);
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+	Method(GetGPAttackState);
+	Method(SetGPAttackState);	
+#endif
+#ifdef EA_PATHFINDING
+	Method(TurnsToReachTarget);
+#endif
+
 	// Helper Functions
 	Method(RangeStrike);
 
@@ -628,7 +651,8 @@ int CvLuaUnit::lCanMoveOrAttackInto(lua_State* L)
 	bool bResult = false;
 	if(pkPlot)
 	{
-		pkUnit->canMoveOrAttackInto(*pkPlot, bMoveFlags);
+		// Paz Bug Fix - was missing "bResult = " below
+		bResult = pkUnit->canMoveOrAttackInto(*pkPlot, bMoveFlags);
 	}
 
 	lua_pushboolean(L, bResult);
@@ -1610,6 +1634,26 @@ int CvLuaUnit::lGetSeeInvisibleType(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+#ifdef EA_PERSISTENT_SETTABLE_INVISIBILITY
+//int /*InvisibleTypes*/ SetInvisibleType();
+int CvLuaUnit::lSetInvisibleType(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const InvisibleTypes eInvisibilityType = (InvisibleTypes)lua_tointeger(L, 2);
+	pkUnit->setInvisibleType(eInvisibilityType);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//int /*InvisibleTypes*/ SetSeeInvisibleType();
+int CvLuaUnit::lSetSeeInvisibleType(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const InvisibleTypes eInvisibilityType = (InvisibleTypes)lua_tointeger(L, 2);
+	pkUnit->setSeeInvisibleType(eInvisibilityType);
+	return 0;
+}
+//------------------------------------------------------------------------------
+#endif
 //int GetDropRange();
 int CvLuaUnit::lGetDropRange(lua_State* L)
 {
@@ -1934,7 +1978,7 @@ int CvLuaUnit::lIsDelayedDeath(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//void setBaseCombatStr(int iCombat);
+//void SetBaseCombatStrength(int iCombat);
 int CvLuaUnit::lSetBaseCombatStrength(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -1944,7 +1988,7 @@ int CvLuaUnit::lSetBaseCombatStrength(lua_State* L)
 	return 0;
 }
 //------------------------------------------------------------------------------
-//int baseCombatStr();
+//int GetBaseCombatStrength();
 int CvLuaUnit::lGetBaseCombatStrength(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -4323,6 +4367,106 @@ int CvLuaUnit::lGetGreatWorkSlotType(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+
+
+// Paz: Ea API
+#ifdef EA_UNIT_MORALE
+//int GetMorale();
+int CvLuaUnit::lGetMorale(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iMorale = pkUnit->getMorale();
+	lua_pushinteger(L, iMorale);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void SetMorale(int iMorale);
+int CvLuaUnit::lSetMorale(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iNewValue = lua_tointeger(L, 2);
+	pkUnit->setMorale(iNewValue);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void ChangeMorale(int iChange);
+int CvLuaUnit::lChangeMorale(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iChange = lua_tointeger(L, 2);
+	pkUnit->changeMorale(iChange);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void DecayMorale(int iDecayTo);
+int CvLuaUnit::lDecayMorale(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iDecayTo = lua_tointeger(L, 2);
+	pkUnit->decayMorale(iDecayTo);
+	return 0;
+}
+//------------------------------------------------------------------------------
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+//int GetPersonIndex()
+int CvLuaUnit::lGetPersonIndex(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iIndex = pkUnit->getPersonIndex();
+	lua_pushinteger(L, iIndex);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void SetPersonIndex(int iIndex)
+int CvLuaUnit::lSetPersonIndex(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iNewValue = lua_tointeger(L, 2);	
+	pkUnit->setPersonIndex(iNewValue);
+	return 0;
+}
+//------------------------------------------------------------------------------
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+//int GetGPAttackState()
+int CvLuaUnit::lGetGPAttackState(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iIndex = pkUnit->getGPAttackState();
+	lua_pushinteger(L, iIndex);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void SetGPAttackState(int iIndex)
+int CvLuaUnit::lSetGPAttackState(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iNewValue = lua_tointeger(L, 2);	
+	pkUnit->setGPAttackState(iNewValue);
+	return 0;
+}
+//------------------------------------------------------------------------------
+#endif
+#ifdef EA_PATHFINDING
+//int TurnsToReachTarget(CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
+int CvLuaUnit::lTurnsToReachTarget(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	
+	const bool bReusePaths = luaL_optint(L, 3, 1);
+	const bool bIgnoreUnits = luaL_optint(L, 4, 0);
+	const bool bIgnoreStacking = luaL_optint(L, 5, 0);
+
+	const int iTurns = TurnsToReachTarget(pkUnit, pkPlot, bReusePaths, bIgnoreUnits, bIgnoreStacking);
+	lua_pushinteger(L, iTurns);
+	return 1;
+}
+//------------------------------------------------------------------------------
+#endif
+
+
 //void rangeStrike(int iX, int iY);
 int CvLuaUnit::lRangeStrike(lua_State* L)
 {

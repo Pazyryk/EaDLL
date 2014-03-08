@@ -14183,6 +14183,28 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 		return false;
 	}
 
+#ifdef EA_COMBAT_EVENTS_EXTRA
+	bool bResult = true;
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(getOwner());
+		args->Push(GetID());
+		args->Push(pTargetPlot->getX());
+		args->Push(pTargetPlot->getY());
+		
+		if(LuaSupport::CallTestAll(pkScriptSystem, "CityCanRangeStrikeAt", args.get(), bResult))
+		{
+			// Check the result.
+			if(bResult == false)
+			{
+				return false;
+			}
+		}
+	}
+#endif
+
 	return true;
 }
 

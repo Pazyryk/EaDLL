@@ -576,6 +576,9 @@ void CvGame::InitPlayers()
 
 	CivilizationTypes eBarbCiv = (CivilizationTypes)GC.getBARBARIAN_CIVILIZATION();
 	CivilizationTypes eMinorCiv = (CivilizationTypes)GC.getMINOR_CIVILIZATION();
+#ifdef EA_ANIMAL_PLAYER
+	CivilizationTypes eAnimalCiv = (CivilizationTypes)GC.getANIMAL_CIVILIZATION();
+#endif
 
 	CvCivilizationInfo* pBarbarianCivilizationInfo = GC.getCivilizationInfo(eBarbCiv);
 	int barbarianPlayerColor = pBarbarianCivilizationInfo->getDefaultPlayerColor();
@@ -587,7 +590,11 @@ void CvGame::InitPlayers()
 		{
 			for(iJ = 0; iJ < iI; iJ++)
 			{
+#ifdef EA_ALLOW_REDUNDANT_BARB_PLAYER_COLOR		// Paz - Allow multiple players to use barb color (still needed with EA_ANIMAL_PLAYER?)
+				if(aePlayerColors[iI] == aePlayerColors[iJ] && aePlayerColors[iI] != barbarianPlayerColor)
+#else
 				if(aePlayerColors[iI] == aePlayerColors[iJ])
+#endif
 				{
 					for(iK = 0; iK < iNumPlayerColorInfos; iK++)
 					{
@@ -643,6 +650,20 @@ void CvGame::InitPlayers()
 			CvPreGame::setPlayerColor(BARBARIAN_PLAYER, ((PlayerColorTypes)barbarianPlayerColor));
 			CvPreGame::setMinorCiv(BARBARIAN_PLAYER, false);
 		}
+		// Paz - init Animal slot
+#ifdef EA_ANIMAL_PLAYER
+		else if(iI == ANIMAL_PLAYER)
+		{
+			CvPreGame::setTeamType(ANIMAL_PLAYER, ANIMAL_TEAM);
+			CvPreGame::setSlotStatus(ANIMAL_PLAYER, SS_COMPUTER);
+			CvPreGame::setNetID(ANIMAL_PLAYER, -1);
+			CvPreGame::setHandicap(ANIMAL_PLAYER, (HandicapTypes)GC.getBARBARIAN_HANDICAP());
+			CvPreGame::setCivilization(ANIMAL_PLAYER, eAnimalCiv);
+			CvPreGame::setLeaderHead(ANIMAL_PLAYER, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+			CvPreGame::setPlayerColor(ANIMAL_PLAYER, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setMinorCiv(ANIMAL_PLAYER, false);
+		}
+#endif
 		// Major Civs
 		else if(iI < MAX_MAJOR_CIVS)
 		{
@@ -863,7 +884,21 @@ void CvGame::regenerateMap()
 
 	GC.GetEngineUserInterface()->setCycleSelectionCounter(1);
 
+#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(true);
+		args->Push(false);
+		bool bAllow = true;
+		LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
+		if(bAllow)
+			gDLL->AutoSave(true);
+	}
+#else
 	gDLL->AutoSave(true);
+#endif
 }
 
 
@@ -1463,7 +1498,21 @@ void CvGame::update()
 
 			if(getTurnSlice() == 0 && !isPaused())
 			{
+#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if(pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(true);
+					args->Push(false);
+					bool bAllow = true;
+					LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
+					if(bAllow)
+						gDLL->AutoSave(true);
+				}
+#else
 				gDLL->AutoSave(true);
+#endif
 			}
 
 			// If there are no active players, move on to the AI
@@ -3425,7 +3474,21 @@ void CvGame::doControl(ControlTypes eControl)
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
 			if (!isNetworkMultiPlayer() && kActivePlayer.isHuman() && GC.GetPostTurnAutosaves())
 			{
+#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if(pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(false);
+					args->Push(true);
+					bool bAllow = true;
+					LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
+					if(bAllow)
+						gDLL->AutoSave(false, true);
+				}
+#else
 				gDLL->AutoSave(false, true);
+#endif
 			}
 			kActivePlayer.GetPlayerAchievements().EndTurn();
 			gDLL->sendTurnComplete();
@@ -7478,7 +7541,21 @@ void CvGame::doTurn()
 
 	if(getAIAutoPlay())
 	{
+#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(false);
+			args->Push(false);
+			bool bAllow = true;
+			LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
+			if(bAllow)
+				gDLL->AutoSave(false);
+		}
+#else
 		gDLL->AutoSave(false);
+#endif
 	}
 
 	// END OF TURN
@@ -7640,7 +7717,21 @@ void CvGame::doTurn()
 
 	if(isNetworkMultiPlayer())
 	{//autosave after doing a turn
+#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(false);
+			args->Push(false);
+			bool bAllow = true;
+			LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
+			if(bAllow)
+				gDLL->AutoSave(false);
+		}
+#else
 		gDLL->AutoSave(false);
+#endif
 	}
 
 	gDLL->PublishNewGameTurn(getGameTurn());
@@ -9676,6 +9767,9 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 {
 	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCiv);
 	CvCivilizationInfo* pkBarbarianCivInfo = GC.getCivilizationInfo(static_cast<CivilizationTypes>(GC.getBARBARIAN_CIVILIZATION()));
+#ifdef EA_ANIMAL_PLAYER
+//	CvCivilizationInfo* pkAnimalCivInfo = GC.getCivilizationInfo(static_cast<CivilizationTypes>(GC.getANIMAL_CIVILIZATION()));
+#endif
 
 	if(pkCivilizationInfo == NULL || pkBarbarianCivInfo == NULL)
 	{

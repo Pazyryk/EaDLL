@@ -147,6 +147,26 @@ protected:
 	static int lGetY(lua_State* L);
 	static int lAt(lua_State* L);
 	static int lGetPlotIndex(lua_State* L);
+
+#ifdef EA_PLOTS
+	static int lGetXY(lua_State* L);
+	static int lGetXYIndex(lua_State* L);
+
+	static int lGetLivingTerrainType(lua_State* L);
+	static int lSetLivingTerrainType(lua_State* L);
+	static int lGetLivingTerrainStrength(lua_State* L);
+	static int lSetLivingTerrainStrength(lua_State* L);
+	static int lGetLivingTerrainChopTurn(lua_State* L);
+	static int lSetLivingTerrainChopTurn(lua_State* L);
+	static int lGetLivingTerrainPresent(lua_State* L);
+	static int lSetLivingTerrainPresent(lua_State* L);
+	static int lGetLivingTerrainData(lua_State* L);
+	static int lSetLivingTerrainData(lua_State* L);
+#endif
+#ifdef SHOW_PLOT_FLOATUP
+	static int lAddFloatUpMessage(lua_State* L);
+#endif
+
 	static int lGetLatitude(lua_State* L);
 	static int lArea(lua_State* L);
 	static int lWaterArea(lua_State* L);

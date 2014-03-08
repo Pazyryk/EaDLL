@@ -26,6 +26,8 @@ public:
 	CvDealAI* GetInstance();
 
 	ICvPlayer1* DLLCALL GetPlayer();
+
+	// Paz notes: these seem to be all the ways that UI (inaccesible to us) comunicates with THIS dll in deal making; bypass all with Lua
 	int DLLCALL DoHumanOfferDealToThisAI(ICvDeal1* pDeal);
 	void DLLCALL DoAcceptedDeal(PlayerTypes eFromPlayer, ICvDeal1* pDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering);
 	int DLLCALL DoHumanDemand(ICvDeal1* pDeal);

@@ -520,6 +520,11 @@ protected:
 
 	static int lIsGoldenAgeCultureBonusDisabled(lua_State* L);
 
+#ifdef EA_CIV_LEADER_CHANGING
+	static int lChangeCivilizationType(lua_State* L);
+	static int lChangeLeaderType(lua_State* L);
+#endif
+
 	// Minor Civ stuff
 	static int lIsMinorCiv(lua_State* L);
 	static int lGetMinorCivType(lua_State* L);
@@ -603,6 +608,10 @@ protected:
 	static int lIsEverAlive(lua_State* L);
 	static int lIsExtendedGame(lua_State* L);
 	static int lIsFoundedFirstCity(lua_State* L);
+#ifdef EA_SET_FOUNDED_FIRST_CITY
+	static int lSetFoundedFirstCity(lua_State* L);
+#endif
+	
 
 	static int lGetEndTurnBlockingType(lua_State* L);
 	static int lGetEndTurnBlockingNotificationIndex(lua_State* L);
@@ -738,6 +747,14 @@ protected:
 	static int lDoBeginDiploWithHuman(lua_State* L);
 	static int lDoTradeScreenOpened(lua_State* L);
 	static int lDoTradeScreenClosed(lua_State* L);
+	// Paz
+#ifdef EA_PLAYER_DEAL_API
+	static int lDoHumanOfferDealToThisAI(lua_State* L);
+	//static int lDoAcceptedDeal(lua_State* L);
+	//static int lDoHumanDemand(lua_State* L);
+	//static int lDoAcceptedDemand(lua_State* L);
+	static int lDoEqualizeDealWithHuman(lua_State* L);
+#endif
 	static int lGetMajorCivApproach(lua_State* L);
 	static int lGetApproachTowardsUsGuess(lua_State* L);
 	static int lIsWillAcceptPeaceWithPlayer(lua_State* L);

@@ -1624,10 +1624,28 @@ void CvTeam::meet(TeamTypes eTeam, bool bSuppressMessages)
 {
 	if(!isHasMet(eTeam))
 	{
+		
+#ifdef EA_EVENT_CAN_MEET_TEAM		// Paz - Don't even meet (used for Animals)
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(eTeam);
+			bool bResult = false;
+			if (LuaSupport::CallTestAll(pkScriptSystem, "CanMeetTeam", args.get(), bResult))
+				if (bResult == false)
+					return;
+		}
+
+#endif
+
 		makeHasMet(eTeam, bSuppressMessages);
 		GET_TEAM(eTeam).makeHasMet(GetID(), bSuppressMessages);
 
+#ifndef EA_EVENT_CAN_MEET_TEAM		// Paz - Done above
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+#endif
 		if(pkScriptSystem)
 		{
 			CvLuaArgsHandle args(2);
@@ -2260,7 +2278,11 @@ bool CvTeam::isObserver() const
 //	--------------------------------------------------------------------------------
 bool CvTeam::isBarbarian() const
 {
+#ifdef EA_ANIMAL_PLAYER
+	return (m_eID == BARBARIAN_TEAM || m_eID == ANIMAL_TEAM);
+#else
 	return (m_eID == BARBARIAN_TEAM);
+#endif
 }
 
 

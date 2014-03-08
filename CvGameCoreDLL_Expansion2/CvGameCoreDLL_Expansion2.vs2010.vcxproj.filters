@@ -1021,6 +1021,9 @@
     <ClInclude Include="CvCityManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EaModding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CvGameCoreDLL.rc" />

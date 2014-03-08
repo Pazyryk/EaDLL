@@ -148,7 +148,10 @@ protected:
 	static int lGetDomainType(lua_State* L);
 	static int lGetInvisibleType(lua_State* L);
 	static int lGetSeeInvisibleType(lua_State* L);
-
+#ifdef EA_PERSISTENT_SETTABLE_INVISIBILITY	// Paz
+	static int lSetInvisibleType(lua_State* L);
+	static int lSetSeeInvisibleType(lua_State* L);
+#endif
 	static int lFlavorValue(lua_State* L);
 	static int lIsBarbarian(lua_State* L);
 
@@ -463,6 +466,25 @@ protected:
 	static int lGetTourismBlastStrength(lua_State* L);
 
 	static int lGetGreatWorkSlotType(lua_State* L);
+
+	// Paz: Ea API
+#ifdef EA_UNIT_MORALE
+	static int lGetMorale(lua_State* L);
+	static int lSetMorale(lua_State* L);
+	static int lChangeMorale(lua_State* L);
+	static int lDecayMorale(lua_State* L);
+#endif
+#ifdef EA_UNIT_PERSON_INFO
+	static int lGetPersonIndex(lua_State* L);
+	static int lSetPersonIndex(lua_State* L);
+#endif
+#ifdef EA_GP_SPECIAL_ATTACK_CONTROL
+	static int lGetGPAttackState(lua_State* L);
+	static int lSetGPAttackState(lua_State* L);	
+#endif
+#ifdef EA_PATHFINDING
+	static int lTurnsToReachTarget(lua_State* L);
+#endif
 
 	// Helper Functions
 	static int lRangeStrike(lua_State* L);

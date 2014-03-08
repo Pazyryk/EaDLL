@@ -648,6 +648,17 @@ public:
 	CvString getScriptData() const;
 	void setScriptData(const char* szNewValue);
 
+#ifdef EA_PLOTS
+	int getLivingTerrainType() const;
+	void setLivingTerrainType(int iValue);
+	int getLivingTerrainStrength() const;
+	void setLivingTerrainStrength(int iValue);
+	int getLivingTerrainChopTurn() const;
+	void setLivingTerrainChopTurn(int iValue);
+	bool getLivingTerrainPresent() const;
+	void setLivingTerrainPresent(bool bPresent);
+#endif
+
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
 
 	void read(FDataStream& kStream);
@@ -778,6 +789,14 @@ protected:
 
 
 	char* m_szScriptData;
+
+#ifdef EA_PLOTS		// Paz - Living Terrain
+	short m_iLivingTerrainType;
+	short m_iLivingTerrainStrength;
+	short m_iLivingTerrainChopTurn;
+	bool m_bLivingTerrainPresent;
+#endif
+
 	short* m_paiBuildProgress;
 
 	UnitHandle m_pCenterUnit;

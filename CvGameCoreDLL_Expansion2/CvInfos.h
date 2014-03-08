@@ -622,7 +622,9 @@ public:
 	bool isCivilizationFreeBuildingClass(int i) const;
 	bool isCivilizationFreeTechs(int i) const;
 	bool isCivilizationDisableTechs(int i) const;
-
+#ifdef EA_CIVILIZATION_TRAITS
+	bool hasTrait(int i) const;
+#endif
 	bool isCoastalCiv() const;
 	bool isFirstCoastalStart() const;
 
@@ -666,6 +668,10 @@ protected:
 	bool* m_pbCivilizationFreeTechs;
 	bool* m_pbCivilizationDisableTechs;
 	bool* m_pbReligions;
+
+#ifdef EA_CIVILIZATION_TRAITS
+	bool* m_pbCivTraits;
+#endif
 	bool m_bCoastalCiv;
 	bool m_bPlaceFirst;
 
