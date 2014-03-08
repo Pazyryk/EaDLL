@@ -1,0 +1,17 @@
+#ignore everything except h and cpp files
+*
+!*/
+!*.h
+!*.cpp
+!*.def
+!*.rc
+!*.vcproj
+!*.vcxproj
+!*.filters
+!*.lib
+!*.exp
+!*.inl
+!*.hpp
+!*.sln
+!*.txt
+!*.gitignore
