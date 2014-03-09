@@ -97,7 +97,9 @@ public:
 	int GetFlavorValue(int i) const;
 	int GetPrereqOrTechs(int i) const;
 	int GetPrereqAndTechs(int i) const;
-
+	//ls612: Ea begin
+	bool isUtility() const;
+	//Ea end
 private:
 	int m_iAIWeight;
 	int m_iAITradeModifier;
@@ -156,6 +158,9 @@ private:
 	int* m_piPrereqOrTechs;
 	int* m_piPrereqAndTechs;
 	bool* m_pabFreePromotion;
+	//ls612: Ea begin
+	bool m_bUtility;
+	//Ea end
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
