@@ -16,12 +16,6 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
-//ls612: These warnings are generated because of some configuration issues, which cause many things to be unused in release builds
-//They aren't dangerous though and create a lot of garbage in Output so we suppress them.
-#pragma warning ( disable:4100 ) //Unreferenced formal parameter
-#pragma warning ( disable:4353 ) //nonstandard extension used: constant 0 as function expression.  Use '__noop' function intrinsic instead
-
-
 #if !defined(FINAL_RELEASE)
 #define TARGETING_DEBUG
 #endif

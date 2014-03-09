@@ -1834,9 +1834,9 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL		// Paz - Warrior GP is always best defender against Warrior GP; otherwise, GP is always terrible defender 
 		if(pAttacker->IsGreatPerson() && pAttacker->getGPAttackState() > -1)	// attacker is Warrior GP
 		{
-			if(IsGreatPerson() && getGPAttackState() > -1 && (!pDefender->IsGreatPerson() || !(pDefender->getGPAttackState() > -1)/*ls612: Fixed unsafe boolean operation, NOT takes precedence over comparison*/))	// this unit is Warrior GP, test defender is not
+			if(IsGreatPerson() && getGPAttackState() > -1 && (!pDefender->IsGreatPerson() || !pDefender->getGPAttackState() > -1))	// this unit is Warrior GP, test defender is not
 				return true;
-			else if((!IsGreatPerson() || !(getGPAttackState() > -1)/*ls612: same here*/) && (pDefender->IsGreatPerson() && pDefender->getGPAttackState() > -1))	// this unit is not Warrior GP, test defender is
+			else if((!IsGreatPerson() || !getGPAttackState() > -1) && (pDefender->IsGreatPerson() && pDefender->getGPAttackState() > -1))	// this unit is not Warrior GP, test defender is
 				return false;
 		}
 		else	// attacker is not Warrior GP, so any GP should be last to defend
