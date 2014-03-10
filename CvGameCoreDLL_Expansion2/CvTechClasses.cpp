@@ -66,7 +66,11 @@ CvTechEntry::CvTechEntry(void):
 	m_piFlavorValue(NULL),
 	m_piPrereqOrTechs(NULL),
 	m_piPrereqAndTechs(NULL),
+#ifdef EA_DONT_COUNT_UTILITY_TECHS //ls612
+	m_bUtility(false),
+#endif
 	m_pabFreePromotion(NULL)
+
 {
 }
 
@@ -127,6 +131,10 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bWaterWork = kResults.GetBool("WaterWork");
 	m_iGridX = kResults.GetInt("GridX");
 	m_iGridY = kResults.GetInt("GridY");
+
+#ifdef EA_DONT_COUNT_UTILITY_TECHS //ls612
+	m_bUtility = kResults.GetBool("Utility");
+#endif
 
 	//References
 	const char* szTextVal = NULL;
@@ -533,6 +541,14 @@ int CvTechEntry::GetPrereqAndTechs(int i) const
 {
 	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
 }
+
+#ifdef EA_DONT_COUNT_UTILITY_TECHS
+/// Is this a Utility Tech?
+bool CvTechEntry::isUtility() const
+{
+	return m_bUtility;
+}
+#endif
 
 //=====================================
 // CvTechXMLEntries

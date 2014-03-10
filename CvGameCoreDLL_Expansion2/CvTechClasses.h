@@ -97,7 +97,9 @@ public:
 	int GetFlavorValue(int i) const;
 	int GetPrereqOrTechs(int i) const;
 	int GetPrereqAndTechs(int i) const;
-
+#ifdef EA_DONT_COUNT_UTILITY_TECHS //ls612
+	bool isUtility() const;
+#endif
 private:
 	int m_iAIWeight;
 	int m_iAITradeModifier;
@@ -156,6 +158,9 @@ private:
 	int* m_piPrereqOrTechs;
 	int* m_piPrereqAndTechs;
 	bool* m_pabFreePromotion;
+#ifdef EA_DONT_COUNT_UTILITY_TECHS //ls612
+	bool m_bUtility;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
