@@ -43,6 +43,9 @@
 #include "CvDllRandom.h"
 #include "CvDllUnit.h"
 
+// ls612: for Minidumps
+#include <dbghelp.h>
+
 // must be included after all other headers
 #include "LintFree.h"
 
@@ -1827,6 +1830,9 @@ CvGlobals::~CvGlobals()
 //
 void CvGlobals::init()
 {
+	//ls612: This is the best time to set our custom exception handler for writing minidumps
+	SetUnhandledExceptionFilter(CustomFilter);
+
 	//
 	// These vars are used to initialize the globals.
 	//
