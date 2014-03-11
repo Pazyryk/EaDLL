@@ -8892,7 +8892,30 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	// Set that we have this Promotion
 	else
 	{
+		
+#ifdef EA_UNIT_TAKING_PROMOTION		// Paz - add GameEvents.UnitTakingPromotion(iPlayer, iUnit, promotionID)
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(getOwner());
+		args->Push(GetID());
+		args->Push(ePromotion);
+		bool bAllow = true;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "UnitTakingPromotion", args.get(), bAllow))
+		{
+			if(bAllow)
+				setHasPromotion(ePromotion, true);	// if not bAllow, then gain level without any promotion (probably got something on Lua side)
+		}
+		else
+		{
+			setHasPromotion(ePromotion, true);
+		}
+	}
+#else	
 		setHasPromotion(ePromotion, true);
+#endif
+
 	}
 
 	testPromotionReady();
