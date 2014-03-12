@@ -155,6 +155,8 @@ typedef wchar_t          wchar;
 #include "CvCityConnections.h"
 #include "CvAdvisorCounsel.h"
 #include "CvAdvisorRecommender.h"
+//ls612: Minidumps
+#include "CvMinidump.h"
 
 using namespace fastdelegate;
 

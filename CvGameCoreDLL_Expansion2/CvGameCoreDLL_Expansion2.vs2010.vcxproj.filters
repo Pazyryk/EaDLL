@@ -500,6 +500,9 @@
     <ClCompile Include="CvCityManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CvMinidump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="banned.h">
@@ -1022,6 +1025,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EaModding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvMinidump.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

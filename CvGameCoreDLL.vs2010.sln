@@ -1,13 +1,18 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CvGameCoreDLL_Expansion2", "CvGameCoreDLL_Expansion2\CvGameCoreDLL_Expansion2.vs2010.vcxproj", "{F58F230D-EE4A-40E0-91D5-93626E790055}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Ea_Debug|Win32 = Ea_Debug|Win32
 		Mod|Win32 = Mod|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.Ea_Debug|Win32.ActiveCfg = Ea_Debug|Win32
+		{F58F230D-EE4A-40E0-91D5-93626E790055}.Ea_Debug|Win32.Build.0 = Ea_Debug|Win32
 		{F58F230D-EE4A-40E0-91D5-93626E790055}.Mod|Win32.ActiveCfg = Mod|Win32
 		{F58F230D-EE4A-40E0-91D5-93626E790055}.Mod|Win32.Build.0 = Mod|Win32
 	EndGlobalSection
