@@ -3947,7 +3947,7 @@ void CvGlobals::EA_DEBUG(char str[256], char* message, int iParam1, int iParam2,
 	}
 }
 #else
-void CvGlobals::EA_DEBUG(char str[256], int iParam1, int iParam2, int iParam3, int iParam4, int iParam5, int iParam6, int iParam7, int iParam8)
+void CvGlobals::EA_DEBUG(char str[256], char* message, int iParam1, int iParam2, int iParam3, int iParam4, int iParam5, int iParam6, int iParam7, int iParam8)
 {
 }
 #endif
