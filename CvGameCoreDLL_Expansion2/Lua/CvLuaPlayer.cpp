@@ -303,7 +303,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetHappinessFromReligion);
 	Method(GetHappinessFromNaturalWonders);
 	Method(GetHappinessFromLeagues);
-
+#ifdef EA_NATURAL_WONDER_HAPPINESS
+	Method(getHappinessFromNWDiscovery);
+#endif
 	Method(GetUnhappiness);
 	Method(GetUnhappinessForecast);
 
@@ -2995,6 +2997,14 @@ int CvLuaPlayer::lGetUnhappinessFromPublicOpinion(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+//------------------------------------------------------------------------------
+//int getHappinessFromNWDiscovery() const;
+int CvLuaPlayer::lgetHappinessFromNWDiscovery(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getHappinessFromNWDiscovery);
+}
+#endif
 
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromUnits() const;
