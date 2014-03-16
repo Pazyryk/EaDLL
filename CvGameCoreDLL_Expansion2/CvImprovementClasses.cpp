@@ -18,8 +18,10 @@
 #ifdef _MSC_VER
 #pragma warning ( disable : 4505 ) // unreferenced local function has been removed.. needed by REMARK below
 #endif//_MSC_VER
-REMARK_GROUP("CvImprovementClasses");
 
+#ifndef	EA_DEBUG_BUILD //ls612: removing remarks
+REMARK_GROUP("CvImprovementClasses");
+#endif
 
 //======================================================================================================
 //					CvImprovementResourceInfo
@@ -247,7 +249,9 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	else
 	{
 		m_iWorldSoundscapeScriptId = -1;
+#ifndef EA_DEBUG_BUILD //ls612: suppressing remarks
 		Remark(1, "Warning: Missing soundscape definition in XML for feature: '%s'", GetType());
+#endif
 	}
 
 	const char* szImprovementPillage = kResults.GetText("ImprovementPillage");

@@ -3893,6 +3893,64 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 	return true;
 }
 
+#ifdef EA_DEBUG_BUILD
+//ls612: Takes some parameters and formats them for output in debugging situations
+void CvGlobals::EA_DEBUG(char str[256], char* message, int iParam1, int iParam2, int iParam3, int iParam4, int iParam5, int iParam6, int iParam7, int iParam8)
+{
+	if (iParam8 != MAX_INT)
+	{
+		sprintf(str, message, iParam1, iParam2, iParam3, iParam4, iParam5, iParam6, iParam7, iParam8);
+		OutputDebugString(str);
+		OutputDebugString("\r\n");
+	}
+	else if (iParam7 != MAX_INT)
+	{
+		sprintf(str, message, iParam1, iParam2, iParam3, iParam4, iParam5, iParam6, iParam7);
+		OutputDebugString(str);
+		OutputDebugString("\r\n");
+	}
+	else if (iParam6 != MAX_INT)
+	{
+		sprintf(str, message, iParam1, iParam2, iParam3, iParam4, iParam5, iParam6);
+		OutputDebugString(str);
+		OutputDebugString("\r\n");
+	}
+	else if (iParam5 != MAX_INT)
+	{
+		sprintf(str, message, iParam1, iParam2, iParam3, iParam4, iParam5);
+		OutputDebugString(str);
+		OutputDebugString("\r\n");
+	}
+	else if (iParam4 != MAX_INT)
+	{
+		sprintf(str, message, iParam1, iParam2, iParam3, iParam4);
+		OutputDebugString(str);
+		OutputDebugString("\r\n");
+	}
+	else if (iParam3 != MAX_INT)
+	{
+		sprintf(str, message, iParam1, iParam2, iParam3);
+		OutputDebugString(str);
+		OutputDebugString("\r\n");
+	}
+	else if (iParam2 != MAX_INT)
+	{
+		sprintf(str, message, iParam1, iParam2);
+		OutputDebugString(str);
+		OutputDebugString("\r\n");
+	}
+	else
+	{
+		sprintf(str, message, iParam1);
+		OutputDebugString(str);
+		OutputDebugString("\r\n");
+	}
+}
+#else
+void CvGlobals::EA_DEBUG(char str[256], char* message, int iParam1, int iParam2, int iParam3, int iParam4, int iParam5, int iParam6, int iParam7, int iParam8)
+{
+}
+#endif
 
 void CvGlobals::cacheGlobals()
 {

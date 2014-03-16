@@ -15,6 +15,10 @@
 								// 2, Compiles with civilian rules only - NMCTJs Mod
 								// 3, Compiles for Ea
 
+//ls612: Ea Debug needs to undefine Final Release and a few other things
+#ifdef EA_DEBUG_BUILD
+#undef FINAL_RELEASE
+#endif
 
 #if (EA_CONFIGURATION > 0)
 // Isolation Code - move define here and set EA_CONFIGURATION to 1 to test a change in isolation
@@ -59,14 +63,18 @@
 #define EA_DONT_COUNT_UTILITY_POLICIES
 #define EA_DONT_COUNT_UTILITY_TECHS			//ls612: Utility Tech stuff
 
-
+// New Tags
+#define EA_NATURAL_WONDER_HAPPINESS			//ls612: Moving that out of lua into the DLL
 
 // Misc extended Lua support:
+// Game Events
 #define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
 #define EA_UNIT_TAKING_PROMOTION			// GameEvents.UnitTakingPromotion(iPlayer, iUnit, promotionID) CallTestAll
 
 #define EA_EVENT_TECH_COST_MOD				// GameEvents.PlayerTechCostMod(techID, iPlayer); CallAccumulator that uses return integer as percent cost modifier
 #define EA_EVENT_MINOR_FRIENDSHIP			// GameEvents.PlayerMinorFriendshipAnchor(eMajor, eMinor); CallAccumulator
+
+//#define EA_EVENT_ACQUIRE_PLOT				//ls612: Has issues
 
 #define EA_PLOTS							// Persisted plot data for Ea's Living Terrain and plot methods
 

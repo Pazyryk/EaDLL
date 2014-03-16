@@ -704,6 +704,9 @@ public:
 	// Plot acquisition
 
 	bool CanBuyPlot(int iPlotX = -1, int iPlotY = -1, bool bIgnoreCost = false);
+#ifdef EA_EVENT_ACQUIRE_PLOT //ls612
+	bool EaCanAcquirePlot(int iPlotX = -1, int iPlotY = -1);
+#endif
 	bool CanBuyAnyPlot(void);
 	CvPlot* GetNextBuyablePlot();
 	void GetBuyablePlotList(std::vector<int>& aiPlotList);

@@ -29,8 +29,10 @@
 #ifdef _MSC_VER
 #pragma warning ( disable : 4505 ) // unreferenced local function has been removed.. needed by REMARK below
 #endif//_MSC_VER
-REMARK_GROUP("CvInfos");
 
+#ifndef	EA_DEBUG_BUILD //ls612: removing remarks
+REMARK_GROUP("CvInfos");
+#endif
 //////////////////////////////////////////////////////////////////////////
 // CvBaseInfo Members
 //////////////////////////////////////////////////////////////////////////
@@ -4772,6 +4774,9 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_piHillsYieldChange(NULL),
 	m_pi3DAudioScriptFootstepIndex(NULL),
 	m_pbTerrain(NULL),
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+	m_iNatWonderDiscHappy(0),
+#endif
 	m_bClearable(false)
 {
 }
@@ -4954,6 +4959,15 @@ int CvFeatureInfo::getEffectProbability() const
 {
 	return m_iEffectProbability;
 }
+
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+//------------------------------------------------------------------------------
+int CvFeatureInfo::GetNaturalWonderDiscoveryHappiness() const
+{
+	return m_iNatWonderDiscHappy;
+}
+#endif
+
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getYieldChange(int i) const
 {
@@ -5056,6 +5070,9 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNukeImmune = kResults.GetBool("NukeImmune");
 	m_bRough = kResults.GetBool("Rough");
 	m_bNaturalWonder = kResults.GetBool("NaturalWonder");
+#ifdef EA_NATURAL_WONDER_HAPPINESS
+	m_iNatWonderDiscHappy = kResults.GetInt("NaturalWonderHappiness");
+#endif
 
 	m_strEffectType = kResults.GetText("EffectType");
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");
@@ -5068,7 +5085,9 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	else
 	{
 		m_iWorldSoundscapeScriptId = -1;
+#ifndef EA_DEBUG_BUILD //ls612: suppressing remarks
 		Remark(1, "Warning: Missing soundscape definition in XML for feature: '%s'", GetType());
+#endif
 	}
 
 	// Array properties
@@ -5341,7 +5360,9 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	else
 	{
 		m_iWorldSoundscapeScriptId = -1;
+#ifndef EA_DEBUG_BUILD //ls612: suppressing remarks
 		Remark(1, "Warning: Missing soundscape definition in XML for feature: '%s'", GetType());
+#endif
 	}
 
 	//Arrays

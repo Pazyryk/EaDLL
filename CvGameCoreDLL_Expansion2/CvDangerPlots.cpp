@@ -21,7 +21,9 @@
 #pragma warning ( disable : 4505 ) // unreferenced local function has been removed.. needed by REMARK below
 #endif//_MSC_VER
 
+#ifndef	EA_DEBUG_BUILD //ls612: removing remarks
 REMARK_GROUP("CvDangerPlots");
+#endif
 
 /// Constructor
 CvDangerPlots::CvDangerPlots(void)

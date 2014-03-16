@@ -328,17 +328,25 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
 			if(pLoopPlot != NULL)
 			{
-				if(pLoopPlot != NULL)
-				{
+				/*if(pLoopPlot != NULL) ls612: Huh?
+				{*/ 
 					if(pLoopPlot->getOwner() == NO_PLAYER)
 					{
+#ifndef EA_EVENT_ACQUIRE_PLOT //ls612
 						pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
+#else
+						//ls612: we need to catch any lua objections to taking this plot here.
+						if (EaCanAcquirePlot(pPlot->getX(), pPlot->getY()))
+						{
+							pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
+						}
+#endif
 					}
 					if(pLoopPlot->getOwner() == getOwner())
 					{
 						pLoopPlot->SetCityPurchaseID(m_iID);
 					}
-				}
+				/*}*/
 			}
 		}
 	}
@@ -10538,7 +10546,14 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	{
 		return false;
 	}
-
+	
+#ifdef EA_EVENT_ACQUIRE_PLOT
+	//ls612: If lua says we can't acquire the plot normally we also can't buy it.
+	if (!EaCanAcquirePlot(pTargetPlot->getX(), pTargetPlot->getY()))
+	{
+		return false;
+	}
+#endif
 	// Must be adjacent to a plot owned by this city
 	CvPlot* pAdjacentPlot;
 	bool bFoundAdjacent = false;
@@ -10691,6 +10706,43 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 	return pPickedPlot;
 }
 
+#ifdef EA_EVENT_ACQUIRE_PLOT
+//	--------------------------------------------------------------------------------
+/// ls612: Send lua a notice about whether or not we can acquire this plot (to process special Ea rules)
+bool CvCity::EaCanAcquirePlot(int iPlotX, int iPlotY)
+{
+	//test hardcode
+	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
+	if (pPlot->isWater())
+	{
+		return false;
+	}
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+
+		args->Push(getOwner());
+		args->Push(GetID());
+		args->Push(iPlotX);
+		args->Push(iPlotY);
+
+		bool bResult;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanAcquirePlot", args.get(), bResult))
+		{
+			if (false == bResult)
+			{
+				// Lua says we can't get this plot.
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 {
@@ -10737,6 +10789,13 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					continue;
 				}
 
+#ifdef EA_EVENT_ACQUIRE_PLOT //ls612
+				if (!EaCanAcquirePlot(pLoopPlot->getX(), pLoopPlot->getY()))
+				{
+					//ls612: Lua says we can't get this plot, so let's quit now.
+					continue;
+				}
+#endif
 				// we can use the faster, but slightly inaccurate pathfinder here - after all we are using a rand in the equation
 				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange, false) * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
 

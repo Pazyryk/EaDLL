@@ -1462,6 +1462,9 @@ public:
 	bool isNukeImmune() const;
 	bool IsRough() const;
 	bool IsNaturalWonder() const;
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+	int GetNaturalWonderDiscoveryHappiness() const;
+#endif
 
 	const char* getArtDefineTag() const;
 	void setArtDefineTag(const char* szTag);
@@ -1518,6 +1521,9 @@ protected:
 	bool m_bNukeImmune;
 	bool m_bRough;
 	bool m_bNaturalWonder;
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+	int m_iNatWonderDiscHappy;
+#endif
 
 	// Set each time the game is started
 	bool m_bClearable;
