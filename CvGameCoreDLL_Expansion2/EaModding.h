@@ -63,7 +63,8 @@
 #define EA_DONT_COUNT_UTILITY_POLICIES
 #define EA_DONT_COUNT_UTILITY_TECHS			//ls612: Utility Tech stuff
 
-
+// New Tags
+#define EA_NATURAL_WONDER_HAPPINESS			//ls612: Moving that out of lua into the DLL
 
 // Misc extended Lua support:
 // Game Events

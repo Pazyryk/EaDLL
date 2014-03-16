@@ -153,6 +153,9 @@ CvPlayer::CvPlayer() :
 	, m_iCityRevoltCounter("CvPlayer::m_iCityRevoltCounter", m_syncArchive)
 	, m_iHappinessPerGarrisonedUnitCount("CvPlayer::m_iHappinessPerGarrisonedUnitCount", m_syncArchive)
 	, m_iHappinessPerTradeRouteCount("CvPlayer::m_iHappinessPerTradeRouteCount", m_syncArchive)
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+	, m_iNWDiscHappy("CvPlayer::m_iNWDiscHappy", m_syncArchive)
+#endif
 	, m_iHappinessPerXPopulation(0)
 	, m_iHappinessFromLeagues(0)
 	, m_iEspionageModifier(0)
@@ -755,6 +758,9 @@ void CvPlayer::uninit()
 	m_iCityCountUnhappinessMod = 0;
 	m_iOccupiedPopulationUnhappinessMod = 0;
 	m_iCapitalUnhappinessMod = 0;
+#ifdef EA_NATURAL_WONDER_HAPPINESS
+	m_iNWDiscHappy = 0;
+#endif
 	m_iCityRevoltCounter = 0;
 	m_iHappinessPerGarrisonedUnitCount = 0;
 	m_iHappinessPerTradeRouteCount = 0;
@@ -10194,6 +10200,17 @@ void CvPlayer::DoUpdateHappiness()
 	DoUpdateCityConnectionHappiness();
 	m_iHappiness += GetHappinessFromTradeRoutes();
 
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+	m_iHappiness += getHappinessFromNWDiscovery();
+
+#ifdef	EA_DEBUG_BUILD
+	/*int iTemp = getHappinessFromNWDiscovery();*/
+	char str[256];
+	//sprintf(str, "Civ %d has so far recieved %d happiness from discovering natural wonders, and has %d happiness total.\r\n", GetID(), iTemp, GetHappiness());
+	//OutputDebugString(str);
+	GC.EA_DEBUG(str, "Civ %d has so far recieved %d happiness from discovering natural wonders, and has %d net happiness overall.", GetID(), getHappinessFromNWDiscovery(), GetExcessHappiness());
+#endif
+#endif
 	if(isLocalPlayer() && GetExcessHappiness() >= 100)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP2_45);
@@ -10218,6 +10235,22 @@ void CvPlayer::SetHappiness(int iNewValue)
 		m_iHappiness = iNewValue;
 	}
 }
+
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612: Added
+//	--------------------------------------------------------------------------------
+/// Sets how much Happiness we have from Natural Wonder Discoveries
+void CvPlayer::ChangeHappinessFromNWDiscovery(int iNewValue)
+{
+	m_iNWDiscHappy += iNewValue;
+}
+
+//	--------------------------------------------------------------------------------
+/// How much Happiness do we have from Natural Wonder Discoveries?
+int CvPlayer::getHappinessFromNWDiscovery() const
+{
+	return m_iNWDiscHappy;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// How much over our Happiness limit are we?
@@ -21703,6 +21736,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iCityRevoltCounter;
 	kStream >> m_iHappinessPerGarrisonedUnitCount;
 	kStream >> m_iHappinessPerTradeRouteCount;
+#ifdef EA_NATURAL_WONDER_HAPPINESS
+	kStream >> m_iNWDiscHappy;
+#endif
 	kStream >> m_iHappinessPerXPopulation;
 	kStream >> m_iHappinessPerXPolicies;
 	if (uiVersion >= 8)
@@ -22264,6 +22300,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iCityRevoltCounter;
 	kStream << m_iHappinessPerGarrisonedUnitCount;
 	kStream << m_iHappinessPerTradeRouteCount;
+#ifdef EA_NATURAL_WONDER_HAPPINESS
+	kStream << m_iNWDiscHappy;
+#endif
 	kStream << m_iHappinessPerXPopulation;
 	kStream << m_iHappinessPerXPolicies;
 	kStream << m_iHappinessFromLeagues;

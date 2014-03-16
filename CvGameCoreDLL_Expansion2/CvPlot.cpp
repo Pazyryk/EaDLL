@@ -8148,8 +8148,9 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 									}
 								}
 
+#ifndef EA_NATURAL_WONDER_HAPPINESS //ls612: We want to move this until after the first time discovery effects in Ea.
 								playerI.DoUpdateHappiness();
-
+#endif
 								// Add World Anchor
 								if(eTeam == eActiveTeam)
 									SetWorldAnchor(WORLD_ANCHOR_NATURAL_WONDER, getFeatureType());
@@ -8190,6 +8191,27 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 									}
 								}
 							}
+#ifdef EA_NATURAL_WONDER_HAPPINESS
+							//ls612: Apply Discovery happiness to the discovering team.
+							for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+							{
+								CvPlayerAI& playerI = GET_PLAYER((PlayerTypes) iI);
+								if (playerI.isAlive())
+								{
+									if (playerI.getTeam() == eTeam)
+									{
+										playerI.ChangeHappinessFromNWDiscovery(GC.getFeatureInfo(getFeatureType())->GetNaturalWonderDiscoveryHappiness());
+										playerI.DoUpdateHappiness();
+#ifdef EA_DEBUG_BUILD
+										char str[256];
+										//sprintf(str, "EA: Added %d Happiness from natural wonder to civ %d.\r\n", GC.getFeatureInfo(getFeatureType())->GetNaturalWonderDiscoveryHappiness(), playerI.GetID());
+										//OutputDebugString(str);
+										GC.EA_DEBUG(str, "EA: Added %d Happiness from natural wonder to civ %d.", GC.getFeatureInfo(getFeatureType())->GetNaturalWonderDiscoveryHappiness(), playerI.GetID());
+#endif
+									}
+								}
+							}
+#endif
 						}
 						else
 						{

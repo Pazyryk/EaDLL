@@ -4774,6 +4774,9 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_piHillsYieldChange(NULL),
 	m_pi3DAudioScriptFootstepIndex(NULL),
 	m_pbTerrain(NULL),
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+	m_iNatWonderDiscHappy(0),
+#endif
 	m_bClearable(false)
 {
 }
@@ -4956,6 +4959,15 @@ int CvFeatureInfo::getEffectProbability() const
 {
 	return m_iEffectProbability;
 }
+
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+//------------------------------------------------------------------------------
+int CvFeatureInfo::GetNaturalWonderDiscoveryHappiness() const
+{
+	return m_iNatWonderDiscHappy;
+}
+#endif
+
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getYieldChange(int i) const
 {
@@ -5058,6 +5070,9 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNukeImmune = kResults.GetBool("NukeImmune");
 	m_bRough = kResults.GetBool("Rough");
 	m_bNaturalWonder = kResults.GetBool("NaturalWonder");
+#ifdef EA_NATURAL_WONDER_HAPPINESS
+	m_iNatWonderDiscHappy = kResults.GetInt("NaturalWonderHappiness");
+#endif
 
 	m_strEffectType = kResults.GetText("EffectType");
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");

@@ -452,7 +452,10 @@ public:
 	int GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const;
 	int GetUnhappinessFromPuppetCityPopulation() const;
 	int GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
-
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612: tracking our NW discovery happiness
+	int getHappinessFromNWDiscovery() const;
+	void ChangeHappinessFromNWDiscovery(int iNewValue);
+#endif
 	int GetUnhappinessFromUnits() const;
 	void ChangeUnhappinessFromUnits(int iChange);
 
@@ -1587,6 +1590,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCityRevoltCounter;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerGarrisonedUnitCount;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerTradeRouteCount;
+#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
+	FAutoVariable<int, CvPlayer> m_iNWDiscHappy;
+#endif
 	int m_iHappinessPerXPopulation;
 	int m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
