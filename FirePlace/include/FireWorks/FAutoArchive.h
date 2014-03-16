@@ -29,9 +29,9 @@ class FAutoVariableBase;
 
 //---------------------------------------------------------------------------------------
 
-#if !defined(FINAL_RELEASE)
-#define FAUTOARCHIVE_DEBUG
-#endif
+//#if !defined(FINAL_RELEASE) //ls612: removed
+//#define FAUTOARCHIVE_DEBUG
+//#endif
 
 class FAutoArchive
 {

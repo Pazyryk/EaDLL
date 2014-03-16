@@ -29,8 +29,10 @@
 #ifdef _MSC_VER
 #pragma warning ( disable : 4505 ) // unreferenced local function has been removed.. needed by REMARK below
 #endif//_MSC_VER
-REMARK_GROUP("CvInfos");
 
+#ifndef	EA_DEBUG_BUILD //ls612: removing remarks
+REMARK_GROUP("CvInfos");
+#endif
 //////////////////////////////////////////////////////////////////////////
 // CvBaseInfo Members
 //////////////////////////////////////////////////////////////////////////
@@ -5068,7 +5070,9 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	else
 	{
 		m_iWorldSoundscapeScriptId = -1;
+#ifndef EA_DEBUG_BUILD //ls612: suppressing remarks
 		Remark(1, "Warning: Missing soundscape definition in XML for feature: '%s'", GetType());
+#endif
 	}
 
 	// Array properties
@@ -5341,7 +5345,9 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	else
 	{
 		m_iWorldSoundscapeScriptId = -1;
+#ifndef EA_DEBUG_BUILD //ls612: suppressing remarks
 		Remark(1, "Warning: Missing soundscape definition in XML for feature: '%s'", GetType());
+#endif
 	}
 
 	//Arrays

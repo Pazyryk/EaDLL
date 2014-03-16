@@ -41,6 +41,11 @@
 
 // Public Functions...
 
+// ls612: this needs to be suppressed for EA_DEBUG_BUILD
+#ifdef EA_DEBUG_BUILD
+#pragma warning ( disable : 4100 )
+#endif
+
 //------------------------------------------------------------------------------
 // CvPlot Version History
 // Version 5
