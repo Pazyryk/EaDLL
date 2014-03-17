@@ -10200,17 +10200,6 @@ void CvPlayer::DoUpdateHappiness()
 	DoUpdateCityConnectionHappiness();
 	m_iHappiness += GetHappinessFromTradeRoutes();
 
-#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
-	m_iHappiness += getHappinessFromNWDiscovery();
-
-#ifdef	EA_DEBUG_BUILD
-	/*int iTemp = getHappinessFromNWDiscovery();*/
-	char str[256];
-	//sprintf(str, "Civ %d has so far recieved %d happiness from discovering natural wonders, and has %d happiness total.\r\n", GetID(), iTemp, GetHappiness());
-	//OutputDebugString(str);
-	GC.EA_DEBUG(str, "Civ %d has so far recieved %d happiness from discovering natural wonders, and has %d net happiness overall.", GetID(), getHappinessFromNWDiscovery(), GetExcessHappiness());
-#endif
-#endif
 	if(isLocalPlayer() && GetExcessHappiness() >= 100)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP2_45);
@@ -10246,6 +10235,7 @@ void CvPlayer::ChangeHappinessFromNWDiscovery(int iNewValue)
 
 //	--------------------------------------------------------------------------------
 /// How much Happiness do we have from Natural Wonder Discoveries?
+//ls612: This wrapper is needed for safety with FAutoVariables
 int CvPlayer::getHappinessFromNWDiscovery() const
 {
 	return m_iNWDiscHappy;
@@ -10994,9 +10984,12 @@ int CvPlayer::GetHappinessFromReligion()
 // Happiness from finding Natural Wonders
 int CvPlayer::GetHappinessFromNaturalWonders() const
 {
+#ifndef EA_NATURAL_WONDER_HAPPINESS //ls612
 	int iNumWonders = GET_TEAM(getTeam()).GetNumNaturalWondersDiscovered();
-
 	int iHappiness = iNumWonders* /*1*/ GC.getHAPPINESS_PER_NATURAL_WONDER();
+#else
+	int iHappiness = getHappinessFromNWDiscovery();
+#endif
 
 	// Trait boosts this further?
 	if(m_pTraits->GetNaturalWonderHappinessModifier() > 0)
