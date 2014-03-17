@@ -306,9 +306,7 @@ protected:
 	static int lGetUnhappinessFromPublicOpinion(lua_State* L);
 	static int lGetUnhappinessFromUnits(lua_State* L);
 	static int lChangeUnhappinessFromUnits(lua_State* L);
-#ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
-	static int lgetHappinessFromNWDiscovery(lua_State* L);
-#endif
+
 	static int lGetUnhappinessMod(lua_State* L);
 	static int lGetCityCountUnhappinessMod(lua_State* L);
 	static int lGetOccupiedPopulationUnhappinessMod(lua_State* L);
