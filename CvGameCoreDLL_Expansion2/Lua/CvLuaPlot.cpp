@@ -145,6 +145,8 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(SetLivingTerrainPresent);
 	Method(GetLivingTerrainData);
 	Method(SetLivingTerrainData);
+	Method(GetPlotEffect);
+	Method(SetPlotEffect);
 #endif
 #ifdef SHOW_PLOT_FLOATUP
 	Method(AddFloatUpMessage);
@@ -1068,7 +1070,26 @@ int CvLuaPlot::lSetLivingTerrainData(lua_State* L)
 	return 0;
 }
 //------------------------------------------------------------------------------
-
+//int, int GetPlotEffect()
+int CvLuaPlot::lGetPlotEffect(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	lua_pushinteger(L, pkPlot->getPlotEffectType());
+	lua_pushinteger(L, pkPlot->getPlotEffectStrength());
+	return 2;
+}
+//------------------------------------------------------------------------------
+//void SetPlotEffect(int, int)
+int CvLuaPlot::lSetPlotEffect(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L);
+	const int iType = lua_tointeger(L, 2);
+	const int iStrength = lua_tointeger(L, 3);
+	pkPlot->setPlotEffectType(iType);
+	pkPlot->setPlotEffectStrength(iStrength);
+	return 0;
+}
+//------------------------------------------------------------------------------
 #endif
 #ifdef SHOW_PLOT_FLOATUP
 //void AddFloatUpMessage(sMessage, fDelay, iForPlayer)

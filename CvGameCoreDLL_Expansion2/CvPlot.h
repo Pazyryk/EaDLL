@@ -657,6 +657,11 @@ public:
 	void setLivingTerrainChopTurn(int iValue);
 	bool getLivingTerrainPresent() const;
 	void setLivingTerrainPresent(bool bPresent);
+	
+	int getPlotEffectType() const;
+	void setPlotEffectType(int iType);
+	int getPlotEffectStrength() const;
+	void setPlotEffectStrength(int iStrength);
 #endif
 
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
@@ -790,11 +795,13 @@ protected:
 
 	char* m_szScriptData;
 
-#ifdef EA_PLOTS		// Paz - Living Terrain
+#ifdef EA_PLOTS		// Paz - Living Terrain and plot effects
 	short m_iLivingTerrainType;
 	short m_iLivingTerrainStrength;
 	short m_iLivingTerrainChopTurn;
 	bool m_bLivingTerrainPresent;
+	short m_iPlotEffectType;
+	int m_iPlotEffectStrength;
 #endif
 
 	short* m_paiBuildProgress;

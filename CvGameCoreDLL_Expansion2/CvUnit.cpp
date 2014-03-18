@@ -13578,6 +13578,31 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		GET_PLAYER(getOwner()).DoUpdateHappiness();
 	}
 
+#ifdef EA_PLOTS		// Paz - UnitSetXYPlotEffect is a lighter and more targeted version of UnitSetXY
+					//		 Only do it if we have a plot effect here (e.g., Explosive Runes)
+	
+	if(pNewPlot != NULL)
+	{
+		int plotEffectType = pNewPlot->getPlotEffectType();
+		if(plotEffectType != -1)
+		{
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if(pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(getX());
+				args->Push(getY());
+				args->Push(plotEffectType);
+				args->Push(pNewPlot->getPlotEffectStrength());
+
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "UnitSetXYPlotEffect", args.get(), bResult);
+			}
+		}
+	}
+#else		// Paz - Disabled below since we will never use it
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -13590,6 +13615,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "UnitSetXY", args.get(), bResult);
 	}
+#endif
 
 	if (bOwnerIsActivePlayer)
 		DLLUI->SetDontShowPopups(false);

@@ -162,6 +162,8 @@ protected:
 	static int lSetLivingTerrainPresent(lua_State* L);
 	static int lGetLivingTerrainData(lua_State* L);
 	static int lSetLivingTerrainData(lua_State* L);
+	static int lGetPlotEffect(lua_State* L);
+	static int lSetPlotEffect(lua_State* L);
 #endif
 #ifdef SHOW_PLOT_FLOATUP
 	static int lAddFloatUpMessage(lua_State* L);

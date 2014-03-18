@@ -162,6 +162,8 @@ CvPlot::CvPlot() :
 	m_iLivingTerrainStrength = 0;
 	m_iLivingTerrainChopTurn = -100;
 	m_bLivingTerrainPresent = false;
+	m_iPlotEffectType = -1;
+	m_iPlotEffectStrength = -1;
 #endif
 
 	m_cContinentType = 0;
@@ -9334,6 +9336,28 @@ void CvPlot::setLivingTerrainPresent(const bool bPresent)
 {
 	m_bLivingTerrainPresent = bPresent;
 }
+//	--------------------------------------------------------------------------------
+
+int CvPlot::getPlotEffectType() const
+{
+	return m_iPlotEffectType;
+}
+//	--------------------------------------------------------------------------------
+void CvPlot::setPlotEffectType(const int iType)
+{
+	m_iPlotEffectType = iType;
+}
+//	--------------------------------------------------------------------------------
+int CvPlot::getPlotEffectStrength() const
+{
+	return m_iPlotEffectStrength;
+}
+//	--------------------------------------------------------------------------------
+void CvPlot::setPlotEffectStrength(const int iStrength)
+{
+	m_iPlotEffectStrength = iStrength;
+}
+
 
 #endif
 
@@ -9622,6 +9646,8 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_iLivingTerrainStrength;
 	kStream >> m_iLivingTerrainChopTurn;
 	kStream >> m_bLivingTerrainPresent;
+	kStream >> m_iPlotEffectType;
+	kStream >> m_iPlotEffectStrength;
 #endif
 
 	SAFE_DELETE_ARRAY(m_paiBuildProgress);
@@ -9784,6 +9810,8 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iLivingTerrainStrength;
 	kStream << m_iLivingTerrainChopTurn;
 	kStream << m_bLivingTerrainPresent;
+	kStream << m_iPlotEffectType;
+	kStream << m_iPlotEffectStrength;
 #endif
 
 	if(NULL == m_paiBuildProgress)
