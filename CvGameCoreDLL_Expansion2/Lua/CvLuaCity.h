@@ -193,6 +193,9 @@ protected:
 	static int lGetNextBuyablePlot(lua_State* L);
 	static int lGetBuyablePlotList(lua_State* L);
 	static int lGetBuyPlotCost(lua_State* L);
+#ifdef EA_EVENT_ACQUIRE_PLOT
+	static int lCanAcquirePlot(lua_State* L);
+#endif
 
 	static int lGetGarrisonedUnit(lua_State* L);
 

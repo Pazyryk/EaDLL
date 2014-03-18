@@ -1781,6 +1781,17 @@ int CvLuaCity::lCanBuyPlot(lua_State* L)
 	return 1;
 }
 
+#ifdef EA_EVENT_ACQUIRE_PLOT //ls612
+//------------------------------------------------------------------------------
+//bool getCanAcquirePlot();
+int CvLuaCity::lCanAcquirePlot(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	CvPlot* pPlot = pkCity->GetNextBuyablePlot();
+	lua_pushboolean(L, pkCity->EaCanAcquirePlot(pPlot->getX(), pPlot->getY()));
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool getCanBuyPlotAt();
 int CvLuaCity::lCanBuyPlotAt(lua_State* L)
