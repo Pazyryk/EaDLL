@@ -10711,13 +10711,6 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 /// ls612: Send lua a notice about whether or not we can acquire this plot (to process special Ea rules)
 bool CvCity::EaCanAcquirePlot(int iPlotX, int iPlotY)
 {
-	//test hardcode
-	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
-	if (pPlot->isWater())
-	{
-		return false;
-	}
-
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem)
 	{
@@ -10733,6 +10726,10 @@ bool CvCity::EaCanAcquirePlot(int iPlotX, int iPlotY)
 		{
 			if (false == bResult)
 			{
+#ifdef EA_DEBUG_BUILD
+				char str[256];
+				GC.EA_DEBUG(str, "Lua rejected Plot (%d, %d) for acquisition.", iPlotX, iPlotY);
+#endif
 				// Lua says we can't get this plot.
 				return false;
 			}
