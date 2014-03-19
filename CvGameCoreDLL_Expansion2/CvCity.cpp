@@ -336,7 +336,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 						pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
 #else
 						//ls612: we need to catch any lua objections to taking this plot here.
-						if (EaCanAcquirePlot(pPlot->getX(), pPlot->getY()))
+						if (EaCanAcquirePlot(pLoopPlot->getX(), pLoopPlot->getY()))
 						{
 							pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
 						}

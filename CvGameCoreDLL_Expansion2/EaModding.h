@@ -74,7 +74,7 @@
 #define EA_EVENT_TECH_COST_MOD				// GameEvents.PlayerTechCostMod(techID, iPlayer); CallAccumulator that uses return integer as percent cost modifier
 #define EA_EVENT_MINOR_FRIENDSHIP			// GameEvents.PlayerMinorFriendshipAnchor(eMajor, eMinor); CallAccumulator
 
-//#define EA_EVENT_ACQUIRE_PLOT				//ls612: Has issues
+#define EA_EVENT_ACQUIRE_PLOT				// GameEvents.CityCanAcquirePlot(iPlayer, iCity, x, y)
 
 #define EA_PLOTS							// Persisted plot data for Ea's Living Terrain and plot methods
 
