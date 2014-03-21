@@ -344,6 +344,9 @@ CvPlayer::CvPlayer() :
 	, m_aiCapitalYieldRateModifier("CvPlayer::m_aiCapitalYieldRateModifier", m_syncArchive)
 	, m_aiExtraYieldThreshold("CvPlayer::m_aiExtraYieldThreshold", m_syncArchive)
 	, m_aiSpecialistExtraYield("CvPlayer::m_aiSpecialistExtraYield", m_syncArchive)
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	, m_aiLeaderYieldBoost("CvPlayer::m_aiLeaderYieldBoost", m_syncArchive)
+#endif
 	, m_aiProximityToPlayer("CvPlayer::m_aiProximityToPlayer", m_syncArchive, true)
 	, m_aiResearchAgreementCounter("CvPlayer::m_aiResearchAgreementCounter", m_syncArchive)
 	, m_aiIncomingUnitTypes("CvPlayer::m_aiIncomingUnitTypes", m_syncArchive, true)
@@ -1024,6 +1027,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiExtraYieldThreshold.clear();
 	m_aiExtraYieldThreshold.resize(NUM_YIELD_TYPES, 0);
+
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	m_aiLeaderYieldBoost.clear();
+	m_aiLeaderYieldBoost.resize(NUM_YIELD_TYPES, 0);
+#endif
 
 	m_aiSpecialistExtraYield.clear();
 	m_aiSpecialistExtraYield.resize(NUM_YIELD_TYPES, 0);
@@ -8853,6 +8861,11 @@ int CvPlayer::calculateGoldRateTimes100() const
 
 	iRate = GetTreasury()->CalculateBaseNetGoldTimes100();
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	iRate *= (100 + GetLeaderYieldBoost(YIELD_GOLD));
+	iRate /= 100;
+#endif
+
 	return iRate;
 }
 
@@ -9283,6 +9296,12 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	{
 		iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
 	}
+
+	//ls612: Culture modified by Leader
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+	iCulturePerTurn *= (100 + GetLeaderYieldBoost(YIELD_CULTURE));
+	iCulturePerTurn /= 100;
+#endif
 
 	return iCulturePerTurn;
 }
@@ -10016,6 +10035,12 @@ int CvPlayer::GetTotalFaithPerTurn() const
 
 	// Faith per turn from Religion (Founder beliefs)
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
+
+	//ls612: Faith modified by Leaders
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+	iFaithPerTurn *= (100 + GetLeaderYieldBoost(YIELD_FAITH));
+	iFaithPerTurn /= 100;
+#endif
 
 	return iFaithPerTurn;
 }
@@ -16618,6 +16643,30 @@ void CvPlayer::updateExtraYieldThreshold(YieldTypes eIndex)
 	}
 }
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetLeaderYieldBoost(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiLeaderYieldBoost[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetLeaderYieldBoost(YieldTypes eIndex, int iPercent)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+#ifdef EA_DEBUG_BUILD
+	char str[256];
+	GC.EA_DEBUG(str, "Setting LeaderYieldBoost for Civ %d to %d%.", typeid(this).name(), GetID(), iPercent);
+#endif
+
+	m_aiLeaderYieldBoost.setAt((int)eIndex, iPercent);
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetScience() const
 {
@@ -16647,6 +16696,12 @@ int CvPlayer::GetScienceTimes100() const
 
 	// If we have a negative Treasury + GPT then it gets removed from Science
 	iValue += GetScienceFromBudgetDeficitTimes100();
+
+	//ls612: Science modified by our Leader
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+	iValue *= (100 + GetLeaderYieldBoost(YIELD_SCIENCE));
+	iValue /= 100;
+#endif
 
 	return max(iValue, 0);
 }
@@ -22035,6 +22090,9 @@ void CvPlayer::Read(FDataStream& kStream)
 		m_aiGreatWorkYieldChange.resize(NUM_YIELD_TYPES, 0);
 	}
 	kStream >> m_aiExtraYieldThreshold;
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	kStream >> m_aiLeaderYieldBoost;
+#endif
 	kStream >> m_aiSpecialistExtraYield;
 	kStream >> m_aiProximityToPlayer;
 	kStream >> m_aiResearchAgreementCounter;
@@ -22510,6 +22568,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_aiCapitalYieldRateModifier;
 	kStream << m_aiGreatWorkYieldChange;
 	kStream << m_aiExtraYieldThreshold;
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	kStream << m_aiLeaderYieldBoost;
+#endif
 	kStream << m_aiSpecialistExtraYield;
 	kStream << m_aiProximityToPlayer;
 	kStream << m_aiResearchAgreementCounter;   // Added in Version 2

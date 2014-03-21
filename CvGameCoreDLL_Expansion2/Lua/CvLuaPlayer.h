@@ -218,7 +218,10 @@ protected:
 	static int lGetJONSCulture(lua_State* L);
 	static int lSetJONSCulture(lua_State* L);
 	static int lChangeJONSCulture(lua_State* L);
-
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	static int lGetLeaderYieldBoost(lua_State* L);
+	static int lSetLeaderYieldBoost(lua_State* L);
+#endif
 	static int lGetJONSCultureEverGenerated(lua_State* L);
 
 	static int lGetLastTurnLifetimeCulture(lua_State* L);

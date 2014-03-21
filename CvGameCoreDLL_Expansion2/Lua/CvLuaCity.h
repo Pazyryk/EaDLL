@@ -193,10 +193,13 @@ protected:
 	static int lGetNextBuyablePlot(lua_State* L);
 	static int lGetBuyablePlotList(lua_State* L);
 	static int lGetBuyPlotCost(lua_State* L);
-#ifdef EA_EVENT_ACQUIRE_PLOT
+#ifdef EA_EVENT_ACQUIRE_PLOT //ls612
 	static int lCanAcquirePlot(lua_State* L);
 #endif
-
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	static int lSetCityResidentYieldBoost(lua_State* L);
+	static int lGetCityResidentYieldBoost(lua_State* L);
+#endif
 	static int lGetGarrisonedUnit(lua_State* L);
 
 	static int lGetGameTurnFounded(lua_State* L);

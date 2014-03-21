@@ -228,6 +228,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetJONSCulture);
 	Method(ChangeJONSCulture);
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+	Method(GetLeaderYieldBoost);
+	Method(SetLeaderYieldBoost);
+#endif
+
 	Method(GetJONSCultureEverGenerated);
 
 	Method(GetLastTurnLifetimeCulture);
@@ -2298,6 +2303,28 @@ int CvLuaPlayer::lChangeJONSCulture(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::changeJONSCulture);
 }
+
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+//------------------------------------------------------------------------------
+//int GetLeaderYieldBoost(int eYieldIndex);
+int CvLuaPlayer::lGetLeaderYieldBoost(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayer::GetLeaderYieldBoost);
+}
+
+//------------------------------------------------------------------------------
+//void SetLeaderYieldBoost(int iYieldID, int iPercent)
+int CvLuaPlayer::lSetLeaderYieldBoost(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	int iYield = lua_tointeger(L, 2);
+	int iPercent = lua_tointeger(L, 3);
+
+	pkPlayer->SetLeaderYieldBoost((YieldTypes) iYield, iPercent);
+	return 1;
+}
+#endif
+
 //------------------------------------------------------------------------------
 //int GetJONSCultureEverGenerated();
 int CvLuaPlayer::lGetJONSCultureEverGenerated(lua_State* L)

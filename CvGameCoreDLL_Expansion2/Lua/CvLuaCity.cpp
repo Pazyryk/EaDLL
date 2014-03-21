@@ -174,7 +174,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(HurryPopulation);
 	Method(HurryProduction);
 	Method(MaxHurryPopulation);
-
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+	Method(SetCityResidentYieldBoost);
+	Method(GetCityResidentYieldBoost);
+#endif
 	Method(GetNumBuilding);
 	Method(IsHasBuilding);
 	Method(GetNumActiveBuilding);
@@ -1937,6 +1940,29 @@ int CvLuaCity::lSetHighestPopulation(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::setHighestPopulation);
 }
+
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+//------------------------------------------------------------------------------
+//int GetCityResidentYieldBoost(int iYieldID)
+int CvLuaCity::lGetCityResidentYieldBoost(lua_State* L)
+{	
+	return BasicLuaMethod(L, &CvCity::GetCityResidentYieldBoost);
+}
+
+//------------------------------------------------------------------------------
+//void SetCityResidentYieldBoost(int iYieldID, int iPercent)
+int CvLuaCity::lSetCityResidentYieldBoost(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iYield = lua_tointeger(L,2);
+	int iPercent = lua_tointeger(L,3);
+
+	pkCity->SetCityResidentYieldBoost((YieldTypes)iYield, iPercent);
+	return 1;
+}
+#endif
+
+
 //------------------------------------------------------------------------------
 //int getWorkingPopulation();
 //int CvLuaCity::lGetWorkingPopulation(lua_State* L)
