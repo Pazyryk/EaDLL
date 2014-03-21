@@ -3895,13 +3895,11 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 
 #ifdef EA_DEBUG_BUILD
 //ls612: Takes some parameters and formats them for output in debugging situations
-void CvGlobals::EA_DEBUG(char str[256], char* message, int iParam1, int iParam2, int iParam3, int iParam4, int iParam5, int iParam6, int iParam7, int iParam8)
+void CvGlobals::EA_DEBUG(char str[256], char* message, const char* ClassName, int iParam1, int iParam2, int iParam3, int iParam4, int iParam5, int iParam6, int iParam7, int iParam8)
 {
 	if (iParam8 != MAX_INT)
 	{
 		sprintf(str, message, iParam1, iParam2, iParam3, iParam4, iParam5, iParam6, iParam7, iParam8);
-		OutputDebugString(str);
-		OutputDebugString("\r\n");
 	}
 	else if (iParam7 != MAX_INT)
 	{
@@ -3942,12 +3940,16 @@ void CvGlobals::EA_DEBUG(char str[256], char* message, int iParam1, int iParam2,
 	else
 	{
 		sprintf(str, message, iParam1);
-		OutputDebugString(str);
-		OutputDebugString("\r\n");
 	}
+
+	OutputDebugString("[");
+	OutputDebugString(ClassName);
+	OutputDebugString("] ");
+	OutputDebugString(str);
+	OutputDebugString("\r\n");
 }
 #else
-void CvGlobals::EA_DEBUG(char str[256], char* message, int iParam1, int iParam2, int iParam3, int iParam4, int iParam5, int iParam6, int iParam7, int iParam8)
+void CvGlobals::EA_DEBUG(char str[256], char* message, const char* ClassName, int iParam1, int iParam2, int iParam3, int iParam4, int iParam5, int iParam6, int iParam7, int iParam8)
 {
 }
 #endif

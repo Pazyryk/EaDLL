@@ -83,6 +83,9 @@
 #define EA_TEST_PROMOTION_READY				// unit:TestPromotionReady()
 #define EA_PATHFINDING						// unit:TurnsToReachTarget(CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
 
+//Lua Methods
+#define EA_EXTENDED_LUA_YIELD_METHODS		//ls612: Both player:SetLeaderYieldBoost(yieldTypeID, percentBoost) and city:SetCityResidentYieldBoost(yieldTypeID, percentBoost)
+
 // Macros
 #define SHOW_PLOT_FLOATUP(pPlot, ePlayer, szMessage, fDelay)  if (pPlot->isVisible(GET_PLAYER(ePlayer).getTeam())) DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), szMessage, fDelay)
 

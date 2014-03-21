@@ -227,6 +227,9 @@ CvCity::CvCity() :
 	, m_paiUnitCombatFreeExperience("CvCity::m_paiUnitCombatFreeExperience", m_syncArchive)
 	, m_paiUnitCombatProductionModifier("CvCity::m_paiUnitCombatProductionModifier", m_syncArchive)
 	, m_paiFreePromotionCount("CvCity::m_paiFreePromotionCount", m_syncArchive)
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	, m_paiCityResidentYieldBoosts("CvCity::m_paiCityResidentYieldBoosts", m_syncArchive)
+#endif
 	, m_iBaseHappinessFromBuildings(0)
 	, m_iUnmoddedHappinessFromBuildings(0)
 	, m_bRouteToCapitalConnectedLastTurn(false)
@@ -274,7 +277,7 @@ CvCity::~CvCity()
 	delete m_pEmphases;
 	delete m_pCityEspionage;
 	delete m_pCityCulture;
-
+	//ls612: Not sure if FAutoVariables handle this for me.
 	OBJECT_DESTROYED
 }
 
@@ -912,6 +915,15 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			m_paiFreePromotionCount.setAt(iI, 0);
 		}
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+		int iNumYields = NUM_YIELD_TYPES;
+		m_paiCityResidentYieldBoosts.clear();
+		m_paiCityResidentYieldBoosts.resize(iNumYields);
+		for (iI = 0; iI < iNumYields; iI++)
+		{
+			m_paiCityResidentYieldBoosts.setAt(iI, 0);
+		}
+#endif
 		int iJ;
 
 		int iNumBuildingInfos = GC.getNumBuildingInfos();
@@ -5308,6 +5320,11 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 	int iTradeYield = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
 	iModifiedProduction += iTradeYield;
 
+	//ls612: Modified by owner
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+	iModifiedProduction *= (100 + GET_PLAYER(getOwner()).GetLeaderYieldBoost(YIELD_PRODUCTION));
+#endif
+
 	return iModifiedProduction;
 }
 
@@ -6663,6 +6680,11 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			iTotalMod += iMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
 		}
+		// ls612: Food difference modified by owner
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+		iTotalMod += GET_PLAYER(getOwner()).GetLeaderYieldBoost(YIELD_FOOD);
+#endif
+
 
 		iDifference *= iTotalMod;
 		iDifference /= 100;
@@ -7522,6 +7544,9 @@ int CvCity::getJONSCulturePerTurn() const
 	{
 		iModifier += GC.getPUPPET_CULTURE_MODIFIER();
 	}
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: Culture = 4
+	iModifier += GetCityResidentYieldBoost((YieldTypes) 4);
+#endif
 
 	iCulture *= iModifier;
 	iCulture /= 100;
@@ -7665,6 +7690,10 @@ int CvCity::GetFaithPerTurn() const
 		iFaith /= 100;
 	}
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: faith = 5
+	iFaith *= (100 + GetCityResidentYieldBoost((YieldTypes) 5));
+	iFaith /= 100;
+#endif
 	return iFaith;
 }
 
@@ -9374,6 +9403,24 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 		iModifiedYield += iTradeYield;
 	}
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: these are processed separately b/c they are intended to be supplied from Lua
+	if (eIndex == YIELD_GOLD)
+	{
+		iModifiedYield *= (100 + GetCityResidentYieldBoost(YIELD_GOLD));
+		iModifiedYield /= 100;
+	}
+	else if (eIndex == YIELD_FOOD)
+	{
+		iModifiedYield *= (100 + GetCityResidentYieldBoost(YIELD_FOOD));
+		iModifiedYield /= 100;
+	}
+	else if (eIndex == YIELD_PRODUCTION)
+	{
+		iModifiedYield *= (100 + GetCityResidentYieldBoost(YIELD_SCIENCE));
+		iModifiedYield /= 100;
+	}
+#endif
+
 	return iModifiedYield;
 }
 
@@ -9391,6 +9438,14 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
 	iValue += GetBaseYieldRateFromMisc(eIndex);
 	iValue += GetBaseYieldRateFromReligion(eIndex);
+
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: Production is wierd
+	if (eIndex == YIELD_PRODUCTION)
+	{
+		iValue *= (100 + GetCityResidentYieldBoost(YIELD_PRODUCTION));
+		iValue /= 100;
+	}
+#endif
 
 	return iValue;
 }
@@ -10298,6 +10353,39 @@ int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 	return m_paiFreePromotionCount[eIndex];
 }
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+//	--------------------------------------------------------------------------------
+//ls612: Food, Production, Gold, Science, Culture, Faith
+int CvCity::GetCityResidentYieldBoost(YieldTypes eYield) const
+{
+#ifdef EA_DEBUG_BUILD
+	char str[256];
+	const char* type = typeid(this).name();
+	GC.EA_DEBUG(str, "Getting CityResidentYieldBoost %d for City %d", type, (int)eYield, GetID());
+#endif
+
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
+	return m_paiCityResidentYieldBoosts[(int)eYield];
+}
+
+//	--------------------------------------------------------------------------------
+//ls612: Food, Production, Gold, Science, Culture, Faith
+void CvCity::SetCityResidentYieldBoost(YieldTypes eYield, int iPercent)
+{
+#ifdef EA_DEBUG_BUILD
+	char str[256];
+	const char* type = typeid(this).name();
+	GC.EA_DEBUG(str, "Setting CityResidentYieldBoost %d for City %d to %d%", type, eYield, GetID(), iPercent);
+#endif
+
+	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
+	m_paiCityResidentYieldBoosts.setAt((int)eYield, iPercent);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvCity::isFreePromotion(PromotionTypes eIndex) const
@@ -10728,7 +10816,8 @@ bool CvCity::EaCanAcquirePlot(int iPlotX, int iPlotY)
 			{
 #ifdef EA_DEBUG_BUILD
 				char str[256];
-				GC.EA_DEBUG(str, "Lua rejected Plot (%d, %d) for acquisition.", iPlotX, iPlotY);
+				const char* type = typeid(this).name();
+				GC.EA_DEBUG(str, "Lua rejected Plot (%d, %d) for acquisition.", type, iPlotX, iPlotY);
 #endif
 				// Lua says we can't get this plot.
 				return false;
@@ -13503,6 +13592,9 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_paiUnitCombatProductionModifier;
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiFreePromotionCount.dirtyGet());
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	kStream >> m_paiCityResidentYieldBoosts;
+#endif
 
 	UINT uLength;
 	kStream >> uLength;
@@ -13795,6 +13887,9 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_paiUnitCombatProductionModifier;
 
 	CvInfosSerializationHelper::WriteHashedDataArray<PromotionTypes, int>(kStream, m_paiFreePromotionCount);
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	kStream << m_paiCityResidentYieldBoosts;
+#endif
 
 	//  Write m_orderQueue
 	UINT uLength = (UINT)m_orderQueue.getLength();

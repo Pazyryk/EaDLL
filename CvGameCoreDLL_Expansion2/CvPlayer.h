@@ -456,6 +456,10 @@ public:
 	int getHappinessFromNWDiscovery() const;
 	void ChangeHappinessFromNWDiscovery(int iNewValue);
 #endif
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: Player-wide Yield percent modifiers
+	int GetLeaderYieldBoost(YieldTypes eYield) const;
+	void SetLeaderYieldBoost(YieldTypes eYield, int iPercent);
+#endif
 	int GetUnhappinessFromUnits() const;
 	void ChangeUnhappinessFromUnits(int iChange);
 
@@ -1593,6 +1597,7 @@ protected:
 #ifdef EA_NATURAL_WONDER_HAPPINESS //ls612
 	FAutoVariable<int, CvPlayer> m_iNWDiscHappy;
 #endif
+
 	int m_iHappinessPerXPopulation;
 	int m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
@@ -1807,6 +1812,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiExtraYieldThreshold;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSpecialistExtraYield;
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiLeaderYieldBoost;
+#endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiProximityToPlayer;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiResearchAgreementCounter;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitTypes;

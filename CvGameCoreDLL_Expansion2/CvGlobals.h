@@ -585,7 +585,7 @@ public:
 	bool GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, PlayerTypes ePlayer, char* szBuffer, unsigned int uiBufferLength);
 
 	//ls612: This function only does things when Ea Debug is built, but needs to be declared whether or not it is used.
-	void EA_DEBUG(char str[256], char* message, int iParam1, int iParam2 = MAX_INT, int iParam3 = MAX_INT, int iParam4 = MAX_INT, int iParam5 = MAX_INT, int iParam6 = MAX_INT, int iParam7 = MAX_INT, int iParam8 = MAX_INT);
+	void EA_DEBUG(char str[256], char* message, const char* ClassName, int iParam1, int iParam2 = MAX_INT, int iParam3 = MAX_INT, int iParam4 = MAX_INT, int iParam5 = MAX_INT, int iParam6 = MAX_INT, int iParam7 = MAX_INT, int iParam8 = MAX_INT);
 
 	///////////////// BEGIN global defines
 	// THESE ARE READ-ONLY
