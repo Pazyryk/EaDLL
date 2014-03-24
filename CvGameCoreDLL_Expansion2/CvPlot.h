@@ -657,11 +657,14 @@ public:
 	void setLivingTerrainChopTurn(int iValue);
 	bool getLivingTerrainPresent() const;
 	void setLivingTerrainPresent(bool bPresent);
-	
 	int getPlotEffectType() const;
 	void setPlotEffectType(int iType);
 	int getPlotEffectStrength() const;
 	void setPlotEffectStrength(int iStrength);
+	int getPlotEffectPlayer() const;
+	void setPlotEffectPlayer(int iType);
+	int getPlotEffectCaster() const;
+	void setPlotEffectCaster(int iType);
 #endif
 
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
@@ -802,6 +805,8 @@ protected:
 	bool m_bLivingTerrainPresent;
 	short m_iPlotEffectType;
 	int m_iPlotEffectStrength;
+	short m_iPlotEffectPlayer;
+	short m_iPlotEffectCaster;
 #endif
 
 	short* m_paiBuildProgress;
