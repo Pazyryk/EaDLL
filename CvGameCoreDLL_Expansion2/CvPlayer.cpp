@@ -8861,11 +8861,6 @@ int CvPlayer::calculateGoldRateTimes100() const
 
 	iRate = GetTreasury()->CalculateBaseNetGoldTimes100();
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
-	iRate *= (100 + GetLeaderYieldBoost(YIELD_GOLD));
-	iRate /= 100;
-#endif
-
 	return iRate;
 }
 
@@ -9270,8 +9265,10 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 
 	int iCulturePerTurn = 0;
 
+#ifndef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - add after Leader boost
 	// Culture per turn from Cities
 	iCulturePerTurn += GetJONSCulturePerTurnFromCities();
+#endif
 
 	// Special bonus which adds excess Happiness to Culture?
 	iCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness();
@@ -9291,17 +9288,22 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	// Temporary boost from bonus turns
 	iCulturePerTurn += GetCulturePerTurnFromBonusTurns();
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - Leader modifies all non-city sources (city already modified)
+
+	iCulturePerTurn *= (100 + GetLeaderYieldBoost(YIELD_CULTURE));
+	iCulturePerTurn /= 100;
+
+	// Add cities after leader modifier
+	iCulturePerTurn += GetJONSCulturePerTurnFromCities();
+
+	// Note that Golden Age modifier below is multiplicative, but so be it
+#endif
+
 	// Golden Age bonus
 	if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
 	{
 		iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
 	}
-
-	//ls612: Culture modified by Leader
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
-	iCulturePerTurn *= (100 + GetLeaderYieldBoost(YIELD_CULTURE));
-	iCulturePerTurn /= 100;
-#endif
 
 	return iCulturePerTurn;
 }
@@ -10027,8 +10029,10 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	if(IsAnarchy())
 		return 0;
 
+#ifndef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - add after Leader boost
 	// Faith per turn from Cities
 	iFaithPerTurn += GetFaithPerTurnFromCities();
+#endif
 
 	// Faith per turn from Minor Civs
 	iFaithPerTurn += GetFaithPerTurnFromMinorCivs();
@@ -10036,10 +10040,13 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	// Faith per turn from Religion (Founder beliefs)
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
 
-	//ls612: Faith modified by Leaders
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - use leader modifier for non-city sources only
+
 	iFaithPerTurn *= (100 + GetLeaderYieldBoost(YIELD_FAITH));
 	iFaithPerTurn /= 100;
+
+	// Now add city sources
+	iFaithPerTurn += GetFaithPerTurnFromCities();
 #endif
 
 	return iFaithPerTurn;
@@ -16664,6 +16671,10 @@ void CvPlayer::SetLeaderYieldBoost(YieldTypes eIndex, int iPercent)
 #endif
 
 	m_aiLeaderYieldBoost.setAt((int)eIndex, iPercent);
+
+	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
+	DLLUI->setDirty(GameData_DIRTY_BIT, true);
+
 }
 #endif
 
@@ -16682,8 +16693,10 @@ int CvPlayer::GetScienceTimes100() const
 
 	int iValue = 0;
 
+#ifndef EA_EXTENDED_LUA_YIELD_METHODS
 	// Science from our Cities
 	iValue += GetScienceFromCitiesTimes100(false);
+#endif
 
 	// Science from other players!
 	iValue += GetScienceFromOtherPlayersTimes100();
@@ -16694,14 +16707,17 @@ int CvPlayer::GetScienceTimes100() const
 	// Research Agreement bonuses
 	iValue += GetScienceFromResearchAgreementsTimes100();
 
-	// If we have a negative Treasury + GPT then it gets removed from Science
-	iValue += GetScienceFromBudgetDeficitTimes100();
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - Leader modifies non-city positive sources; then add city and deductions
 
-	//ls612: Science modified by our Leader
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
 	iValue *= (100 + GetLeaderYieldBoost(YIELD_SCIENCE));
 	iValue /= 100;
+
+	// Paz - OK, now add Science from Cities
+	iValue += GetScienceFromCitiesTimes100(false);
 #endif
+
+	// If we have a negative Treasury + GPT then it gets removed from Science
+	iValue += GetScienceFromBudgetDeficitTimes100();
 
 	return max(iValue, 0);
 }
