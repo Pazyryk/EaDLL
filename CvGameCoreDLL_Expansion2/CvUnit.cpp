@@ -13596,6 +13596,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				args->Push(getY());
 				args->Push(plotEffectType);
 				args->Push(pNewPlot->getPlotEffectStrength());
+				args->Push(pNewPlot->getPlotEffectPlayer());
+				args->Push(pNewPlot->getPlotEffectCaster());
 
 				bool bResult;
 				LuaSupport::CallHook(pkScriptSystem, "UnitSetXYPlotEffect", args.get(), bResult);

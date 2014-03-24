@@ -164,6 +164,8 @@ CvPlot::CvPlot() :
 	m_bLivingTerrainPresent = false;
 	m_iPlotEffectType = -1;
 	m_iPlotEffectStrength = -1;
+	m_iPlotEffectPlayer = -1;
+	m_iPlotEffectCaster = -1;
 #endif
 
 	m_cContinentType = 0;
@@ -9357,8 +9359,26 @@ void CvPlot::setPlotEffectStrength(const int iStrength)
 {
 	m_iPlotEffectStrength = iStrength;
 }
-
-
+//	--------------------------------------------------------------------------------
+int CvPlot::getPlotEffectPlayer() const
+{
+	return m_iPlotEffectPlayer;
+}
+//	--------------------------------------------------------------------------------
+void CvPlot::setPlotEffectPlayer(const int iPlayer)
+{
+	m_iPlotEffectPlayer = iPlayer;
+}
+//	--------------------------------------------------------------------------------
+int CvPlot::getPlotEffectCaster() const
+{
+	return m_iPlotEffectCaster;
+}
+//	--------------------------------------------------------------------------------
+void CvPlot::setPlotEffectCaster(const int iCaster)
+{
+	m_iPlotEffectCaster = iCaster;
+}
 #endif
 
 // Protected Functions...
@@ -9648,6 +9668,8 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_bLivingTerrainPresent;
 	kStream >> m_iPlotEffectType;
 	kStream >> m_iPlotEffectStrength;
+	kStream >> m_iPlotEffectPlayer;
+	kStream >> m_iPlotEffectCaster;
 #endif
 
 	SAFE_DELETE_ARRAY(m_paiBuildProgress);
@@ -9812,6 +9834,8 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_bLivingTerrainPresent;
 	kStream << m_iPlotEffectType;
 	kStream << m_iPlotEffectStrength;
+	kStream << m_iPlotEffectPlayer;
+	kStream << m_iPlotEffectCaster;
 #endif
 
 	if(NULL == m_paiBuildProgress)

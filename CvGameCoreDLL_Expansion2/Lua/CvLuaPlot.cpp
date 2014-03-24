@@ -145,8 +145,8 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(SetLivingTerrainPresent);
 	Method(GetLivingTerrainData);
 	Method(SetLivingTerrainData);
-	Method(GetPlotEffect);
-	Method(SetPlotEffect);
+	Method(GetPlotEffectData);
+	Method(SetPlotEffectData);
 #endif
 #ifdef SHOW_PLOT_FLOATUP
 	Method(AddFloatUpMessage);
@@ -1071,22 +1071,28 @@ int CvLuaPlot::lSetLivingTerrainData(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int, int GetPlotEffect()
-int CvLuaPlot::lGetPlotEffect(lua_State* L)
+int CvLuaPlot::lGetPlotEffectData(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 	lua_pushinteger(L, pkPlot->getPlotEffectType());
 	lua_pushinteger(L, pkPlot->getPlotEffectStrength());
-	return 2;
+	lua_pushinteger(L, pkPlot->getPlotEffectPlayer());
+	lua_pushinteger(L, pkPlot->getPlotEffectCaster());
+	return 4;
 }
 //------------------------------------------------------------------------------
 //void SetPlotEffect(int, int)
-int CvLuaPlot::lSetPlotEffect(lua_State* L)
+int CvLuaPlot::lSetPlotEffectData(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 	const int iType = lua_tointeger(L, 2);
 	const int iStrength = lua_tointeger(L, 3);
+	const int iPlayer = lua_tointeger(L, 4);
+	const int iCaster = lua_tointeger(L, 5);
 	pkPlot->setPlotEffectType(iType);
 	pkPlot->setPlotEffectStrength(iStrength);
+	pkPlot->setPlotEffectPlayer(iPlayer);
+	pkPlot->setPlotEffectCaster(iCaster);
 	return 0;
 }
 //------------------------------------------------------------------------------

@@ -76,7 +76,7 @@
 
 #define EA_EVENT_ACQUIRE_PLOT				// GameEvents.CityCanAcquirePlot(iPlayer, iCity, x, y)
 
-#define EA_PLOTS							// Persisted plot data for Ea's Living Terrain and plot methods
+#define EA_PLOTS							// Persisted plot data and methods for Ea's Living Terrain and plot effects (Glyphs, Runes and Wards)
 
 #define EA_UNIT_MORALE						// Set of Lua methods and persisted unit int for Ea's Morale system (needs UI Lua/XML support to show in unit panel)
 #define EA_UNIT_PERSON_INFO					// Just a persisted unit int used for GPs, with Get, Set Lua methods
