@@ -455,6 +455,25 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// Gold from Cities
 	iNetGold = GetGoldFromCitiesTimes100();
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - Apply Leader effect to non-city positive income
+	int iNetGoldToModify = 0;
+	iNetGoldToModify += GetGoldPerTurnFromDiplomacy() * 100;	
+	if (iNetGoldToModify < 0)				// Only modify diplomacy gold if positive
+	{
+		iNetGold += iNetGoldToModify;
+		iNetGoldToModify = 0;
+	}
+
+	iNetGoldToModify += GetCityConnectionGoldTimes100();
+	iNetGoldToModify += GetGoldPerTurnFromReligion() * 100;		// always positive?
+	iNetGoldToModify += GetGoldPerTurnFromTraits() * 100;		// always positive?
+
+	int iModifier = 100 + m_pPlayer->GetLeaderYieldBoost(YIELD_GOLD);
+	iNetGoldToModify *= iModifier;
+	iNetGoldToModify /= 100;
+
+	iNetGold += iNetGoldToModify;
+#else
 	// Gold per Turn from Diplomacy
 	iNetGold += GetGoldPerTurnFromDiplomacy() * 100;
 
@@ -466,6 +485,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 
 	// International trade
 	iNetGold += GetGoldPerTurnFromTraits() * 100;
+#endif
 
 	return iNetGold;
 }

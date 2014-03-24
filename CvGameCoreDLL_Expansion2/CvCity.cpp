@@ -5320,11 +5320,6 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 	int iTradeYield = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
 	iModifiedProduction += iTradeYield;
 
-	//ls612: Modified by owner
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
-	iModifiedProduction *= (100 + GET_PLAYER(getOwner()).GetLeaderYieldBoost(YIELD_PRODUCTION));
-#endif
-
 	return iModifiedProduction;
 }
 
@@ -6680,11 +6675,6 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			iTotalMod += iMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
 		}
-		// ls612: Food difference modified by owner
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
-		iTotalMod += GET_PLAYER(getOwner()).GetLeaderYieldBoost(YIELD_FOOD);
-#endif
-
 
 		iDifference *= iTotalMod;
 		iDifference /= 100;
@@ -7544,8 +7534,11 @@ int CvCity::getJONSCulturePerTurn() const
 	{
 		iModifier += GC.getPUPPET_CULTURE_MODIFIER();
 	}
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: Culture = 4
-	iModifier += GetCityResidentYieldBoost((YieldTypes) 4);
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS // Paz - Apply leader and resident effect at each city
+	// Leader
+	iModifier += GET_PLAYER(getOwner()).GetLeaderYieldBoost(YIELD_CULTURE);
+	// City Resident
+	iModifier += GetCityResidentYieldBoost(YIELD_CULTURE);
 #endif
 
 	iCulture *= iModifier;
@@ -7681,6 +7674,24 @@ int CvCity::GetFaithPerTurn() const
 	iFaith += GetFaithPerTurnFromTraits();
 	iFaith += GetFaithPerTurnFromReligion();
 
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS //	Paz - Additive modifiers like everywhere else
+	int iModifier = 100;
+
+	// Puppet?
+	if(IsPuppet())
+	{
+		iModifier += GC.getPUPPET_FAITH_MODIFIER();
+	}
+
+	// Leader
+	iModifier += GET_PLAYER(getOwner()).GetLeaderYieldBoost(YIELD_FAITH);
+
+	// City Resident
+	iModifier += GetCityResidentYieldBoost(YIELD_FAITH);
+
+	iFaith *= iModifier;
+	iFaith /= 100;
+#else
 	// Puppet?
 	int iModifier = 0;
 	if(IsPuppet())
@@ -7689,10 +7700,6 @@ int CvCity::GetFaithPerTurn() const
 		iFaith *= (100 + iModifier);
 		iFaith /= 100;
 	}
-
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: faith = 5
-	iFaith *= (100 + GetCityResidentYieldBoost((YieldTypes) 5));
-	iFaith /= 100;
 #endif
 	return iFaith;
 }
@@ -9223,6 +9230,21 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	int iModifier = 0;
 	int iTempMod;
 
+
+#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - modify here so additive with other mods and to build help string
+	// From Leader
+	iTempMod = GET_PLAYER(getOwner()).GetLeaderYieldBoost(eIndex);
+	iModifier += iTempMod;
+	if(toolTipSink)
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EA_PRODMOD_YIELD_LEADER", iTempMod);
+
+	// From City Resident
+	iTempMod = GetCityResidentYieldBoost(eIndex);
+	iModifier += iTempMod;
+	if(toolTipSink)
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EA_PRODMOD_YIELD_CITY_RESIDENT", iTempMod);
+#endif
+
 	// Yield Rate Modifier
 	iTempMod = getYieldRateModifier(eIndex);
 	iModifier += iTempMod;
@@ -9403,24 +9425,6 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 		iModifiedYield += iTradeYield;
 	}
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: these are processed separately b/c they are intended to be supplied from Lua
-	if (eIndex == YIELD_GOLD)
-	{
-		iModifiedYield *= (100 + GetCityResidentYieldBoost(YIELD_GOLD));
-		iModifiedYield /= 100;
-	}
-	else if (eIndex == YIELD_FOOD)
-	{
-		iModifiedYield *= (100 + GetCityResidentYieldBoost(YIELD_FOOD));
-		iModifiedYield /= 100;
-	}
-	else if (eIndex == YIELD_PRODUCTION)
-	{
-		iModifiedYield *= (100 + GetCityResidentYieldBoost(YIELD_SCIENCE));
-		iModifiedYield /= 100;
-	}
-#endif
-
 	return iModifiedYield;
 }
 
@@ -9438,14 +9442,6 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
 	iValue += GetBaseYieldRateFromMisc(eIndex);
 	iValue += GetBaseYieldRateFromReligion(eIndex);
-
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: Production is wierd
-	if (eIndex == YIELD_PRODUCTION)
-	{
-		iValue *= (100 + GetCityResidentYieldBoost(YIELD_PRODUCTION));
-		iValue /= 100;
-	}
-#endif
 
 	return iValue;
 }
@@ -10384,6 +10380,20 @@ void CvCity::SetCityResidentYieldBoost(YieldTypes eYield, int iPercent)
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
 	m_paiCityResidentYieldBoosts.setAt((int)eYield, iPercent);
+
+	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
+	{
+		if(isCitySelected())
+		{
+			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
+		}
+	}
+
+	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
+
+	auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+	DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_PRODUCTION);
+
 }
 #endif
 
