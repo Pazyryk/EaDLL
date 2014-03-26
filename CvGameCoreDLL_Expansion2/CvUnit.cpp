@@ -1640,6 +1640,21 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 						}
 						DLLUI->AddUnitMessage(0, IDInfo(kCaptureDef.eCapturingPlayer, pkCapturedUnit->GetID()), kCaptureDef.eCapturingPlayer, true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_UNITCAPTURE", MESSAGE_TYPE_INFO, GC.getUnitInfo(eCaptureUnitType)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX(), pPlot->getY()*/);
 					}
+#ifdef EA_EVENT_UNIT_CAPTURED	// Paz - add GameEvents.UnitCaptured CallHook
+					if ((pkCapturedUnit != NULL) && (!pkCapturedUnit->isDelayedDeath()))	// Unit will be dead or dying if this was a civilian capture being returned by AI
+					{
+						ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+						if (pkScriptSystem)
+						{
+							CvLuaArgsHandle args;
+							args->Push(pkCapturedUnit->getOwner());
+							args->Push(pkCapturedUnit->GetID());
+
+							bool bResult;
+							LuaSupport::CallHook(pkScriptSystem, "UnitCaptured", args.get(), bResult);
+						}
+					}
+#endif
 				}
 			}
 		}
@@ -12950,6 +12965,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								else
 								{
 									bool bDisplaced = false;
+#ifndef EA_EVENT_CAN_CAPTURE_CIVILIAN			// Paz - won't need this and it might mess with CanCaptureCivilian below
 									ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 									if(pkScriptSystem)
 									{
@@ -12967,7 +12983,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											}
 										}
 									}
-
+#endif
 									if (!bDisplaced)
 									{
 										Localization::String strMessage;
@@ -12977,7 +12993,36 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										// Some units can't capture civilians. Embarked units are also not captured, they're simply killed. And some aren't a type that gets captured.
 										// slewis - removed the capture clause so that helicopter gunships could capture workers. The promotion says that No Capture only effects cities.
 										//if(!isNoCapture() && (!pLoopUnit->isEmbarked() || pLoopUnit->getUnitInfo().IsCaptureWhileEmbarked()) && pLoopUnit->getCaptureUnitType(GET_PLAYER(pLoopUnit->getOwner()).getCivilizationType()) != NO_UNIT)
+
+#ifdef EA_EVENT_CAN_CAPTURE_CIVILIAN	// Paz - add CanCaptureCivilian
+										bool bAllowCapture = (!pLoopUnit->isEmbarked() || pLoopUnit->getUnitInfo().IsCaptureWhileEmbarked()) && pLoopUnit->getCaptureUnitType(GET_PLAYER(pLoopUnit->getOwner()).getCivilizationType()) != NO_UNIT;
+
+										if(bAllowCapture)
+										{
+											ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+											if(pkScriptSystem)
+											{
+												CvLuaArgsHandle args;
+												args->Push(getOwner());		// Using this for Slavery test, so don't need much info
+												args->Push(GetID()); 
+
+												bool bResult = false;
+												if(LuaSupport::CallTestAll(pkScriptSystem, "CanCaptureCivilian", args.get(), bResult))
+												{
+													// Check the result.
+													if(!bResult)
+													{
+														bAllowCapture = false;
+													}
+												}
+											}
+										}
+
+										if(bAllowCapture)		// update above if line below changes
+#else
 										if((!pLoopUnit->isEmbarked() || pLoopUnit->getUnitInfo().IsCaptureWhileEmbarked()) && pLoopUnit->getCaptureUnitType(GET_PLAYER(pLoopUnit->getOwner()).getCivilizationType()) != NO_UNIT)
+#endif
+										
 										{
 											bDoCapture = true;
 
