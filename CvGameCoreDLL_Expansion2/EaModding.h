@@ -43,8 +43,8 @@
 
 //#define EA_GP_MAX_HIT_POINTS
 
-// Some of Gedemon's Combat Events
-#define EA_COMBAT_EVENTS
+// Combat
+#define EA_COMBAT_EVENTS					// Some of Gedemon's GameEvents; and modifies CanSaveUnit to provide bDelayed
 
 
 // Civ & Leader changing:
