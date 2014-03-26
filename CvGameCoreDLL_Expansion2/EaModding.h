@@ -53,8 +53,9 @@
 // Civ contact:
 #define EA_EVENT_CAN_MEET_TEAM				// GameEvents.CanMeetTeam; prevents all contact including war state change, but can still start/end war via Lua
 #define EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// GameEvents.CanContactMajorTeam; prevents UI and AI interaction after meeting
-// Animal player support:
-#define EA_ANIMAL_PLAYER					// Add as player 62 (define ANIMAL_PLAYER, ANIMAL_TEAM enums); all spawning logic on Lua side						
+// Animal player support:					! Mod must add CIVILIZATION_ANIMALS in Civilizations and ANIMALS_CIVILIZATION in PostDefines !
+#define EA_ANIMAL_PLAYER					// Add as player 62 (define ANIMAL_PLAYER, ANIMAL_TEAM enums); all spawning logic on Lua side	
+							
 #define EA_ANIMAL_BEHAVIOR					// Don't enter enemy borders; don't pillage trade route
 #define EA_ANIMAL_THREAT_ADJUSTMENTS		// NOT IMPLEMENTED YET! AI don't worry about animals if inside borders
 // Gods
