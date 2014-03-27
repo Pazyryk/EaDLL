@@ -8438,11 +8438,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 		return false;
 	}
 
-#ifdef EA_NEW_BUILD_REQUIREMENTS
 	if (GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH || GC.getBuildInfo(eBuild)->getObsoleteTech() != NO_TECH)
-#else
-	if(GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH)
-#endif
 	{
 		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())))
 		{
@@ -18727,8 +18723,9 @@ void CvPlayer::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiImprovementYieldChange[eIndex1];
 		yields[eIndex2] = (m_ppaaiImprovementYieldChange[eIndex1][eIndex2] + iChange);
 		m_ppaaiImprovementYieldChange.setAt(eIndex1, yields);
+#ifndef EA_NEGATIVE_YIELDS		// Paz - allow negative changes
 		CvAssert(getImprovementYieldChange(eIndex1, eIndex2) >= 0);
-
+#endif
 		updateYield();
 	}
 }
