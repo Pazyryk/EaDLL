@@ -9616,7 +9616,6 @@ bool CvUnit::canBuildRoute() const
 
 	CvTeamTechs* pTeamTechs = thisTeam.GetTeamTechs();
 #ifdef EA_NEW_BUILD_REQUIREMENTS
-	bool bReject = false; //ls612: makes my life easier
 	CvPlayerPolicies* pPlayerPolicies = GET_PLAYER(getOwner()).GetPlayerPolicies();
 #endif
 
@@ -9636,19 +9635,19 @@ bool CvUnit::canBuildRoute() const
 #else			//ls612: any one of these is grounds for rejection of the build in Ea
 				if (!pTeamTechs->HasTech((TechTypes) (thisBuildInfo->getTechPrereq())))
 				{
-					bReject = true;
+					return false;
 				}
 
 				if (pTeamTechs->HasTech((TechTypes) (thisBuildInfo->getObsoleteTech())))
 				{
-					bReject = true;
+					return false;
 				}
 
 				if (thisBuildInfo->getObsoletePolicy() != NO_POLICY)
 				{
 					if (pPlayerPolicies->HasPolicy((PolicyTypes) (thisBuildInfo->getObsoletePolicy())))
 					{
-						bReject = true;
+						return false;
 					}
 				}
 
@@ -9656,13 +9655,8 @@ bool CvUnit::canBuildRoute() const
 				{
 					if (!pPlayerPolicies->HasPolicy((PolicyTypes) (thisBuildInfo->getPrereqPolicy())))
 					{
-						bReject = true;
+						return false;
 					}
-				}
-
-				if (bReject)
-				{
-					return false;
 				}
 #endif
 			}
