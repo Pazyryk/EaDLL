@@ -62,6 +62,8 @@
 // Policy, Tech counting
 #define EA_DONT_COUNT_UTILITY_POLICIES
 #define EA_DONT_COUNT_UTILITY_TECHS			//ls612: Utility Tech stuff
+// Plots
+#define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
 
 // New Tags
 #define EA_NATURAL_WONDER_HAPPINESS			//ls612: Moving that out of lua into the DLL

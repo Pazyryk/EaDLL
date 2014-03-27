@@ -1103,6 +1103,12 @@ public:
 	bool IsWater() const;
 	bool IsCanBeEmbarked() const;
 
+#ifdef EA_NEW_BUILD_REQUIREMENTS //ls612
+	int getObsoleteTech() const;
+	int getPrereqPolicy() const;
+	int getObsoletePolicy() const;
+#endif
+
 	// Arrays
 	int getFeatureTech(int i) const;
 	int getFeatureTime(int i) const;
@@ -1129,6 +1135,12 @@ protected:
 	bool m_bRemoveRoute;
 	bool m_bWater;
 	bool m_bCanBeEmbarked;
+
+#ifdef EA_NEW_BUILD_REQUIREMENTS //ls612
+	int m_iTechObsolete;
+	int m_iPolicyPrereq;
+	int m_iPolicyObsolete;
+#endif
 
 	// Arrays
 	int* m_paiFeatureTech;
