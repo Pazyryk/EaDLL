@@ -8438,7 +8438,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 		return false;
 	}
 
-	if (GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH || GC.getBuildInfo(eBuild)->getObsoleteTech() != NO_TECH)
+	if (GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH)
 	{
 		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())))
 		{
@@ -8447,7 +8447,10 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 				return false;
 			}
 		}
+	}
 #ifdef EA_NEW_BUILD_REQUIREMENTS
+	if (GC.getBuildInfo(eBuild)->getObsoleteTech() != NO_TECH)
+	{
 		//ls612: Do we have the tech which makes this obsolete?
 		if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getBuildInfo(eBuild)->getObsoleteTech()))
 		{
@@ -8456,14 +8459,20 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 				return false;
 			}
 		}
-#endif
 	}
 
-#ifdef EA_NEW_BUILD_REQUIREMENTS
 	//ls612: Do we have policies which enable or disable this build?
-	if (GC.getBuildInfo(eBuild)->getPrereqPolicy() != NO_POLICY || GC.getBuildInfo(eBuild)->getObsoletePolicy() != NO_POLICY)
+	if (GC.getBuildInfo(eBuild)->getPrereqPolicy() != NO_POLICY)
 	{
-		if (GetPlayerPolicies()->HasPolicy((PolicyTypes) GC.getBuildInfo(eBuild)->getObsoletePolicy()) || !(GetPlayerPolicies()->HasPolicy((PolicyTypes) GC.getBuildInfo(eBuild)->getPrereqPolicy())))
+		if (!(GetPlayerPolicies()->HasPolicy((PolicyTypes) GC.getBuildInfo(eBuild)->getPrereqPolicy())))
+		{
+			return false;
+		}
+	}
+
+	if (GC.getBuildInfo(eBuild)->getObsoletePolicy() != NO_POLICY)
+	{
+		if (GetPlayerPolicies()->HasPolicy((PolicyTypes) GC.getBuildInfo(eBuild)->getObsoletePolicy()))
 		{
 			return false;
 		}
