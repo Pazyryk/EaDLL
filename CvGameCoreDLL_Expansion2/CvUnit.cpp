@@ -9668,8 +9668,11 @@ bool CvUnit::canBuildRoute() const
 			}
 		}
 	}
-
+#ifndef EA_NEW_BUILD_REQUIREMENTS
 	return false;
+#else
+	return true;
+#endif
 }
 
 //	----------------------------------------------------------------------------
