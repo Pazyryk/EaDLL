@@ -9652,21 +9652,26 @@ bool CvUnit::canBuildRoute() const
 					return true;
 				}
 #else			//ls612: any one of these is grounds for rejection of the build in Ea
-				if (!pTeamTechs->HasTech((TechTypes) (thisBuildInfo->getTechPrereq())))
+				if (thisBuildInfo->getTechPrereq() != NO_TECH)		// Paz - this check needed for Has or !Has, not sure which (safest to add in all cases)
 				{
-					return false;
+					if (!pTeamTechs->HasTech((TechTypes) (thisBuildInfo->getTechPrereq())))
+					{
+						continue;
+					}
 				}
-
-				if (pTeamTechs->HasTech((TechTypes) (thisBuildInfo->getObsoleteTech())))
+				if (thisBuildInfo->getObsoleteTech() != NO_TECH)
 				{
-					return false;
+					if (pTeamTechs->HasTech((TechTypes) (thisBuildInfo->getObsoleteTech())))
+					{
+						continue;
+					}
 				}
 
 				if (thisBuildInfo->getObsoletePolicy() != NO_POLICY)
 				{
 					if (pPlayerPolicies->HasPolicy((PolicyTypes) (thisBuildInfo->getObsoletePolicy())))
 					{
-						return false;
+						continue;
 					}
 				}
 
@@ -9674,19 +9679,19 @@ bool CvUnit::canBuildRoute() const
 				{
 					if (!pPlayerPolicies->HasPolicy((PolicyTypes) (thisBuildInfo->getPrereqPolicy())))
 					{
-						return false;
+						continue;
 					}
 				}
+				return true;
 #endif
 			}
 		}
 	}
-#ifndef EA_NEW_BUILD_REQUIREMENTS
+
 	return false;
-#else
-	return true;
-#endif
 }
+
+
 
 //	----------------------------------------------------------------------------
 BuildTypes CvUnit::getBuildType() const
