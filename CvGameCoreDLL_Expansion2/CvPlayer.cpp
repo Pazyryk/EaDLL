@@ -8438,7 +8438,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 		return false;
 	}
 
-	if(GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH)
+	if (GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH || GC.getBuildInfo(eBuild)->getObsoleteTech() != NO_TECH)
 	{
 		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())))
 		{
@@ -8447,7 +8447,28 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 				return false;
 			}
 		}
+#ifdef EA_NEW_BUILD_REQUIREMENTS
+		//ls612: Do we have the tech which makes this obsolete?
+		if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getBuildInfo(eBuild)->getObsoleteTech()))
+		{
+			if ((!bTestEra && !bTestVisible) || ((GetCurrentEra() - 1) > GC.getTechInfo((TechTypes) GC.getBuildInfo(eBuild)->getTechPrereq())->GetEra()))
+			{
+				return false;
+			}
+		}
+#endif
 	}
+
+#ifdef EA_NEW_BUILD_REQUIREMENTS
+	//ls612: Do we have policies which enable or disable this build?
+	if (GC.getBuildInfo(eBuild)->getPrereqPolicy() != NO_POLICY || GC.getBuildInfo(eBuild)->getObsoletePolicy() != NO_POLICY)
+	{
+		if (GetPlayerPolicies()->HasPolicy((PolicyTypes) GC.getBuildInfo(eBuild)->getObsoletePolicy()) || !(GetPlayerPolicies()->HasPolicy((PolicyTypes) GC.getBuildInfo(eBuild)->getPrereqPolicy())))
+		{
+			return false;
+		}
+	}
+#endif
 
 	// Is this an improvement that is only useable by a specific civ?
 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
@@ -20589,10 +20610,17 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 		{
 			if(pkBuildInfo->getRoute() == eRoute)
 			{
+#ifndef EA_NEW_BUILD_REQUIREMENTS
 				if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechPrereq())))
 				{
 					return -1;
 				}
+#else			//ls612
+				if (!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) pkBuildInfo->getTechPrereq())) || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) pkBuildInfo->getObsoleteTech()))
+				{
+					return -1;
+				}
+#endif
 			}
 		}
 	}
@@ -20705,6 +20733,29 @@ int CvPlayer::getAdvancedStartImprovementCost(ImprovementTypes eImprovement, boo
 			{
 				return -1;
 			}
+#ifdef EA_NEW_BUILD_REQUIREMENTS
+			//ls612: in Ea we need to check for lack of policies, or having techs/policies which disallow this build, even in advanced start
+			if ((GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) pkBuildInfo->getObsoleteTech())))
+			{
+				return -1;
+			}
+
+			if (pkBuildInfo->getObsoletePolicy() != NO_POLICY)
+			{
+				if (GetPlayerPolicies()->HasPolicy((PolicyTypes) (pkBuildInfo->getObsoletePolicy())))
+				{
+					return -1;
+				}
+			}
+
+			if (pkBuildInfo->getPrereqPolicy() != NO_POLICY)
+			{
+				if (!GetPlayerPolicies()->HasPolicy((PolicyTypes) (pkBuildInfo->getPrereqPolicy())))
+				{
+					return -1;
+				}
+			}
+#endif
 		}
 	}
 

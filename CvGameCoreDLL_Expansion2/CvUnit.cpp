@@ -9634,6 +9634,10 @@ bool CvUnit::canBuildRoute() const
 	CvTeam& thisTeam = GET_TEAM(getTeam());
 
 	CvTeamTechs* pTeamTechs = thisTeam.GetTeamTechs();
+#ifdef EA_NEW_BUILD_REQUIREMENTS
+	bool bReject = false; //ls612: makes my life easier
+	CvPlayerPolicies* pPlayerPolicies = GET_PLAYER(getOwner()).GetPlayerPolicies();
+#endif
 
 	int iNumBuildInfos = GC.getNumBuildInfos();
 	for(int iI = 0; iI < iNumBuildInfos; iI++)
@@ -9643,10 +9647,43 @@ bool CvUnit::canBuildRoute() const
 		{
 			if(m_pUnitInfo->GetBuilds(iI))
 			{
+#ifndef EA_NEW_BUILD_REQUIREMENTS //ls612: New Ea stuff processed here
 				if(pTeamTechs->HasTech((TechTypes)(thisBuildInfo->getTechPrereq())))
 				{
 					return true;
 				}
+#else			//ls612: any one of these is grounds for rejection of the build in Ea
+				if (!pTeamTechs->HasTech((TechTypes) (thisBuildInfo->getTechPrereq())))
+				{
+					bReject = true;
+				}
+
+				if (pTeamTechs->HasTech((TechTypes) (thisBuildInfo->getObsoleteTech())))
+				{
+					bReject = true;
+				}
+
+				if (thisBuildInfo->getObsoletePolicy() != NO_POLICY)
+				{
+					if (pPlayerPolicies->HasPolicy((PolicyTypes) (thisBuildInfo->getObsoletePolicy())))
+					{
+						bReject = true;
+					}
+				}
+
+				if (thisBuildInfo->getPrereqPolicy() != NO_POLICY)
+				{
+					if (!pPlayerPolicies->HasPolicy((PolicyTypes) (thisBuildInfo->getPrereqPolicy())))
+					{
+						bReject = true;
+					}
+				}
+
+				if (bReject)
+				{
+					return false;
+				}
+#endif
 			}
 		}
 	}

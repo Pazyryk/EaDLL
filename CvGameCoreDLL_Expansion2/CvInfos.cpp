@@ -3672,6 +3672,11 @@ CvBuildInfo::CvBuildInfo() :
 	m_bRemoveRoute(false),
 	m_bWater(false),
 	m_bCanBeEmbarked(false),
+#ifdef EA_NEW_BUILD_REQUIREMENTS //ls612
+	m_iTechObsolete(NO_TECH),
+	m_iPolicyPrereq(NO_POLICY),
+	m_iPolicyObsolete(NO_POLICY),
+#endif
 	m_paiFeatureTech(NULL),
 	m_paiFeatureTime(NULL),
 	m_paiFeatureProduction(NULL),
@@ -3761,6 +3766,24 @@ bool CvBuildInfo::IsCanBeEmbarked() const
 	return m_bCanBeEmbarked;
 }
 
+#ifdef EA_NEW_BUILD_REQUIREMENTS //ls612
+//------------------------------------------------------------------------------
+int CvBuildInfo::getObsoleteTech() const
+{
+	return m_iTechObsolete;
+}
+//------------------------------------------------------------------------------
+int CvBuildInfo::getObsoletePolicy() const
+{
+	return m_iPolicyObsolete;
+}
+//------------------------------------------------------------------------------
+int CvBuildInfo::getPrereqPolicy() const
+{
+	return m_iPolicyPrereq;
+}
+#endif
+
 //------------------------------------------------------------------------------
 int CvBuildInfo::getFeatureTech(int i) const
 {
@@ -3829,6 +3852,16 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	const char* szEntityEvent = kResults.GetText("EntityEvent");
 	m_iEntityEvent = GC.getInfoTypeForString(szEntityEvent, true);
+#ifdef EA_NEW_BUILD_REQUIREMENTS //ls612
+	const char* szObsoleteTech = kResults.GetText("DisallowTech");
+	m_iTechObsolete = GC.getInfoTypeForString(szObsoleteTech, true);
+
+	const char* szObsoletePolicy = kResults.GetText("DisallowPolicy");
+	m_iPolicyObsolete = GC.getInfoTypeForString(szObsoletePolicy, true);
+
+	const char* szPrereqPolicy = kResults.GetText("PrereqPolicy");
+	m_iPolicyPrereq = GC.getInfoTypeForString(szPrereqPolicy, true);
+#endif
 
 	//NOTE: Why isn't this really a struct? o_O
 	//HACK: Temporary until the stored proc system is finished

@@ -55,7 +55,6 @@
 #define EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// GameEvents.CanContactMajorTeam; prevents UI and AI interaction after meeting
 // Animal player support:					! Mod must add CIVILIZATION_ANIMALS in Civilizations and ANIMALS_CIVILIZATION in PostDefines !
 #define EA_ANIMAL_PLAYER					// Add as player 62 (define ANIMAL_PLAYER, ANIMAL_TEAM enums); all spawning logic on Lua side	
-							
 #define EA_ANIMAL_BEHAVIOR					// Don't enter enemy borders; don't pillage trade route
 #define EA_ANIMAL_THREAT_ADJUSTMENTS		// NOT IMPLEMENTED YET! AI don't worry about animals if inside borders
 // Gods
@@ -63,12 +62,10 @@
 // Policy, Tech counting
 #define EA_DONT_COUNT_UTILITY_POLICIES
 #define EA_DONT_COUNT_UTILITY_TECHS			//ls612: Utility Tech stuff
-// Unit capture and conversion
-
-
+// Plots
+#define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
 // Natural Wonders
 #define EA_NATURAL_WONDER_HAPPINESS			//ls612: Moving that out of lua into the DLL
-
 
 // GameEvents
 #define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
@@ -81,7 +78,6 @@
 
 // Misc extended Lua support:
 #define EA_PLOTS							// Persisted plot data and methods for Ea's Living Terrain and plot effects (Glyphs, Runes and Wards)
-
 #define EA_UNIT_MORALE						// Set of Lua methods and persisted unit int for Ea's Morale system (needs UI Lua/XML support to show in unit panel)
 #define EA_UNIT_PERSON_INFO					// Just a persisted unit int used for GPs, with Get, Set Lua methods
 #define EA_TEST_PROMOTION_READY				// unit:TestPromotionReady()
