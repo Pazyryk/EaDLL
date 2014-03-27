@@ -8438,7 +8438,11 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 		return false;
 	}
 
+#ifdef EA_NEW_BUILD_REQUIREMENTS
 	if (GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH || GC.getBuildInfo(eBuild)->getObsoleteTech() != NO_TECH)
+#else
+	if(GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH)
+#endif
 	{
 		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())))
 		{

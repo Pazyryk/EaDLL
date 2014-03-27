@@ -480,7 +480,7 @@ bool CvDangerPlots::IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlo
 /// Should this player be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 {
-	if(GET_PLAYER(m_ePlayer).isMinorCiv() != GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian() && !GET_PLAYER(m_ePlayer).isBarbarian())	// Paz - mod for Animals
+	if(GET_PLAYER(m_ePlayer).isMinorCiv() != GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian() && !GET_PLAYER(m_ePlayer).isBarbarian())
 	{
 		CvPlayer* pMinor = NULL;
 		CvPlayer* pMajor;
