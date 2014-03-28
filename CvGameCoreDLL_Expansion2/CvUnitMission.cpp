@@ -123,9 +123,91 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 					FeatureTypes eFeature = hUnit->plot()->getFeatureType();
 					if(eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
 					{
+
+
+#ifdef EA_BUILD_AI_CHANGES	//	Paz - Arghhhhh!!!!!	Table ID hard-coding! And to add insult, string comparison!
+							//	OK, this is bad, but I'm going to replace hard-coding with more hard-coding.
+							//	But at least I will use type strings rather than table IDs. The situation is
+							//	more complicated in Ea because we have two possible remove builds for forest
+							//	and jungle (one better than the other if valid). And heck, why not use the 
+							//	already hard-coded feature enums anyway?
+							//
+							//	Note: there is a lot that can go wrong here if Builds & FeatureBuilds tables are
+							//	not correct. (Was and still is true.)
+
+						MissionData removeMission;	
+						removeMission.eMissionType = eMission;
+
+						if (eFeature == FEATURE_FOREST)
+						{
+							const BuildTypes eForestSlashBurn = (BuildTypes)GC.getInfoTypeForString("BUILD_SLASH_BURN_FOREST");
+							const BuildTypes eForestChop = (BuildTypes)GC.getInfoTypeForString("BUILD_CHOP_FOREST");
+							if (eBuild != eForestSlashBurn && eBuild != eForestChop)
+							{
+								if (hUnit->canBuild(hUnit->plot(), eForestChop, false, false))
+									removeMission.iData1 = (int)eForestChop;
+								else
+									removeMission.iData1 = (int)eForestSlashBurn;		// assume this is available
+								removeMission.iData2 = iData2;
+								removeMission.iFlags = iFlags;
+								removeMission.iPushTurn = GC.getGame().getGameTurn();
+								hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+								InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
+								bAppend = true;
+							}
+						}
+						if (eFeature == FEATURE_JUNGLE)
+						{
+							const BuildTypes eJungleSlashBurn = (BuildTypes)GC.getInfoTypeForString("BUILD_SLASH_BURN_JUNGLE");
+							const BuildTypes eJungleChop = (BuildTypes)GC.getInfoTypeForString("BUILD_CHOP_JUNGLE");
+							if (eBuild != eJungleSlashBurn && eBuild != eJungleChop)
+							{
+								if (hUnit->canBuild(hUnit->plot(), eJungleChop, false, false))
+									removeMission.iData1 = (int)eJungleChop;
+								else
+									removeMission.iData1 = (int)eJungleSlashBurn;
+								removeMission.iData2 = iData2;
+								removeMission.iFlags = iFlags;
+								removeMission.iPushTurn = GC.getGame().getGameTurn();
+								hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+								InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
+								bAppend = true;
+							}
+						}
+						if (eFeature == FEATURE_MARSH)
+						{
+							const BuildTypes eMarshRemove = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_MARSH");
+							if (eBuild != eMarshRemove)
+							{
+								removeMission.iData1 = (int)eMarshRemove;
+								removeMission.iData2 = iData2;
+								removeMission.iFlags = iFlags;
+								removeMission.iPushTurn = GC.getGame().getGameTurn();
+								hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+								InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
+								bAppend = true;
+							}
+						}
+						if (eFeature == FEATURE_BLIGHT)	// Paz - swap Fallout for Blight (only the latter has remove build)
+						{
+							const BuildTypes eBlightScrub = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_BLIGHT");
+							if (eBuild != eBlightScrub)
+							{
+								removeMission.iData1 = (int)eBlightScrub;
+								removeMission.iData2 = iData2;
+								removeMission.iFlags = iFlags;
+								removeMission.iPushTurn = GC.getGame().getGameTurn();
+								hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+								InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
+								bAppend = true;
+							}
+						}
+						// Paz - yes, still hard-coded. But no more table IDs or string matching...
+#else
 						CvFeatureInfo* feature = GC.getFeatureInfo(eFeature);
 						MissionData removeMission;
 						removeMission.eMissionType = eMission;
+
 						if(iData1 != 15 && strcmp(feature->GetType(), "FEATURE_FOREST") == 0)
 						{
 							removeMission.iData1 = 15; // todo: future proof this
@@ -156,7 +238,9 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
 							bAppend = true;
 						}
+
 						else if(iData1 != 17 && strcmp(feature->GetType(), "FEATURE_FALLOUT") == 0)
+
 						{
 							removeMission.iData1 = 17; // todo: future proof this
 							removeMission.iData2 = iData2;
@@ -166,6 +250,7 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
 							bAppend = true;
 						}
+#endif
 					}
 				}
 

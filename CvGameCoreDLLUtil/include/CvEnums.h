@@ -1176,6 +1176,9 @@ enum FeatureTypes
 	FEATURE_FLOOD_PLAINS,
 	FEATURE_FOREST,
 	FEATURE_FALLOUT,
+#ifdef EA_BUILD_AI_CHANGES
+	FEATURE_BLIGHT,		// Paz - this one and 7 before must have these IDs in the Features table
+#endif
 	FEATURE_NATURAL_WONDER,
 
 	NUM_FEATURE_TYPES

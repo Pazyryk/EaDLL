@@ -257,6 +257,9 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(FEATURE_FLOOD_PLAINS);
 	RegisterEnum(FEATURE_FOREST);
 	RegisterEnum(FEATURE_FALLOUT);
+#ifdef EA_BUILD_AI_CHANGES
+	RegisterEnum(FEATURE_BLIGHT);
+#endif
 	RegisterEnum(NUM_FEATURE_TYPES);
 	EnumEnd(L);
 

@@ -3068,7 +3068,11 @@ void CvGame::handleAction(int iAction)
 								CvPlot* pPlot = pkHeadSelectedUnit->plot();
 								if(pPlot != NULL)
 								{
+#ifdef EA_BUILD_AI_CHANGES		// Paz - Swap Fallout for Blight
+									if(pPlot->getImprovementType() != NO_IMPROVEMENT && !(pPlot->getFeatureType() == FEATURE_BLIGHT && pBuildInfo->isFeatureRemove(FEATURE_BLIGHT)))
+#else
 									if(pPlot->getImprovementType() != NO_IMPROVEMENT && !(pPlot->getFeatureType() == FEATURE_FALLOUT && pBuildInfo->isFeatureRemove(FEATURE_FALLOUT)))
+#endif
 									{
 										bShowConfirmPopup = true;
 									}
