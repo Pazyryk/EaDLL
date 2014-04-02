@@ -85,6 +85,9 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bFoundAbroad(false),
 	m_iCultureBombRadius(0),
 	m_iGoldenAgeTurns(0),
+#ifdef EA_GENERIC_WORKERS
+	m_bWorker(false),
+#endif
 	m_iFreePolicies(0),
 	m_iOneShotTourism(0),
 	m_iOneShotTourismPercentOthers(0),
@@ -217,7 +220,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bRangeAttackOnlyInDomain = kResults.GetBool("RangeAttackOnlyInDomain");
 	m_bTrade = kResults.GetBool("Trade");
 	m_iNumExoticGoods = kResults.GetInt("NumExoticGoods");
-
+#ifdef EA_GENERIC_WORKERS
+	m_bWorker = kResults.GetBool("IsWorker");
+#endif
 	m_strUnitArtInfoTag = kResults.GetText("UnitArtInfo");
 	m_bUnitArtInfoCulturalVariation = kResults.GetBool("UnitArtInfoCulturalVariation");
 	m_bUnitArtInfoEraVariation = kResults.GetBool("UnitArtInfoEraVariation");
@@ -914,6 +919,14 @@ int CvUnitEntry::GetNumExoticGoods() const
 {
 	return m_iNumExoticGoods;
 }
+
+#ifdef EA_GENERIC_WORKERS
+/// ls612: Is this unit a worker?
+int CvUnitEntry::isWorker() const
+{
+	return GetWorkRate() > 0;
+}
+#endif
 
 /// Return unit's current command
 int CvUnitEntry::GetCommandType() const

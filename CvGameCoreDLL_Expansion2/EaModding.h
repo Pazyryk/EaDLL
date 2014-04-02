@@ -66,6 +66,8 @@
 #define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
 #define EA_BUILD_AI_CHANGES					// UNDER CONSTRUCTION
 #define EA_NEGATIVE_YIELDS					// UNDER CONSTRUCTION: Allow negative yields in some specific cases
+// Units
+#define EA_GENERIC_WORKERS					//ls612: Remove hardcoded references to UNIT_WORKER
 
 // Natural Wonders
 #define EA_NATURAL_WONDER_HAPPINESS			//ls612: Moving that out of lua into the DLL
