@@ -629,6 +629,10 @@ public:
 	void setArtDefineTag(const char* szVal);
 	void setArtStylePrefix(const char* szVal);
 	void setArtStyleSuffix(const char* szVal);
+	
+#ifdef EA_GENERIC_WORKERS
+	int GetWorkerType() const;
+#endif // EA_GENERIC_WORKERS
 
 	int GetMinorCivTrait() const;
 
@@ -647,6 +651,10 @@ protected:
 	int m_iArtStyleType;
 	int m_iNumLeaders;				 // the number of leaders the Civ has, this is needed so that random leaders can be generated easily
 	int m_iMinorCivTrait;
+#ifdef EA_GENERIC_WORKERS //ls612
+	int m_iWorkerType;
+#endif // EA_GENERIC_WORKERS
+
 
 	bool m_bAIPlayable;
 	bool m_bPlayable;

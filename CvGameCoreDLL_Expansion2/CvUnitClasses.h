@@ -251,6 +251,9 @@ private:
 	int m_iLeaderPromotion;
 	bool m_bTrade;
 	int m_iNumExoticGoods;
+#ifdef EA_GENERIC_WORKERS
+	bool m_bWorker;
+#endif
 	// This is not loaded from XML, but cached so we don't have to recalculate every time
 	int m_iCachedPower;
 

@@ -8305,7 +8305,11 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	CvString sFactors = "";
 	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/true, &sFactors);
 	bool bCanBully = CanMajorBullyUnit(ePlayer, iScore);
+#ifndef EA_GENERIC_WORKERS
 	UnitTypes eUnitType = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"); //antonjs: todo: XML/function
+#else
+	UnitTypes eUnitType = (UnitTypes) GC.getMinorCivInfo(GetMinorCivType())->GetWorkerType(); //ls612: Genericized for Ea.
+#endif
 	CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnitType);
 	CvAssert(pUnitInfo);
 	if (!pUnitInfo)
@@ -9937,6 +9941,14 @@ int CvMinorCivInfo::GetMinorCivTrait() const
 {
 	return m_iMinorCivTrait;
 }
+#ifdef EA_GENERIC_WORKERS
+//------------------------------------------------------------------------------
+int CvMinorCivInfo::GetWorkerType() const
+{
+	return m_iWorkerType;
+}
+#endif // EA_GENERIC_WORKERS
+
 //------------------------------------------------------------------------------
 int CvMinorCivInfo::getFlavorValue(int i) const
 {
@@ -9992,6 +10004,12 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	szTextVal = kResults.GetText("MinorCivTrait");
 	m_iMinorCivTrait = GC.getInfoTypeForString(szTextVal, true);
+
+#ifdef EA_GENERIC_UNITS
+	szTextVal = kResults.GetText("WorkerUnitType");
+	m_iWorkerType = GC.getInfoTypeForString("WorkerUnitType");
+#endif // EA_GENERIC_UNITS
+
 
 	//Arrays
 	const char* szType = GetType();

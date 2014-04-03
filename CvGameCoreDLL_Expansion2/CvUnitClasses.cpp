@@ -922,9 +922,9 @@ int CvUnitEntry::GetNumExoticGoods() const
 
 #ifdef EA_GENERIC_WORKERS
 /// ls612: Is this unit a worker?
-int CvUnitEntry::isWorker() const
+bool CvUnitEntry::isWorker() const
 {
-	return GetWorkRate() > 0;
+	return m_bWorker;
 }
 #endif
 

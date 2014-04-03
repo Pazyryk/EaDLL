@@ -10340,8 +10340,12 @@ void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 	CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
+#ifndef EA_GENERIC_WORKRERS
 	UnitTypes eUnitType = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"); //antonjs: todo: XML/function
-
+#else //ls612: Genericized for Ea.
+	MinorCivTypes eMinorType = GET_PLAYER(eMinor).GetMinorCivAI()->GetMinorCivType();
+	UnitTypes eUnitType = (UnitTypes) GC.getInfoTypeForString(GC.getUnitInfo(eUnitType)->GetText());
+#endif
 	gDLL->sendMinorBullyUnit(eBully, eMinor, eUnitType);
 }
 

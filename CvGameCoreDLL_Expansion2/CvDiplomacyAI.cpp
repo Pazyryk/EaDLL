@@ -24097,7 +24097,11 @@ void CvDiplomacyAI::LogMinorCivBullyUnit(PlayerTypes eMinor, int iOldFriendshipT
 		strOutBuf = strBaseString;
 
 		// Unit tribute
+#ifndef EA_GENERIC_WORKERS
 		strTemp.Format("Unit Bully: %s", eUnit == (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER") ? "Worker" : "Other unit");
+#else
+		strTemp.Format("Unit Bully: %s", GC.getUnitInfo(eUnit)->GetText()); //ls612: Better Logging FTW
+#endif
 		strOutBuf += ", " + strTemp;
 
 		strTemp.Format("Friendship: %d to %d", iOldFriendshipTimes100 / 100, iNewFriendshipTimes100 / 100);
