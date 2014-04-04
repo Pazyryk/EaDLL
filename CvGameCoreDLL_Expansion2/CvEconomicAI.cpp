@@ -2581,11 +2581,29 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 		{
 			continue;
 		}
+#ifndef EA_GENERIC_WORKERS
 		UnitTypes eWorker = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER");
 		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
 			return pLoopUnit;
 		}
+#else
+		if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitInfo().isWorker() && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
+		{
+			//ls612: Horrible hack, but we don't ever want to scrap slaves, they cost nothing to maintain
+			UnitTypes eSlave1 = (UnitTypes) GC.getInfoTypeForString("UNIT_SLAVES_MAN");
+			UnitTypes eSlave2 = (UnitTypes) GC.getInfoTypeForString("UNIT_SLAVES_ORC");
+			UnitTypes eSlave3 = (UnitTypes) GC.getInfoTypeForString("UNIT_SLAVES_SIDHE");
+			if (pLoopUnit->getUnitType() != eSlave1 || pLoopUnit->getUnitType() != eSlave2 || pLoopUnit->getUnitType() != eSlave3)
+			{
+				continue;
+			}
+			else
+			{
+				return pLoopUnit;
+			}
+		}
+#endif
 	}
 
 	return NULL;
