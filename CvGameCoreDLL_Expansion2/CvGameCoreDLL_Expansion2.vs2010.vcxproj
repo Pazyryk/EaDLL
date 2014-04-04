@@ -308,6 +308,7 @@
     <ClCompile Include="Lua\CvLuaUnit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CvGameCoreDLLUtil\include\CvDLLUtilDefines.h" />
     <ClInclude Include="banned.h" />
     <ClInclude Include="CvAchievementUnlocker.h" />
     <ClInclude Include="CvAdvisorCounsel.h" />
