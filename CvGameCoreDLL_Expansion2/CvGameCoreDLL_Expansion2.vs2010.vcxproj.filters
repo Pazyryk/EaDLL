@@ -1030,6 +1030,9 @@
     <ClInclude Include="CvMinidump.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\CvGameCoreDLLUtil\include\CvDLLUtilDefines.h">
+      <Filter>Dll Interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CvGameCoreDLL.rc" />
