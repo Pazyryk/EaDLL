@@ -447,6 +447,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetNumRealBuilding);
 	Method(SetNumRealBuilding);
 	Method(GetNumFreeBuilding);
+#ifdef EA_CITY_METHODS
+	Method(SetNumFreeBuilding);
+#endif
 	Method(IsBuildingSellable);
 	Method(GetSellBuildingRefund);
 	Method(GetTotalBaseBuildingMaintenance);
@@ -3677,6 +3680,22 @@ int CvLuaCity::lGetNumFreeBuilding(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+#ifdef EA_CITY_METHODS
+//void SetNumFreeBuilding(BuildingTypes iIndex, int iNewValue);
+int CvLuaCity::lSetNumFreeBuilding(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes iIndex = toValue<BuildingTypes>(L, 2);
+	if(iIndex != NO_BUILDING)
+	{
+		const int iNewValue = lua_tointeger(L, 3);
+		pkCity->GetCityBuildings()->SetNumFreeBuilding(iIndex, iNewValue);
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+#endif
 //bool IsBuildingSellable(BuildingTypes iIndex);
 int CvLuaCity::lIsBuildingSellable(lua_State* L)
 {
