@@ -87,6 +87,7 @@
 #define EA_UNIT_PERSON_INFO					// Just a persisted unit int used for GPs, with Get, Set Lua methods
 #define EA_TEST_PROMOTION_READY				// unit:TestPromotionReady()
 #define EA_PATHFINDING						// unit:TurnsToReachTarget(CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
+#define EA_CITY_METHODS						// just SetNumFreeBuilding for now
 
 //Lua Methods
 #define EA_EXTENDED_LUA_YIELD_METHODS		//ls612: Both player:SetLeaderYieldBoost(yieldTypeID, percentBoost) and city:SetCityResidentYieldBoost(yieldTypeID, percentBoost)
