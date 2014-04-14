@@ -477,6 +477,8 @@ protected:
 #ifdef EA_UNIT_PERSON_INFO
 	static int lGetPersonIndex(lua_State* L);
 	static int lSetPersonIndex(lua_State* L);
+	static int lGetSummonerIndex(lua_State* L);
+	static int lSetSummonerIndex(lua_State* L);
 #endif
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL
 	static int lGetGPAttackState(lua_State* L);
