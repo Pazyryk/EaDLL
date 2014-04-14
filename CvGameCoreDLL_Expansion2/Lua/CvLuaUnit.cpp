@@ -469,6 +469,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #ifdef EA_UNIT_PERSON_INFO
 	Method(GetPersonIndex);
 	Method(SetPersonIndex);
+	Method(GetSummonerIndex);
+	Method(SetSummonerIndex);
 #endif
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL
 	Method(GetGPAttackState);
@@ -4427,6 +4429,24 @@ int CvLuaUnit::lSetPersonIndex(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const int iNewValue = lua_tointeger(L, 2);	
 	pkUnit->setPersonIndex(iNewValue);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//int GetSummonerIndex()
+int CvLuaUnit::lGetSummonerIndex(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iIndex = pkUnit->getSummonerIndex();
+	lua_pushinteger(L, iIndex);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void SetSummonerIndex(int iIndex)
+int CvLuaUnit::lSetSummonerIndex(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iNewValue = lua_tointeger(L, 2);	
+	pkUnit->setSummonerIndex(iNewValue);
 	return 0;
 }
 //------------------------------------------------------------------------------

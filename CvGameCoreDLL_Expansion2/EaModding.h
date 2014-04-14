@@ -74,6 +74,8 @@
 
 // GameEvents
 #define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
+#define EA_EVENT_CHANGE_EXPERIENCE			// GameEvents.CanChangeExperience(iPlayer, iUnit, iSummoner, iExperience, iMax, bFromCombat, bInBorders, bUpdateGlobal) CallTestAll
+											// GameEvents.BarbExperienceDenied(iPlayer, iUnit, iSummoner, iExperience) CallHook
 #define EA_UNIT_TAKING_PROMOTION			// GameEvents.UnitTakingPromotion(iPlayer, iUnit, promotionID) CallTestAll
 #define EA_EVENT_TECH_COST_MOD				// GameEvents.PlayerTechCostMod(techID, iPlayer); CallAccumulator that uses return integer as percent cost modifier
 #define EA_EVENT_MINOR_FRIENDSHIP			// GameEvents.PlayerMinorFriendshipAnchor(eMajor, eMinor); CallAccumulator
@@ -84,7 +86,7 @@
 // Misc extended Lua support:
 #define EA_PLOTS							// Persisted plot data and methods for Ea's Living Terrain and plot effects (Glyphs, Runes and Wards)
 #define EA_UNIT_MORALE						// Set of Lua methods and persisted unit int for Ea's Morale system (needs UI Lua/XML support to show in unit panel)
-#define EA_UNIT_PERSON_INFO					// Just a persisted unit int used for GPs, with Get, Set Lua methods
+#define EA_UNIT_PERSON_INFO					// 2 persisted ints used for GPs, with Get, Set Lua methods
 #define EA_TEST_PROMOTION_READY				// unit:TestPromotionReady()
 #define EA_PATHFINDING						// unit:TurnsToReachTarget(CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
 #define EA_CITY_METHODS						// just SetNumFreeBuilding for now

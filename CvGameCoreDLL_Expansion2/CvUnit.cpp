@@ -294,6 +294,7 @@ CvUnit::CvUnit() :
 #endif
 #ifdef EA_UNIT_PERSON_INFO
 	, m_iPersonIndex(-1)
+	, m_iSummonerIndex(-1)
 #endif
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL
 	, m_iGPAttackState(-1)
@@ -919,6 +920,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #endif
 #ifdef EA_UNIT_PERSON_INFO
 	m_iPersonIndex = -1;
+	m_iSummonerIndex = -1;
 #endif
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL
 	m_iGPAttackState = -1;
@@ -14277,6 +14279,22 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 	// Barbs don't get XP or Promotions
 	if(isBarbarian() && iChange > 0)
 	{
+		
+#ifdef EA_EVENT_CHANGE_EXPERIENCE		// Paz
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(getOwner());
+			args->Push(GetID()); 
+			args->Push(getSummonerIndex()); 
+			args->Push(iChange); 
+
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "BarbExperienceDenied", args.get(), bResult);
+		}		
+#endif	
+			
 		return;
 	}
 
@@ -14376,6 +14394,31 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			iUnitExperience /= 100;
 		}
 	}
+
+#ifdef EA_EVENT_CHANGE_EXPERIENCE		// Paz
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(getOwner());
+		args->Push(GetID()); 
+		args->Push(getSummonerIndex()); 
+		args->Push(iUnitExperience); 
+		args->Push(iMax); 
+		args->Push(bFromCombat); 
+		args->Push(bInBorders); 
+		args->Push(bUpdateGlobal); 
+
+		bool bResult = false;
+		if(LuaSupport::CallTestAll(pkScriptSystem, "CanChangeExperience", args.get(), bResult))
+		{
+			if(!bResult)
+			{
+				return;		// No xp to unit if return false
+			}
+		}
+	}		
+#endif
 
 	setExperience((getExperience() + iUnitExperience), iMax);
 }
@@ -16904,7 +16947,6 @@ void CvUnit::decayMorale(int iDecayTo)
 //	--------------------------------------------------------------------------------
 #endif
 #ifdef EA_UNIT_PERSON_INFO
-
 int CvUnit::getPersonIndex() const
 {
 	VALIDATE_OBJECT
@@ -16917,6 +16959,18 @@ void CvUnit::setPersonIndex(int iNewValue)
 	m_iPersonIndex = iNewValue;
 }
 //	--------------------------------------------------------------------------------	
+int CvUnit::getSummonerIndex() const
+{
+	VALIDATE_OBJECT
+	return m_iSummonerIndex;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::setSummonerIndex(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iSummonerIndex = iNewValue;
+}
+//	--------------------------------------------------------------------------------
 #endif
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL
 
@@ -17902,6 +17956,7 @@ void CvUnit::read(FDataStream& kStream)
 #endif
 #ifdef EA_UNIT_PERSON_INFO
 	kStream >> m_iPersonIndex;
+	kStream >> m_iSummonerIndex;
 #endif
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL
 	kStream >> m_iGPAttackState;
@@ -18041,6 +18096,7 @@ void CvUnit::write(FDataStream& kStream) const
 #endif
 #ifdef EA_UNIT_PERSON_INFO
 	kStream << m_iPersonIndex;
+	kStream << m_iSummonerIndex;
 #endif
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL
 	kStream << m_iGPAttackState;

@@ -1032,6 +1032,8 @@ public:
 #ifdef EA_UNIT_PERSON_INFO
 	int getPersonIndex() const;
 	void setPersonIndex(int iNewValue);	
+	int getSummonerIndex() const;
+	void setSummonerIndex(int iNewValue);	
 #endif
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL
 	int getGPAttackState() const;
@@ -1446,6 +1448,7 @@ protected:
 #endif
 #ifdef EA_UNIT_PERSON_INFO
 	int m_iPersonIndex;
+	int m_iSummonerIndex;
 #endif
 #ifdef EA_GP_SPECIAL_ATTACK_CONTROL
 	int m_iGPAttackState;
