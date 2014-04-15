@@ -460,6 +460,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetGreatWorkSlotType);
 
 	// Paz: Ea API
+#ifdef EA_COMBAT_EVENTS_METHODS
+	Method(GetPower);
+#endif
 #ifdef EA_UNIT_MORALE
 	Method(GetMorale);
 	Method(SetMorale);
@@ -4373,8 +4376,18 @@ int CvLuaUnit::lGetGreatWorkSlotType(lua_State* L)
 }
 //------------------------------------------------------------------------------
 
-
 // Paz: Ea API
+#ifdef EA_COMBAT_EVENTS_METHODS
+//int GetPower();
+int CvLuaUnit::lGetPower(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iPower = pkUnit->GetPower();
+	lua_pushinteger(L, iPower);
+	return 1;
+}
+//------------------------------------------------------------------------------
+#endif
 #ifdef EA_UNIT_MORALE
 //int GetMorale();
 int CvLuaUnit::lGetMorale(lua_State* L)

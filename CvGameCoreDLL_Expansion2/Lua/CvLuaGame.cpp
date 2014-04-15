@@ -382,6 +382,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetNumArchaeologySites);
 	Method(GetNumHiddenArchaeologySites);
+#ifdef EA_COMBAT_EVENTS_METHODS
+	Method(GetUnitPower);
+#endif
 }
 //------------------------------------------------------------------------------
 
@@ -2835,3 +2838,14 @@ int CvLuaGame::lGetNumHiddenArchaeologySites(lua_State* L)
 	lua_pushinteger(L, GC.getGame().GetNumHiddenArchaeologySites());
 	return 1;
 }
+
+#ifdef EA_COMBAT_EVENTS_METHODS
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetUnitPower(lua_State* L)
+{
+	const UnitTypes eUnit = (UnitTypes) lua_tointeger(L, 1);
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+	lua_pushinteger(L, pkUnitInfo->GetPower());
+	return 1;
+}
+#endif

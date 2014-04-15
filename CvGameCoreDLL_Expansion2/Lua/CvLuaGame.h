@@ -378,6 +378,9 @@ protected:
 
 	static int lGetNumArchaeologySites(lua_State *L);
 	static int lGetNumHiddenArchaeologySites(lua_State *L);
+#ifdef EA_COMBAT_EVENTS_METHODS
+	static int lGetUnitPower(lua_State* L);
+#endif
 };
 
 #endif //CVLUAGAME_H

@@ -2289,7 +2289,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 		gDLL->GameplayUnitVisibility(pDllUnit.get(), !pDefenderSupport->isInvisible(eActiveTeam, false));
 	}
 
-#ifdef EA_COMBAT_EVENTS
+#ifdef EA_COMBAT_EVENTS_METHODS
 	// Copied from RED 
 
 	// CombatResult
@@ -2451,7 +2451,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 		}
 	}
 
-#ifdef EA_COMBAT_EVENTS
+#ifdef EA_COMBAT_EVENTS_METHODS
 	// note missing indend in block above
 
 		// Copied from RED : CombatEnded

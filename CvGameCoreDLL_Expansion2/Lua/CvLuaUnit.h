@@ -468,6 +468,9 @@ protected:
 	static int lGetGreatWorkSlotType(lua_State* L);
 
 	// Paz: Ea API
+#ifdef EA_COMBAT_EVENTS_METHODS
+	static int lGetPower(lua_State* L);
+#endif
 #ifdef EA_UNIT_MORALE
 	static int lGetMorale(lua_State* L);
 	static int lSetMorale(lua_State* L);
