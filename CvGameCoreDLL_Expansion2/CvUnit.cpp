@@ -1204,7 +1204,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		args->Push(getOwner());
 		args->Push(GetID());  // unit being killed
 
-#ifdef EA_COMBAT_EVENTS			// Paz - we need this to know whether it is first or final kill for unit
+#ifdef EA_COMBAT_EVENTS_METHODS			// Paz - we need this to know whether it is first or final kill for unit
 		args->Push(bDelay);
 #endif
 

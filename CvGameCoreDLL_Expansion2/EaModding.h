@@ -44,7 +44,7 @@
 //#define EA_GP_MAX_HIT_POINTS
 
 // Combat
-#define EA_COMBAT_EVENTS					// Some of Gedemon's GameEvents; and modifies CanSaveUnit to provide bDelayed
+#define EA_COMBAT_EVENTS_METHODS			// Adds some of Gedemon's GameEvents, modifies CanSaveUnit to provide bDelayed, and adds Game.GetUnitPower(unitTypeID) and unit:GetPower()
 
 
 // Civ & Leader changing:
