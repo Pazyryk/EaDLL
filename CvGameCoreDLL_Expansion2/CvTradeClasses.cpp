@@ -211,6 +211,29 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		return false;
 	}
 
+#ifdef EA_TRADE_EVENTS_METHODS
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(pOriginCity->plot()->GetPlotIndex());
+		args->Push(pDestCity->plot()->GetPlotIndex());
+		args->Push(pDestCity->getOwner());
+		args->Push(eDomain);
+		args->Push(eConnectionType);
+
+		bool bResult = false;
+		if(LuaSupport::CallTestAll(pkScriptSystem, "CanCreateTradeRoute", args.get(), bResult))
+		{
+			// Check the result.
+			if(!bResult)
+			{
+				return false;
+			}
+		}
+	}
+#endif
+
 	return true;
 }
 

@@ -378,6 +378,9 @@ protected:
 
 	static int lGetNumArchaeologySites(lua_State *L);
 	static int lGetNumHiddenArchaeologySites(lua_State *L);
+#ifdef EA_TRADE_EVENTS_METHODS
+	static int lCanCreateTradeRoute(lua_State* L);
+#endif
 #ifdef EA_COMBAT_EVENTS_METHODS
 	static int lGetUnitPower(lua_State* L);
 #endif

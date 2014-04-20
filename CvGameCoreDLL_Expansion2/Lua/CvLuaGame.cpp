@@ -382,6 +382,10 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetNumArchaeologySites);
 	Method(GetNumHiddenArchaeologySites);
+#ifdef EA_TRADE_EVENTS_METHODS
+	Method(CanCreateTradeRoute);
+#endif
+
 #ifdef EA_COMBAT_EVENTS_METHODS
 	Method(GetUnitPower);
 #endif
@@ -2838,7 +2842,25 @@ int CvLuaGame::lGetNumHiddenArchaeologySites(lua_State* L)
 	lua_pushinteger(L, GC.getGame().GetNumHiddenArchaeologySites());
 	return 1;
 }
+#ifdef EA_TRADE_EVENTS_METHODS
+//------------------------------------------------------------------------------
+int CvLuaGame::lCanCreateTradeRoute(lua_State* L)
+{
+	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
 
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 1);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 2);
+	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 3);
+	const TradeConnectionType eConnectionType = (TradeConnectionType)lua_tointeger(L, 4);
+	const bool bIgnoreExisting = lua_toboolean(L, 5);
+	const bool bCheckPath = lua_toboolean(L, 6);
+
+	const bool bResult = pGameTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, bIgnoreExisting, bCheckPath);
+	lua_pushboolean(L, bResult);
+
+	return 1;
+}
+#endif
 #ifdef EA_COMBAT_EVENTS_METHODS
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetUnitPower(lua_State* L)

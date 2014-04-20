@@ -72,6 +72,9 @@
 // Natural Wonders
 #define EA_NATURAL_WONDER_HAPPINESS			//ls612: Moving that out of lua into the DLL
 
+// Trade
+#define EA_TRADE_EVENTS_METHODS				// GameEvents.CanCreateTradeRoute(iOriginPlot, iDestPlot, iDestPlayer, eDomain, eConnectionType) CallTestAll and Game.CanCreateTradeRoute
+
 // GameEvents
 #define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
 #define EA_EVENT_CHANGE_EXPERIENCE			// GameEvents.CanChangeExperience(iPlayer, iUnit, iSummoner, iExperience, iMax, bFromCombat, bInBorders, bUpdateGlobal) CallTestAll
