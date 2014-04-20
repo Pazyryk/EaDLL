@@ -4447,6 +4447,8 @@ int CvLuaPlayer::lGetNumTechDifference(lua_State* L)
 	return 1;
 }
 
+
+
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 {
