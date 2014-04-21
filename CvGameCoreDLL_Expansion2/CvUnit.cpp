@@ -19099,8 +19099,8 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 	if (!IsCombatUnit())
 		return false;
 #endif
-#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS		// Paz - Does this prevent all GP attacks?
-	if (IsGreatPerson())
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS		// Paz - GP can enter city if not in charge or challenge mode
+	if (IsGreatPerson() && (getGPAttackState() < 1))
 		return false;
 #endif
 
