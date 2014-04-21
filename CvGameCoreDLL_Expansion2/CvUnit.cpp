@@ -19099,6 +19099,10 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 	if (!IsCombatUnit())
 		return false;
 #endif
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS		// Paz - Does this prevent all GP attacks?
+	if (IsGreatPerson())
+		return false;
+#endif
 
 	if(isHuman() && getOwner() == GC.getGame().getActivePlayer())
 	{

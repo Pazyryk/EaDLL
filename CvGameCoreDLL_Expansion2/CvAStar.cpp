@@ -921,7 +921,7 @@ int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder)
 
 #ifdef EA_BREAK_CIVILIAN_OTHER_RESTRICTIONS		// Paz
 #ifdef EA_BREAK_GP_OTHER_RESTRICTIONS
-	if(bToPlotRevealed && (pUnit->IsCombatUnit() || pUnit->IsGreatPerson()))
+	if(bToPlotRevealed && pUnit->IsCombatUnit() && !pUnit->IsGreatPerson())
 #else
 	if(bToPlotRevealed && pUnit->IsCombatUnit())
 #endif
