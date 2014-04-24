@@ -7353,6 +7353,27 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		eRoute = getRouteType();
 	}
 
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY		// Paz - Pantheistic civs get yields only from plots that have resource, lake, oasis, atoll, natural feature or GP-built improvement 
+	if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).IsYieldFromSpecialPlotsOnly())
+	{
+		if (getResourceType((ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM) == NO_RESOURCE)
+		{
+			if (!isLake())
+			{
+				if (eImprovement == NO_IMPROVEMENT || !GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
+				{
+					FeatureTypes eFeature = getFeatureType();
+					if (eFeature == NO_FEATURE || (eFeature != FEATURE_OASIS && eFeature != FEATURE_ATOLL && !GC.getFeatureInfo(eFeature)->IsNaturalWonder()))
+					{
+						return 0;
+					}
+				}
+
+			}
+		}
+	}
+#endif
+
 	iYield = calculateNatureYield(eYield, ((ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM));
 
 	if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())

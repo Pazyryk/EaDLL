@@ -232,6 +232,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetLeaderYieldBoost);
 	Method(SetLeaderYieldBoost);
 #endif
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	Method(IsYieldFromSpecialPlotsOnly);
+	Method(SetYieldFromSpecialPlotsOnly);
+#endif
 
 	Method(GetJONSCultureEverGenerated);
 
@@ -2321,6 +2325,30 @@ int CvLuaPlayer::lSetLeaderYieldBoost(lua_State* L)
 	int iPercent = lua_tointeger(L, 3);
 
 	pkPlayer->SetLeaderYieldBoost((YieldTypes) iYield, iPercent);
+	return 1;
+}
+#endif
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+//------------------------------------------------------------------------------
+//bool IsYieldFromSpecialPlotsOnly();
+int CvLuaPlayer::lIsYieldFromSpecialPlotsOnly(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	const bool bResult = pkPlayer->IsYieldFromSpecialPlotsOnly();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+
+//------------------------------------------------------------------------------
+//void SetYieldFromSpecialPlotsOnly(bool bValue);
+int CvLuaPlayer::lSetYieldFromSpecialPlotsOnly(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bValue = lua_toboolean(L, 2);
+
+	pkPlayer->SetYieldFromSpecialPlotsOnly(bValue);
 	return 1;
 }
 #endif

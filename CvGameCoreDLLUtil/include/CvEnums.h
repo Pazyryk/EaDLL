@@ -1179,6 +1179,9 @@ enum FeatureTypes
 #ifdef EA_BUILD_AI_CHANGES
 	FEATURE_BLIGHT,		// Paz - this one and 7 before must have these IDs in the Features table
 #endif
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	FEATURE_ATOLL,
+#endif
 	FEATURE_NATURAL_WONDER,
 
 	NUM_FEATURE_TYPES

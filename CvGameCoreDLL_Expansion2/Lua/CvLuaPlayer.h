@@ -222,6 +222,10 @@ protected:
 	static int lGetLeaderYieldBoost(lua_State* L);
 	static int lSetLeaderYieldBoost(lua_State* L);
 #endif
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	static int lIsYieldFromSpecialPlotsOnly(lua_State* L);
+	static int lSetYieldFromSpecialPlotsOnly(lua_State* L);
+#endif
 	static int lGetJONSCultureEverGenerated(lua_State* L);
 
 	static int lGetLastTurnLifetimeCulture(lua_State* L);

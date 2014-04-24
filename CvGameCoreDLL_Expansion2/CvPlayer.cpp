@@ -401,6 +401,9 @@ CvPlayer::CvPlayer() :
 	, m_activeWaitingForEndTurnMessage(false)
 	, m_endTurnBusyUnitUpdatesLeft(0)
 	, m_lastGameTurnInitialAIProcessed(-1)
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	, m_bYieldFromSpecialPlotsOnly(false)
+#endif
 	, m_iNumFreeGreatPeople(0)
 	, m_iNumMayaBoosts(0)
 	, m_iNumFaithGreatPeople(0)
@@ -944,6 +947,9 @@ void CvPlayer::uninit()
 	m_iNumFreePolicies = 0;
 	m_iNumFreePoliciesEver = 0;
 	m_iNumFreeTenets = 0;
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	m_bYieldFromSpecialPlotsOnly = false;
+#endif
 	m_iNumFreeGreatPeople = 0;
 	m_iNumMayaBoosts = 0;
 	m_iNumFaithGreatPeople = 0;
@@ -18732,9 +18738,7 @@ void CvPlayer::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiImprovementYieldChange[eIndex1];
 		yields[eIndex2] = (m_ppaaiImprovementYieldChange[eIndex1][eIndex2] + iChange);
 		m_ppaaiImprovementYieldChange.setAt(eIndex1, yields);
-#ifndef EA_NEGATIVE_YIELDS		// Paz - allow negative changes
 		CvAssert(getImprovementYieldChange(eIndex1, eIndex2) >= 0);
-#endif
 		updateYield();
 	}
 }
@@ -22109,6 +22113,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	{
 		m_iNumFreeTenets = 0;
 	}
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	kStream >> m_bYieldFromSpecialPlotsOnly;
+#endif
 	kStream >> m_iNumFreeGreatPeople;
 	kStream >> m_iNumMayaBoosts;
 	kStream >> m_iNumFaithGreatPeople;
@@ -22605,6 +22612,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iNumFreePolicies;
 	kStream << m_iNumFreePoliciesEver;
 	kStream << m_iNumFreeTenets;
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	kStream << m_bYieldFromSpecialPlotsOnly;
+#endif
 	kStream << m_iNumFreeGreatPeople;
 	kStream << m_iNumMayaBoosts;
 	kStream << m_iNumFaithGreatPeople;
@@ -24347,6 +24357,18 @@ void CvPlayer::ChangeNumFreeTenets(int iChange, bool bCountAsFreePolicies)
 
 	}
 }
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsYieldFromSpecialPlotsOnly() const
+{
+	return m_bYieldFromSpecialPlotsOnly;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetYieldFromSpecialPlotsOnly(bool bValue)
+{
+	m_bYieldFromSpecialPlotsOnly = bValue;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetNumFreeGreatPeople() const
