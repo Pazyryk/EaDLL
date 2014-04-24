@@ -260,6 +260,9 @@ int CvLuaEnums::pRegister(lua_State* L)
 #ifdef EA_BUILD_AI_CHANGES
 	RegisterEnum(FEATURE_BLIGHT);
 #endif
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	RegisterEnum(FEATURE_ATOLL);
+#endif
 	RegisterEnum(NUM_FEATURE_TYPES);
 	EnumEnd(L);
 

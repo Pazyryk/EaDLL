@@ -62,10 +62,11 @@
 // Policy, Tech counting
 #define EA_DONT_COUNT_UTILITY_POLICIES
 #define EA_DONT_COUNT_UTILITY_TECHS			//ls612: Utility Tech stuff
-// Plots
+// Plots and yields
 #define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
-#define EA_BUILD_AI_CHANGES					// UNDER CONSTRUCTION
-#define EA_NEGATIVE_YIELDS					// UNDER CONSTRUCTION: Allow negative yields in some specific cases
+#define EA_BUILD_AI_CHANGES					// Swap blight for fallout and other things 
+#define EA_NEGATIVE_YIELDS					// UNDER CONSTRUCTION: Nothing yet...
+#define EA_YIELD_FROM_SPECIAL_PLOTS_ONLY	// For Pantheistic restriction on plot yields
 // Units
 #define EA_GENERIC_WORKERS					//ls612: Remove hardcoded references to UNIT_WORKER
 

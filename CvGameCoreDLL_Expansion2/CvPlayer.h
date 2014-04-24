@@ -460,6 +460,8 @@ public:
 	int GetLeaderYieldBoost(YieldTypes eYield) const;
 	void SetLeaderYieldBoost(YieldTypes eYield, int iPercent);
 #endif
+
+
 	int GetUnhappinessFromUnits() const;
 	void ChangeUnhappinessFromUnits(int iChange);
 
@@ -1378,6 +1380,11 @@ public:
 	int GetMedianTechPercentage() const;
 	void ChangeMedianTechPercentage(int iValue);
 
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	bool IsYieldFromSpecialPlotsOnly() const;
+	void SetYieldFromSpecialPlotsOnly(bool bValue);
+#endif
+
 	int GetNumFreeGreatPeople() const;
 	void SetNumFreeGreatPeople(int iValue);
 	void ChangeNumFreeGreatPeople(int iChange);
@@ -1971,6 +1978,10 @@ protected:
 	int m_lastGameTurnInitialAIProcessed;
 
 	ConqueredByBoolField m_bfEverConqueredBy;
+
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
+	bool m_bYieldFromSpecialPlotsOnly;
+#endif
 
 	int m_iNumFreeGreatPeople;
 	int m_iNumMayaBoosts;
