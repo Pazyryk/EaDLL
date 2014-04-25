@@ -7353,8 +7353,8 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		eRoute = getRouteType();
 	}
 
-#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY		// Paz - Pantheistic civs get yields only from plots that have resource, lake, oasis, atoll, natural feature or GP-built improvement 
-	if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).IsYieldFromSpecialPlotsOnly())
+#ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY		// Paz - Pantheistic civs get yields only from plots that have a city, resource, lake, oasis, atoll, natural feature or GP-built improvement 
+	if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).IsYieldFromSpecialPlotsOnly() && !isCity())
 	{
 		if (getResourceType((ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM) == NO_RESOURCE)
 		{
