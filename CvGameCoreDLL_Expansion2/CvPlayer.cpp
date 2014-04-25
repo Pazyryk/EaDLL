@@ -3831,6 +3831,8 @@ const char* CvPlayer::getName() const
 			return szDisplayName.c_str();
 	}
 	
+	// Paz - change this to put focus on civ rather than leader (this will also fix "Peace with Barbarian" to "Peace with Animals")
+
 	const CvString& szPlayerName = CvPreGame::leaderName(GetID());
 	if(szPlayerName.GetLength() == 0)
 	{
