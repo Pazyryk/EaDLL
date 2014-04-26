@@ -357,6 +357,9 @@ protected:
 	static int lGetPolicyBranchChosen(lua_State* L);
 	static int lGetNumPolicyBranchesAllowed(lua_State* L);
 	static int lGetNumPolicies(lua_State* L);
+#ifdef EA_POLICY_COUNTING
+	static int lGetNumRealPolicies(lua_State* L);
+#endif
 	static int lGetNumPoliciesInBranch(lua_State* L);
 	static int lHasPolicy(lua_State* L);
 	static int lSetHasPolicy(lua_State* L);

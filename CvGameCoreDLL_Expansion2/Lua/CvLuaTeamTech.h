@@ -36,6 +36,9 @@ protected:
 	static int lSetHasTech(lua_State* L);
 	static int lHasTech(lua_State* L);
 	static int lGetNumTechsKnown(lua_State* L);
+#ifdef EA_TECH_COUNTING
+	static int lGetNumRealTechsKnown(lua_State* L);
+#endif
 	static int lHasResearchedAllTechs(lua_State* L);
 
 	static int lGetLastTechAcquired(lua_State* L);

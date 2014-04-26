@@ -60,8 +60,8 @@
 // Gods
 #define EA_RELIGIOUS_MINORS_DONT_DIE		// These are gods in Ea and don't have cities
 // Policy, Tech counting
-//#define EA_DONT_COUNT_UTILITY_POLICIES	// Stupidly coded by Paz - fix
-#define EA_DONT_COUNT_UTILITY_TECHS			//ls612: Utility Tech stuff
+#define EA_POLICY_COUNTING					// Can get real number (excluding utility) and this is used for score
+#define EA_TECH_COUNTING					// ls612: Utility Tech stuff	--Paz modified to get non-utility count for Lua
 // Plots and yields
 #define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
 #define EA_BUILD_AI_CHANGES					// Swap blight for fallout and other things 
