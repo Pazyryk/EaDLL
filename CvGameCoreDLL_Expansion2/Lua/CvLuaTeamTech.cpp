@@ -33,6 +33,10 @@ void CvLuaTeamTech::PushMethods(lua_State* L, int t)
 	Method(HasTech);
 
 	Method(GetNumTechsKnown);
+#ifdef EA_TECH_COUNTING
+	Method(GetNumRealTechsKnown);
+#endif
+
 	Method(HasResearchedAllTechs);
 
 	Method(GetLastTechAcquired);
@@ -83,6 +87,15 @@ int CvLuaTeamTech::lGetNumTechsKnown(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeamTechs::GetNumTechsKnown);
 }
+
+#ifdef EA_TECH_COUNTING
+//------------------------------------------------------------------------------
+//int GetNumRealTechsKnown();
+int CvLuaTeamTech::lGetNumRealTechsKnown(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeamTechs::GetNumRealTechsKnown);
+}
+#endif
 
 //------------------------------------------------------------------------------
 //bool HasResearchedAllTechs();

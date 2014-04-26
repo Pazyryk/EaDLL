@@ -208,7 +208,7 @@ public:
 	int GetNumFreeUnitsByClass(int i) const;
 	int GetTourismByUnitClassCreated(int i) const;
 	int GetImprovementCultureChanges(int i) const;
-#ifdef EA_DONT_COUNT_UTILITY_POLICIES
+#ifdef EA_POLICY_COUNTING
 	bool IsUtility() const;
 #endif
 
@@ -368,7 +368,7 @@ private:
 
 	bool m_bOneShot;
 	bool m_bIncludesOneShotFreeUnits;
-#ifdef EA_DONT_COUNT_UTILITY_POLICIES
+#ifdef EA_POLICY_COUNTING
 	bool m_bIsUtility;
 #endif
 
@@ -574,6 +574,9 @@ public:
 	bool HasPolicy(PolicyTypes eIndex) const;
 	void SetPolicy(PolicyTypes eIndex, bool bNewValue);
 	int GetNumPoliciesOwned() const;
+#ifdef EA_POLICY_COUNTING
+	int GetNumRealPoliciesOwned() const;
+#endif
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;
 

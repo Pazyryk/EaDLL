@@ -66,7 +66,7 @@ CvTechEntry::CvTechEntry(void):
 	m_piFlavorValue(NULL),
 	m_piPrereqOrTechs(NULL),
 	m_piPrereqAndTechs(NULL),
-#ifdef EA_DONT_COUNT_UTILITY_TECHS //ls612
+#ifdef EA_TECH_COUNTING //ls612
 	m_bUtility(false),
 #endif
 	m_pabFreePromotion(NULL)
@@ -132,7 +132,7 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iGridX = kResults.GetInt("GridX");
 	m_iGridY = kResults.GetInt("GridY");
 
-#ifdef EA_DONT_COUNT_UTILITY_TECHS //ls612
+#ifdef EA_TECH_COUNTING //ls612
 	m_bUtility = kResults.GetBool("Utility");
 #endif
 
@@ -542,7 +542,7 @@ int CvTechEntry::GetPrereqAndTechs(int i) const
 	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
 }
 
-#ifdef EA_DONT_COUNT_UTILITY_TECHS
+#ifdef EA_TECH_COUNTING
 /// Is this a Utility Tech?
 bool CvTechEntry::isUtility() const
 {
@@ -1910,6 +1910,25 @@ int CvTeamTechs::GetNumTechsKnown() const
 
 	return iNumTechs;
 }
+
+#ifdef EA_TECH_COUNTING
+/// How many total Techs does this team have, not counting Utility techs?
+int CvTeamTechs::GetNumRealTechsKnown() const
+{
+	int iNumTechs = 0;
+
+	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
+	{
+		if(HasTech((TechTypes) iTechLoop) && !GC.getTechInfo((TechTypes) iTechLoop)->isUtility())
+		{
+			iNumTechs++;
+		}
+	}
+
+	return iNumTechs;
+}
+
+#endif
 
 /// Has this team researched all techs once?
 bool CvTeamTechs::HasResearchedAllTechs() const

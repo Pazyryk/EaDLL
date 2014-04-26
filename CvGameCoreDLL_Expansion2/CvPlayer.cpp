@@ -4994,7 +4994,11 @@ int CvPlayer::GetScoreFromPolicies() const
 	{
 		return 0;
 	}
+#ifdef EA_POLICY_COUNTING		// Paz - only count non-utility policies
+	int iScore = GetPlayerPolicies()->GetNumRealPoliciesOwned() * /*4*/ GC.getSCORE_POLICY_MULTIPLIER();
+#else
 	int iScore = GetPlayerPolicies()->GetNumPoliciesOwned() * /*4*/ GC.getSCORE_POLICY_MULTIPLIER();
+#endif
 	return iScore;
 }
 
@@ -5035,19 +5039,9 @@ int CvPlayer::GetScoreFromTechs() const
 		return 0;
 	}
 
-#ifdef EA_DONT_COUNT_UTILITY_TECHS
+#ifdef EA_TECH_COUNTING		// Paz -- added method to count real (non-utility) techs
 	CvTeamTechs* pTechs = GET_TEAM(getTeam()).GetTeamTechs();
-	int iScore = pTechs->GetNumTechsKnown() * /*4*/ GC.getSCORE_TECH_MULTIPLIER();
-
-	//ls612: For Ea we don't want Utility techs to increase the score, so we remove the score already counted for them
-	for (int iI = 0; iI < pTechs->GetNumTechsKnown(); iI++)
-	{
-		if (pTechs->GetTechs()->GetEntry(iI)->isUtility())
-		{
-			iScore -= GC.getSCORE_TECH_MULTIPLIER();
-			OutputDebugString("Score from a Utility Tech has been removed.");
-		}
-	}
+	int iScore = pTechs->GetNumRealTechsKnown() * /*4*/ GC.getSCORE_TECH_MULTIPLIER();
 #else
 	// Normally we recompute it each time
 	int iScore = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * /*4*/ GC.getSCORE_TECH_MULTIPLIER();

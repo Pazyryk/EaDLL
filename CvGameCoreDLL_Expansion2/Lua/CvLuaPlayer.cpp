@@ -373,6 +373,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetPolicyBranchChosen);
 	Method(GetNumPolicyBranchesAllowed);
 	Method(GetNumPolicies);
+#ifdef EA_POLICY_COUNTING
+	Method(GetNumRealPolicies);
+#endif
 	Method(GetNumPoliciesInBranch);
 	Method(HasPolicy);
 	Method(SetHasPolicy);
@@ -4842,6 +4845,20 @@ int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+#ifdef EA_POLICY_COUNTING
+//------------------------------------------------------------------------------
+//int GetNumRealPolicies();
+int CvLuaPlayer::lGetNumRealPolicies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumRealPoliciesOwned();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+#endif
 
 //------------------------------------------------------------------------------
 //int GetNumPolicies();
