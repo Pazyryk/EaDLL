@@ -3079,6 +3079,10 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 /// Accessor: How much culture are we generating from Great Works in our buildings?
 int CvCityBuildings::GetCultureFromGreatWorks() const
 {
+#ifdef EA_DISABLE_TOURISM	// Paz - Disable
+	if (true)
+		return 0;
+#endif
 	int iCulturePerWork = GC.getBASE_CULTURE_PER_GREAT_WORK();
 	iCulturePerWork += GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(YIELD_CULTURE);
 

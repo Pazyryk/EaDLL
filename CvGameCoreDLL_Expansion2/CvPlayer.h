@@ -931,6 +931,9 @@ public:
 	void setStartTime(uint uiStartTime);
 	uint getTotalTimePlayed() const;
 
+#ifdef EA_HIDDEN_CIVS_DISABLES
+	bool IsEaHiddenCiv() const;
+#endif
 	bool isMinorCiv() const;
 	bool IsHasBetrayedMinorCiv() const;
 	void SetHasBetrayedMinorCiv(bool bValue);
@@ -946,6 +949,7 @@ public:
 	{
 		return m_bEverAlive;
 	}
+
 
 	void setBeingResurrected(bool bNewValue);
 	bool isBeingResurrected() const
