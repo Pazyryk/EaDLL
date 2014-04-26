@@ -15583,6 +15583,20 @@ uint CvPlayer::getTotalTimePlayed() const
 	return ((timeGetTime() - m_uiStartTime)/1000);
 }
 
+#ifdef EA_HIDDEN_CIVS_DISABLES
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsEaHiddenCiv() const
+{
+	if (isMinorCiv())
+	{
+		return GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS;	// Paz - these are gods
+	}
+	else
+	{
+		return getCivilizationType() == (CivilizationTypes)GC.getInfoTypeForString("CIVILIZATION_THE_FAY", true);
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isMinorCiv() const

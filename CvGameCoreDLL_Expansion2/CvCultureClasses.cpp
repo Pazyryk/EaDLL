@@ -2812,6 +2812,11 @@ CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(CvString szName, CvString s
 /// What is my total tourism per turn (before modifiers)
 int CvPlayerCulture::GetTourism()
 {
+#ifdef EA_DISABLE_TOURISM	// Paz - Disable
+	if (true)
+		return 0;
+#endif
+
 	int iRtnValue = 0;
 
 	CvCity *pCity;
@@ -2827,6 +2832,11 @@ int CvPlayerCulture::GetTourism()
 /// At the player level, what is the modifier for tourism between these players?
 int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 {
+#ifdef EA_DISABLE_TOURISM	// Paz - Disable
+	if (true)
+		return 0;
+#endif
+	
 	int iMultiplier = 0;
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
@@ -2907,6 +2917,10 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 /// Tooltip for GetTourismModifierWith()
 CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) const
 {
+#ifdef EA_DISABLE_TOURISM	// Paz - Disable
+	if (true)
+		return "Report as BUG";
+#endif
 	CvString szRtnValue = "";
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
@@ -4057,6 +4071,10 @@ GreatWorkSlotType CvCityCulture::GetSlotTypeFirstAvailableCultureBuilding() cons
 /// Compute raw tourism from this city
 int CvCityCulture::GetBaseTourismBeforeModifiers()
 {
+#ifdef EA_DISABLE_TOURISM	// Paz - Disable
+	if (true)
+		return 0;
+#endif
 	// If we're in Resistance, then no Tourism!
 	if(m_pCity->IsResistance() || m_pCity->IsRazing())
 	{
@@ -4146,6 +4164,10 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 /// What is the tourism output ignoring player-specific modifiers?
 int CvCityCulture::GetBaseTourism()
 {
+#ifdef EA_DISABLE_TOURISM	// Paz - Disable
+	if (true)
+		return 0;
+#endif
 	int iBase = GetBaseTourismBeforeModifiers();
 
 	int iModifier = 0;
@@ -4204,6 +4226,10 @@ int CvCityCulture::GetBaseTourism()
 /// What is the tourism modifier for one player
 int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies) const
 {
+#ifdef EA_DISABLE_TOURISM	// Paz - Disable
+	if (true)
+		return 0;
+#endif
 	int iMultiplier = 0;
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
@@ -4298,6 +4324,10 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 /// What is the tooltip describing the tourism output?
 CvString CvCityCulture::GetTourismTooltip()
 {
+#ifdef EA_DISABLE_TOURISM	// Paz - Disable
+	if (true)
+		return "Report as BUG";
+#endif
 	CvString szRtnValue = "";
 	CvString szTemp;
  	CvString sharedReligionCivs = "";

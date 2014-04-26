@@ -73,6 +73,13 @@
 // Natural Wonders
 #define EA_NATURAL_WONDER_HAPPINESS			//ls612: Moving that out of lua into the DLL
 
+// Disables
+#define EA_HIDDEN_CIVS_DISABLES				// Skip useless code for hidden civs that have no cities
+#define EA_DISABLE_TOURISM					// Not used by mod so don't calculate
+
+// Strategies
+#define EA_STRATEGY_CHANGES
+
 // Trade
 #define EA_TRADE_EVENTS_METHODS				// GameEvents.CanCreateTradeRoute(iOriginPlot, iDestPlot, iDestPlayer, eDomain, eConnectionType) CallTestAll and Game.CanCreateTradeRoute
 

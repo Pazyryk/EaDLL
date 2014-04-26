@@ -537,6 +537,11 @@ void CvEconomicAI::SetTurnStrategyAdopted(EconomicAIStrategyTypes eStrategy, int
 /// Called every turn to see what Strategies this player should using (or not)
 void CvEconomicAI::DoTurn()
 {
+#ifdef EA_HIDDEN_CIVS_DISABLES	// Paz - skip for Minors & Majors with no cities (The Fay and gods)
+	if (GetPlayer()->IsEaHiddenCiv())
+		return;
+#endif
+
 	AI_PERF_FORMAT("AI-perf.csv", ("CvEconomicAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
 
 	UpdatePlots();

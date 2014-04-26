@@ -1099,6 +1099,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 /// Called every turn to see what CityStrategies this City should using (or not)
 void CvCityStrategyAI::DoTurn()
 {
+#ifdef EA_HIDDEN_CIVS_DISABLES	// Paz - skip for Minors & Majors with no cities (The Fay and gods)
+	if (GET_PLAYER(GetCity()->getOwner()).IsEaHiddenCiv())
+		return;
+#endif
 	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityStrategyAI::DoTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), m_pCity->GetPlayer()->getCivilizationShortDescription(), m_pCity->getName().c_str()) );
 
 	int iCityStrategiesLoop = 0;
@@ -2574,7 +2578,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_FirstCultureBuilding(CvCity* pCit
 /// "First Culture Building Emergency" City Strategy: construct a building to get some culture going in this city BECAUSE WE ARE RUNNING OUT OF ROOM!!!
 bool CityStrategyAIHelpers::IsTestCityStrategy_FirstCultureBuildingEmergency(CvCity* pCity)
 {
+#ifdef EA_STRATEGY_CHANGES		// Paz - For God's sake... build that monument!
+	if(pCity->getPopulation() >= 2 && pCity->GetJONSCulturePerTurnFromBuildings() <= 0)
+#else
 	if(pCity->getPopulation() >= 5 && pCity->GetJONSCulturePerTurnFromBuildings() <= 0)
+#endif
 	{
 		return true;
 	}

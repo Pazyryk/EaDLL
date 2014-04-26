@@ -2401,6 +2401,11 @@ void CvMilitaryAI::WarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarStat
 /// Start or stop military strategies to get flavors set properly
 void CvMilitaryAI::UpdateMilitaryStrategies()
 {
+#ifdef EA_HIDDEN_CIVS_DISABLES	// Paz - skip for Minors & Majors with no cities (The Fay and gods)
+	if (GetPlayer()->IsEaHiddenCiv())
+		return;
+#endif
+
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateMilitaryStrategies, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	int iStrategiesLoop = 0;
