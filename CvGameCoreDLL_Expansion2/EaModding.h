@@ -64,7 +64,7 @@
 #define EA_TECH_COUNTING					// ls612: Utility Tech stuff	--Paz modified to get non-utility count for Lua
 // Plots and yields
 #define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
-#define EA_BUILD_AI_CHANGES					// Swap blight for fallout and other things 
+#define EA_BUILD_AI_CHANGES					// Swap blight for fallout; allow for mulitple Builds for same improvement 
 #define EA_NEGATIVE_YIELDS					// UNDER CONSTRUCTION: Nothing yet...
 #define EA_YIELD_FROM_SPECIAL_PLOTS_ONLY	// For Pantheistic restriction on plot yields
 // Units
