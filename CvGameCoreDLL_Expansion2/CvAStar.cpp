@@ -2284,8 +2284,11 @@ int RouteGetExtraChild(CvAStarNode* node, int iIndex, int& iX, int& iY, CvAStar*
 		{
 			continue;
 		}
-
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_INDIRECT_ROUTE)
+#else
 		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_ROUTE)
+#endif
 		{
 			if(iValidCount == iIndex)
 			{
@@ -2376,6 +2379,13 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 
 	if(finder->GetInfo() & MOVE_ANY_ROUTE)
 	{
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+		// Cities always have the best route, which permits "harbour to harbour" connections before The Wheel
+		if (pNewPlot->isCity())
+		{
+			return TRUE;
+		}
+#endif
 		// if the player can't build
 		if(kPlayer.getBestRoute() == NO_ROUTE)
 		{
@@ -2468,7 +2478,11 @@ int RouteGetNumExtraChildren(CvAStarNode* node,  CvAStar* finder)
 			continue;
 		}
 
+#ifndef EA_WH_EVENTS_CITY_CONNECTIONS
 		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_ROUTE)
+#else
+		if (pRouteInfo->m_cRouteState & CvCityConnections::HAS_INDIRECT_ROUTE)
+#endif
 		{
 			iResultNum++;
 		}

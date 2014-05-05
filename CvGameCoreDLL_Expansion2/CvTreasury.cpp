@@ -325,7 +325,11 @@ void CvTreasury::ChangeCityConnectionTradeRouteGoldChange(int iChange)
 }
 
 /// Returns the route-type between two cities
+#ifndef EA_WH_EVENTS_CITY_CONNECTIONS //ls612: River Connections Support
 bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity* pSecondCity, bool bBestRoute) const
+#else
+bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity* pSecondCity) const
+#endif
 {
 	CvCityConnections* pCityConnections = m_pPlayer->GetCityConnections();
 	FASSERT(pCityConnections, "m_pCityConnections is null");
@@ -379,11 +383,13 @@ bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity*
 	CvCityConnections::RouteInfo* pRouteInfo = pCityConnections->GetRouteInfo(iFirstCityIndex, iSecondCityIndex);
 	if(pRouteInfo)
 	{
+#ifndef EA_WH_EVENTS_CITY_CONNECTIONS //ls612: River Connections Support
 		if(bBestRoute)
 		{
 			return pRouteInfo->m_cRouteState & CvCityConnections::HAS_BEST_ROUTE;
 		}
 		else
+#endif
 		{
 			return pRouteInfo->m_cRouteState & CvCityConnections::HAS_ANY_ROUTE;
 		}

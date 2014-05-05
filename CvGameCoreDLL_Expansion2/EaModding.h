@@ -82,6 +82,9 @@
 
 // Trade
 #define EA_TRADE_EVENTS_METHODS				// GameEvents.CanCreateTradeRoute(iOriginPlot, iDestPlot, iDestPlayer, eDomain, eConnectionType) CallTestAll and Game.CanCreateTradeRoute
+#define EA_WH_EVENTS_CITY_CONNECTIONS		// Whoward's City Connections code: 
+											// GameEvents.CityConnections.Add(function(iPlayer, bDomestic) return false end)
+											// GameEvents.CityConnected.Add(function(iPlayer, iCityX, iCityY, iToCityX, iToCityY, bDomestic) return false end)
 
 // GameEvents
 #define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
