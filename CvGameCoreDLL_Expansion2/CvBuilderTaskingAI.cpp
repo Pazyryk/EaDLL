@@ -921,7 +921,11 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 		if(!pUnit->canBuild(pPlot, eBuild))
 		{
+#ifdef EA_BUILD_AI_CHANGES			// Paz - we have different Builds that lead to the same improvement, so don't break on the first one we can't do
+			continue;
+#else
 			break;
+#endif
 		}
 
 		BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE;
@@ -1370,13 +1374,20 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 /// Determines if the builder should "chop" the feature in the tile
 void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
 {
+	// Paz - logic here needs to be very different for Ea. Only non-Pantheistic civs can chop, and they
+	//		 should be very motivated to do so if they can't lumbermill it, particularly on or next to resources.
+	//		 Note: this method only called for inside borders; we need to check outside for resource-adjacent somehow.
+
+
 	// if it's not within a city radius
+#ifndef EA_BUILD_AI_CHANGES
 	if(!pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
 	{
 		return;
 	}
+#endif
 
-	if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+	if(pPlot->getImprovementType() != NO_IMPROVEMENT)	// Paz - this saves us from chopping on lumbermill
 	{
 		return;
 	}
@@ -1393,6 +1404,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		return;
 	}
 
+#ifndef EA_BUILD_AI_CHANGES
 	CvCity* pCity = GetWorkingCity(pPlot);
 	if(!pCity)
 	{
@@ -1403,6 +1415,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	{
 		return;
 	}
+#endif
 
 	FeatureTypes eFeature = pPlot->getFeatureType();
 	if(eFeature == NO_FEATURE)
@@ -1429,7 +1442,12 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	{
 		BuildTypes eBuild = (BuildTypes)iBuildIndex;
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+
+#ifdef EA_BUILD_AI_CHANGES	// Paz - consider it even if no chop production (will be weighted lower below)
+		if(NULL != pkBuild && pkBuild->getImprovement() == NO_IMPROVEMENT && pkBuild->isFeatureRemove(eFeature) && pUnit->canBuild(pPlot, eBuild))
+#else
 		if(NULL != pkBuild && pkBuild->getImprovement() == NO_IMPROVEMENT && pkBuild->isFeatureRemove(eFeature) && pkBuild->getFeatureProduction(eFeature) > 0 && pUnit->canBuild(pPlot, eBuild))
+#endif
 		{
 			eChopBuild = eBuild;
 			break;
@@ -1442,13 +1460,20 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		return;
 	}
 
+#ifdef EA_BUILD_AI_CHANGES
+	CvCity* pCity = NULL;
+#else
 	pCity = NULL;
+#endif
+
 	int iProduction = pPlot->getFeatureProduction(eChopBuild, pUnit->getOwner(), &pCity);
 
+#ifndef EA_BUILD_AI_CHANGES
 	if(!DoesBuildHelpRush(pUnit, pPlot, eChopBuild))
 	{
 		return;
 	}
+#endif
 
 	int iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
 	//int iTurnsAway = FindTurnsAway(pUnit, pPlot);
@@ -1456,8 +1481,14 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eChopBuild);
 	int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false, iMoveTurnsAway);
 	iWeight += iBuildTimeWeight;
-	iWeight *= iProduction; // times the amount that the plot produces from the chopping
 
+#ifdef EA_BUILD_AI_CHANGES
+	iWeight *= (iProduction + 5); // Paz - no-production remove has value; we'll have to adjust this from game observation 
+#else
+	iWeight *= iProduction; // times the amount that the plot produces from the chopping
+#endif
+
+#ifndef EA_BUILD_AI_CHANGES // Don't bother for Ea
 	int iYieldDifferenceWeight = 0;
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
@@ -1523,6 +1554,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	}
 
 	iWeight += iYieldDifferenceWeight;
+#endif
 
 	if (m_pPlayer->GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
@@ -1532,11 +1564,14 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	{
 		iWeight = iWeight / 4;
 	}
+
+#ifndef EA_BUILD_AI_CHANGES		// Paz - ??
 	// this doesn't actually help them, but adds some historical flavor
 	if (m_pPlayer->GetPlayerTraits()->IsEmbarkedAllWater() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
 		iWeight = iWeight * 2;
 	}
+#endif
 
 	iWeight = CorrectWeight(iWeight);
 
