@@ -223,8 +223,15 @@ void CvCityConnections::UpdateRouteInfo(void)
 	FStaticVector<CvCity*, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> vpCities;
 	CvCity* pLoopCity = NULL;
 	int iLoop;
-
+#ifndef EA_WH_EVENTS_CITY_CONNECTIONS //ls612: River Connection Support
 	bool bAllowWaterRoutes = false;
+#else
+	bool bAllowDirectRoutes = (eBestRouteType != NO_ROUTE);
+	bool bAllowIndirectRoutes = false;
+
+	bool bCallDirectEvents = false;
+	bool bCallIndirectEvents = false;
+#endif
 
 	// add all the cities we control and those that we want to connect to
 	for(uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
@@ -243,13 +250,21 @@ void CvCityConnections::UpdateRouteInfo(void)
 				vpCities.push_back(pLoopCity);
 				pLoopCity->SetRouteToCapitalConnected(false);
 
-				if(!bAllowWaterRoutes)
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+				if (!bAllowIndirectRoutes)
+#else
+				if (!bAllowWaterRoutes)
+#endif
 				{
 					for(uint uiBuildingTypes = 0; uiBuildingTypes < m_aBuildingsAllowWaterRoutes.size(); uiBuildingTypes++)
 					{
 						if(pLoopCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[uiBuildingTypes]) > 0)
 						{
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+							bAllowIndirectRoutes = true;
+#else
 							bAllowWaterRoutes = true;
+#endif
 						}
 					}
 				}
@@ -271,8 +286,54 @@ void CvCityConnections::UpdateRouteInfo(void)
 	}
 	ResetRouteInfo();
 
+	// Events to determine if we support alternative direct and/or indirect route types
+	//if ( (GAMEEVENT_CityConnections, m_pPlayer->GetID(), true) == GAMEEVENTRETURN_TRUE) {
+	//	bAllowDirectRoutes = true;
+	//	bCallDirectEvents = true;
+	//}
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		bool bResult = false;
+		CvLuaArgsHandle args;
+		args->Push(m_pPlayer->GetID());
+		args->Push(true);
+		if (LuaSupport::CallTestAny(pkScriptSystem, "CityConnections", args.get(), bResult))
+		{
+			if (bResult)
+			{
+				bAllowDirectRoutes = true;
+				bCallDirectEvents = true;
+			}
+		}
+	}
+
+	pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		bool bResult = false;
+		CvLuaArgsHandle args;
+		args->Push(m_pPlayer->GetID());
+		args->Push(false);
+		if (LuaSupport::CallTestAny(pkScriptSystem, "CityConnections", args.get(), bResult))
+		{
+			if (bResult)
+			{
+				bAllowDirectRoutes = true;
+				bCallDirectEvents = true;
+			}
+		}
+	}
+#endif
+	
+
 	// if the player can't build any routes, then we don't need to check this
-	if(eBestRouteType == NO_ROUTE && !bAllowWaterRoutes)
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+	if (!(bAllowDirectRoutes || bAllowIndirectRoutes))
+#else
+	if (eBestRouteType == NO_ROUTE && !bAllowWaterRoutes)
+#endif
 	{
 		return;
 	}
@@ -281,11 +342,19 @@ void CvCityConnections::UpdateRouteInfo(void)
 	// pass 1 = can cities connect via land and water routes
 	for(int iPass = 0; iPass < 2; iPass++)
 	{
-		if(iPass == 0 && !bAllowWaterRoutes)  // if in the first pass, we can't embark, skip
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+		if (iPass == 0 && !bAllowIndirectRoutes)  // if in the first pass and we can't create indirect routes, skip
+#else
+		if (iPass == 0 && !bAllowWaterRoutes)  // if in the first pass, we can't embark, skip
+#endif
 		{
 			continue;
 		}
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+		else if(iPass == 1 && !(bAllowDirectRoutes || bAllowIndirectRoutes))  // if in the second pass and we can't create any routes (this allows for harbour to harbour connections without The Wheel), skip
+#else
 		else if(iPass == 1 && eBestRouteType == NO_ROUTE)  // if in the second pass, we can't build a road, skip
+#endif
 		{
 			continue;
 		}
@@ -365,13 +434,47 @@ void CvCityConnections::UpdateRouteInfo(void)
 					{
 						if(GC.GetWaterRouteFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), m_pPlayer->GetID(), true))
 						{
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
+#else
 							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_WATER_ROUTE;
+#endif
 						}
 					}
+
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+					if (!(pRouteInfo->m_cRouteState & HAS_ANY_ROUTE) && bCallIndirectEvents)
+					{
+						// Event to determine if pFirstCity is connected to pSecondCity by an alternative indirect route type
+						/*if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), false) == GAMEEVENTRETURN_TRUE) {
+							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
+						}*/
+						pkScriptSystem = gDLL->GetScriptSystem();
+						if (pkScriptSystem)
+						{
+							bool bResult = false;
+							CvLuaArgsHandle args;
+							args->Push(m_pPlayer->GetID());
+							args->Push(pFirstCity->getX());
+							args->Push(pFirstCity->getY());
+							args->Push(pSecondCity->getX());
+							args->Push(pSecondCity->getY());
+							args->Push(false);
+							if (LuaSupport::CallTestAny(pkScriptSystem, "CityConnected", args.get(), bResult))
+							{
+								if (bResult)
+								{
+									pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
+								}
+							}
+						}
+					}
+#endif
 				}
 				else if(iPass == 1)  // check land route
 				{
 					bool bAnyRouteFound = false;
+#ifndef EA_WH_EVENTS_CITY_CONNECTIONS
 					bool bBestRouteFound = false;
 
 					// assuming that there are fewer than 256 players
@@ -383,8 +486,10 @@ void CvCityConnections::UpdateRouteInfo(void)
 						bAnyRouteFound = true;
 						bBestRouteFound = true;
 					}
-
+#endif
+#ifndef EA_WH_EVENTS_CITY_CONNECTIONS
 					if(!bBestRouteFound)
+#endif
 					{
 						if(pkLandRouteFinder->GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), MOVE_ANY_ROUTE | m_pPlayer->GetID(), true))
 						{
@@ -392,11 +497,45 @@ void CvCityConnections::UpdateRouteInfo(void)
 						}
 					}
 
-					if(bBestRouteFound)
+#ifdef EA_WH_EVENTS_CITY_CONNECTIONS
+					if (!bAnyRouteFound && bCallDirectEvents)
+					{
+						// Event to determine if pFirstCity is connected to pSecondCity by an alternative direct route type
+						/*if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), true) == GAMEEVENTRETURN_TRUE) {
+							bAnyRouteFound = true;
+						}*/
+
+						pkScriptSystem = gDLL->GetScriptSystem();
+						if (pkScriptSystem)
+						{
+							bool bResult = false;
+							CvLuaArgsHandle args;
+							args->Push(m_pPlayer->GetID());
+							args->Push(pFirstCity->getX());
+							args->Push(pFirstCity->getY());
+							args->Push(pSecondCity->getX());
+							args->Push(pSecondCity->getY());
+							args->Push(true);
+							if (LuaSupport::CallTestAny(pkScriptSystem, "CityConnected", args.get(), bResult))
+							{
+								if (bResult)
+								{
+									pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
+								}
+							}
+						}
+					}
+#endif
+
+#ifndef EA_WH_EVENTS_CITY_CONNECTIONS
+					if (bBestRouteFound)
 					{
 						pRouteInfo->m_cRouteState |= HAS_BEST_ROUTE | HAS_ANY_ROUTE;
 					}
-					else if(bAnyRouteFound)
+					else if (bAnyRouteFound)
+#else
+					if (bAnyRouteFound)
+#endif
 					{
 						pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE;
 					}

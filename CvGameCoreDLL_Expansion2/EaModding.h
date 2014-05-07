@@ -11,9 +11,9 @@
 #define EA_DLL_VERSION 1
 
 #define EA_CONFIGURATION 3		// 0, Compiles as unomdded dll
-								// 1, Compiles Isolation Code only
-								// 2, Compiles with civilian rules only - NMCTJs Mod
-								// 3, Compiles for Ea
+// 1, Compiles Isolation Code only
+// 2, Compiles with civilian rules only - NMCTJs Mod
+// 3, Compiles for Ea
 
 //ls612: Ea Debug needs to undefine Final Release and a few other things
 #ifdef EA_DEBUG_BUILD
@@ -82,11 +82,14 @@
 
 // Trade
 #define EA_TRADE_EVENTS_METHODS				// GameEvents.CanCreateTradeRoute(iOriginPlot, iDestPlot, iDestPlayer, eDomain, eConnectionType) CallTestAll and Game.CanCreateTradeRoute
+#define EA_WH_EVENTS_CITY_CONNECTIONS		// Whoward's City Connections code: 
+											// GameEvents.CityConnections.Add(function(iPlayer, bDomestic) return false end)
+											// GameEvents.CityConnected.Add(function(iPlayer, iCityX, iCityY, iToCityX, iToCityY, bDomestic) return false end)
 
 // GameEvents
 #define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
 #define EA_EVENT_CHANGE_EXPERIENCE			// GameEvents.CanChangeExperience(iPlayer, iUnit, iSummoner, iExperience, iMax, bFromCombat, bInBorders, bUpdateGlobal) CallTestAll
-											// GameEvents.BarbExperienceDenied(iPlayer, iUnit, iSummoner, iExperience) CallHook
+// GameEvents.BarbExperienceDenied(iPlayer, iUnit, iSummoner, iExperience) CallHook
 #define EA_UNIT_TAKING_PROMOTION			// GameEvents.UnitTakingPromotion(iPlayer, iUnit, promotionID) CallTestAll
 #define EA_EVENT_TECH_COST_MOD				// GameEvents.PlayerTechCostMod(techID, iPlayer); CallAccumulator that uses return integer as percent cost modifier
 #define EA_EVENT_MINOR_FRIENDSHIP			// GameEvents.PlayerMinorFriendshipAnchor(eMajor, eMinor); CallAccumulator
