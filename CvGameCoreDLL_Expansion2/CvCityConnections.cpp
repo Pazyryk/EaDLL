@@ -223,6 +223,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 	FStaticVector<CvCity*, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> vpCities;
 	CvCity* pLoopCity = NULL;
 	int iLoop;
+
 #ifndef EA_WH_EVENTS_CITY_CONNECTIONS //ls612: River Connection Support
 	bool bAllowWaterRoutes = false;
 #else
