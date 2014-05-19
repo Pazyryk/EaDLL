@@ -2284,6 +2284,7 @@ int RouteGetExtraChild(CvAStarNode* node, int iIndex, int& iX, int& iY, CvAStar*
 		{
 			continue;
 		}
+
 #ifdef EA_WH_EVENTS_CITY_CONNECTIONS
 		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_INDIRECT_ROUTE)
 #else

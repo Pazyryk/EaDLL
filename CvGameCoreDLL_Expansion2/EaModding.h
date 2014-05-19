@@ -65,8 +65,9 @@
 // Plots and yields
 #define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
 #define EA_BUILD_AI_CHANGES					// Swap blight for fallout; allow for mulitple Builds for same improvement 
-#define EA_NEGATIVE_YIELDS					// UNDER CONSTRUCTION: Nothing yet...
 #define EA_YIELD_FROM_SPECIAL_PLOTS_ONLY	// For Pantheistic restriction on plot yields
+// Buildings
+#define EA_NEGATIVE_BUILDING_HAPPINESS		// Allow negative values
 // Units
 #define EA_GENERIC_WORKERS					//ls612: Remove hardcoded references to UNIT_WORKER
 
@@ -96,6 +97,7 @@
 #define EA_EVENT_ACQUIRE_PLOT				// GameEvents.CityCanAcquirePlot(iPlayer, iCity, x, y) CallTestAll
 #define EA_EVENT_CAN_CAPTURE_CIVILIAN		// GameEvents.CanCaptureCivilian(iPlayer, iUnit) CallTestAll
 #define EA_EVENT_UNIT_CAPTURED				// GameEvents.UnitCaptured(iPlayer, iUnit) CallHook
+
 
 // Misc extended Lua support:
 #define EA_PLOTS							// Persisted plot data and methods for Ea's Living Terrain and plot effects (Glyphs, Runes and Wards)

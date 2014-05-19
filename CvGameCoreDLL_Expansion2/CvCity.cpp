@@ -5925,12 +5925,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		ChangeNoOccupiedUnhappinessCount(pBuildingInfo->IsNoOccupiedUnhappiness() * iChange);
 
+#ifndef EA_NEGATIVE_BUILDING_HAPPINESS		// Paz - allow negative happiness from buildings
 		if(pBuildingInfo->GetHappiness() > 0)
+#endif
 		{
 			ChangeBaseHappinessFromBuildings(pBuildingInfo->GetHappiness() * iChange);
 		}
 
+#ifndef EA_NEGATIVE_BUILDING_HAPPINESS		// Paz - allow negative happiness from buildings
 		if(pBuildingInfo->GetUnmoddedHappiness() > 0)
+#endif
 		{
 			ChangeUnmoddedHappinessFromBuildings(pBuildingInfo->GetUnmoddedHappiness() * iChange);
 		}
