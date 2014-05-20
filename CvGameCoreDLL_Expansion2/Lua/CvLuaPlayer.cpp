@@ -345,6 +345,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetHappinessPerTradeRoute);
 	Method(ChangeHappinessPerTradeRoute);
 
+#ifdef EA_UNHAPPINESS
+	Method(GetUnhappinessFromMod);
+	Method(GetHappinessFromMod);
+	Method(SetUnhappinessFromMod);
+	Method(SetHappinessFromMod);
+#endif
+
 	Method(GetCityConnectionTradeRouteGoldModifier);
 
 	Method(GetHappinessFromMinorCivs);
@@ -3158,6 +3165,29 @@ int CvLuaPlayer::lChangeHappinessPerTradeRoute(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::ChangeHappinessPerTradeRoute);
 }
+
+//ls612: Other sources
+#ifdef EA_UNHAPPINESS
+int CvLuaPlayer::lGetUnhappinessFromMod(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetOtherUnhappiness);
+}
+
+int CvLuaPlayer::lGetHappinessFromMod(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetOtherHappiness);
+}
+
+int CvLuaPlayer::lSetUnhappinessFromMod(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::SetOtherUnhappiness);
+}
+
+int CvLuaPlayer::lSetHappinessFromMod(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::SetOtherHappiness);
+}
+#endif
 //------------------------------------------------------------------------------
 //void GetTradeRouteModifier ()
 int CvLuaPlayer::lGetCityConnectionTradeRouteGoldModifier(lua_State* L)

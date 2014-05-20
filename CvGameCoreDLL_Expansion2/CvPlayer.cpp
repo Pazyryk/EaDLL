@@ -158,6 +158,10 @@ CvPlayer::CvPlayer() :
 #endif
 	, m_iHappinessPerXPopulation(0)
 	, m_iHappinessFromLeagues(0)
+#ifdef EA_UNHAPPINESS //ls612
+	, m_iOtherHappiness("CvPlayer::m_iOtherHappiness", m_syncArchive)
+	, m_iOtherUnhappiness("CvPlayer::m_iOtherUnhappiness", m_syncArchive)
+#endif
 	, m_iEspionageModifier(0)
 	, m_iSpyStartingRank(0)
 	, m_iExtraLeagueVotes(0)
@@ -766,6 +770,10 @@ void CvPlayer::uninit()
 	m_iCapitalUnhappinessMod = 0;
 #ifdef EA_NATURAL_WONDER_HAPPINESS
 	m_iNWDiscHappy = 0;
+#endif
+#ifdef EA_UNHAPPINESS
+	m_iOtherHappiness = 0;
+	m_iOtherUnhappiness = 0;
 #endif
 	m_iCityRevoltCounter = 0;
 	m_iHappinessPerGarrisonedUnitCount = 0;
@@ -10264,6 +10272,11 @@ void CvPlayer::DoUpdateHappiness()
 	DoUpdateCityConnectionHappiness();
 	m_iHappiness += GetHappinessFromTradeRoutes();
 
+	//ls612: Handle all other happiness
+#ifdef EA_UNHAPPINESS
+	m_iHappiness += GetOtherHappiness();
+#endif
+
 	if(isLocalPlayer() && GetExcessHappiness() >= 100)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP2_45);
@@ -11210,6 +11223,11 @@ int CvPlayer::GetUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPupp
 	// Unit Unhappiness (Builders)
 	iUnhappiness += GetUnhappinessFromUnits();
 
+	//ls612: Handle all other unhappiness
+#ifdef EA_UNHAPPINESS
+	iUnhappiness += GetOtherUnhappiness();
+#endif
+
 	iUnhappiness /= 100;
 
 	iUnhappiness += GetCulture()->GetPublicOpinionUnhappiness();
@@ -11766,6 +11784,33 @@ int CvPlayer::GetHappinessFromTradeRoutes() const
 {
 	return m_iCityConnectionHappiness;
 }
+
+//ls612: To avoid further growth in specific DLL-side happiness get/set methods all new happiness sources should be added to these methods
+//The only reason a new happiness-related method should be created is if there is a good reason
+//to access the value of happiness/unhappiness created by that one type of source DLL-side
+//If lua wants to persist that info lua can persist that info itself 
+//and cut down on the number of calls to DLL getters, which are relatively expensive.
+#ifdef EA_UNHAPPINESS
+int CvPlayer::GetOtherHappiness() const
+{
+	return m_iOtherHappiness;
+}
+
+int CvPlayer::GetOtherUnhappiness() const
+{
+	return m_iOtherUnhappiness;
+}
+
+void CvPlayer::SetOtherHappiness(int iNewValue)
+{
+	m_iOtherHappiness = iNewValue;
+}
+
+void CvPlayer::SetOtherUnhappiness(int iNewValue)
+{
+	m_iOtherUnhappiness = iNewValue;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// How much Happiness coming from Trade Routes?
@@ -21905,6 +21950,10 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iAlwaysSeeBarbCampsCount;
 	kStream >> m_iHappinessFromBuildings;
 	kStream >> m_iHappinessPerCity;
+#ifdef EA_UNHAPPINESS 
+	kStream >> m_iOtherHappiness;
+	kStream >> m_iOtherUnhappiness;
+#endif
 	kStream >> m_iAdvancedStartPoints;
 	kStream >> m_iAttackBonusTurns;
 	if (uiVersion >= 9)
@@ -22461,6 +22510,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iAlwaysSeeBarbCampsCount;
 	kStream << m_iHappinessFromBuildings;
 	kStream << m_iHappinessPerCity;
+#ifdef EA_UNHAPPINESS 
+	kStream << m_iOtherHappiness;
+	kStream << m_iOtherUnhappiness;
+#endif
 	kStream << m_iAdvancedStartPoints;
 	kStream << m_iAttackBonusTurns;
 	kStream << m_iCultureBonusTurns;
