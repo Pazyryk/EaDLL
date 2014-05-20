@@ -323,6 +323,13 @@ public:
 	int GetHappinessFromTradeRoutes() const;
 	void DoUpdateCityConnectionHappiness();
 
+#ifdef EA_UNHAPPINESS
+	int GetOtherHappiness() const;
+	int GetOtherUnhappiness() const;
+	void SetOtherHappiness(int iNewValue);
+	void SetOtherUnhappiness(int iNewValue);
+#endif
+
 	// Culture
 
 	int GetTotalJONSCulturePerTurn() const;
@@ -1782,6 +1789,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iStrategicResourceMod;
 	FAutoVariable<int, CvPlayer> m_iSpecialistCultureChange;
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleSpawnCounter;
+
+#ifdef EA_UNHAPPINESS
+	FAutoVariable<int, CvPlayer> m_iOtherHappiness;
+	FAutoVariable<int, CvPlayer> m_iOtherUnhappiness;
+#endif
 
 	FAutoVariable<int, CvPlayer> m_iFreeTechCount;
 	int m_iMedianTechPercentage;

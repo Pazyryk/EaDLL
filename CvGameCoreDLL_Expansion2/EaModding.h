@@ -106,6 +106,7 @@
 #define EA_TEST_PROMOTION_READY				// unit:TestPromotionReady()
 #define EA_PATHFINDING						// unit:TurnsToReachTarget(CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
 #define EA_CITY_METHODS						// just SetNumFreeBuilding for now
+#define EA_UNHAPPINESS						//ls612: Allow unhappiness from miscallaneous sources provided by lua
 
 //Lua Methods
 #define EA_EXTENDED_LUA_YIELD_METHODS		//ls612: Both player:SetLeaderYieldBoost(yieldTypeID, percentBoost) and city:SetCityResidentYieldBoost(yieldTypeID, percentBoost)

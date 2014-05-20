@@ -330,7 +330,13 @@ protected:
 	static int lGetHappinessPerTradeRoute(lua_State* L);
 	static int lSetHappinessPerTradeRoute(lua_State* L);
 	static int lChangeHappinessPerTradeRoute(lua_State* L);
-
+	//ls612: Other sources
+#ifdef EA_UNHAPPINESS
+	static int lGetUnhappinessFromMod(lua_State* L);
+	static int lGetHappinessFromMod(lua_State* L);
+	static int lSetUnhappinessFromMod(lua_State* L);
+	static int lSetHappinessFromMod(lua_State* L);
+#endif
 	static int lGetCityConnectionTradeRouteGoldModifier(lua_State* L);
 
 	static int lGetHappinessFromMinorCivs(lua_State* L);
