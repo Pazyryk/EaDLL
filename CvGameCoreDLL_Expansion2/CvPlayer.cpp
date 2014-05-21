@@ -11223,12 +11223,12 @@ int CvPlayer::GetUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPupp
 	// Unit Unhappiness (Builders)
 	iUnhappiness += GetUnhappinessFromUnits();
 
+	iUnhappiness /= 100;
+
 	//ls612: Handle all other unhappiness
 #ifdef EA_UNHAPPINESS
 	iUnhappiness += GetOtherUnhappiness();
 #endif
-
-	iUnhappiness /= 100;
 
 	iUnhappiness += GetCulture()->GetPublicOpinionUnhappiness();
 
