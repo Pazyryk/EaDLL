@@ -905,6 +905,8 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;
 
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
+	//ls612: Free Buildings
+	std::vector<BuildingTypes> m_paiFreeBuildings;
 };
 
 #endif //CIV5_TRAIT_CLASSES_H

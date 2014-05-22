@@ -1548,6 +1548,20 @@ void CvPlayerTraits::InitPlayerTraits()
 					m_aFreeResourceXCities[iResourceLoop] = temp;
 				}
 			}
+
+			//ls612: Free Buildings
+			if (trait->GetFreeBuilding() != NO_BUILDING)
+			{
+				m_paiFreeBuildings.push_back(trait->GetFreeBuilding());
+				for (int iI = 0; iI < m_paiFreeBuildings.size(); iI++)
+				{
+					for (int iJ = 0; iJ < m_pPlayer->getNumCities(); iJ++)
+					{
+						CvCity* pCity = m_pPlayer->getCity(iJ);
+						pCity->GetCityBuildings()->SetNumFreeBuilding(m_paiFreeBuildings[iI], 1);
+					}
+				}
+			}
 		}
 	}
 }
@@ -1563,6 +1577,8 @@ void CvPlayerTraits::Uninit()
 	m_ppaaiSpecialistYieldChange.clear();
 	m_ppaaiUnimprovedFeatureYieldChange.clear();
 	m_aFreeResourceXCities.clear();
+	//ls612: Free Buildings
+	m_paiFreeBuildings.clear();
 }
 
 /// Reset data members
@@ -1735,6 +1751,7 @@ void CvPlayerTraits::Reset()
 		FreeResourceXCities temp;
 		m_aFreeResourceXCities.push_back(temp);
 	}
+
 }
 
 /// Does this player possess a specific trait?
@@ -2833,6 +2850,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppaaiSpecialistYieldChange;
 
 	kStream >> m_ppaaiUnimprovedFeatureYieldChange;
+	//ls612: Free Buildings
+	kStream >> m_paiFreeBuildings;
 
 	if (uiVersion >= 11)
 	{
@@ -3000,6 +3019,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppaaiImprovementYieldChange;
 	kStream << m_ppaaiSpecialistYieldChange;
 	kStream << m_ppaaiUnimprovedFeatureYieldChange;
+
+	//ls612: Free Buildings
+	kStream << m_paiFreeBuildings;
 
 	kStream << (int)m_aUniqueLuxuryAreas.size();
 	for (unsigned int iI = 0; iI < m_aUniqueLuxuryAreas.size(); iI++)
