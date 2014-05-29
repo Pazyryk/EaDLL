@@ -8464,7 +8464,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 		//ls612: Do we have the tech which makes this obsolete?
 		if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getBuildInfo(eBuild)->getObsoleteTech()))
 		{
-			if ((!bTestEra && !bTestVisible) || ((GetCurrentEra() - 1) > GC.getTechInfo((TechTypes) GC.getBuildInfo(eBuild)->getTechPrereq())->GetEra()))
+			if ((!bTestEra && !bTestVisible) || ((GetCurrentEra() - 1) > GC.getTechInfo((TechTypes) GC.getBuildInfo(eBuild)->getObsoleteTech())->GetEra()))
 			{
 				return false;
 			}
