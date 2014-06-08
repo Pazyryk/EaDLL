@@ -1730,6 +1730,14 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
+	//ls612: we never want barbs to own a city. 
+	//If for whatever reason they would acquire it (due to new Ea mechanics) destroy it instead
+	if (isBarbarian())
+	{
+		pOldCity->kill();
+		return;
+	}
+
 	if(bConquest)
 	{
 		CvNotifications* pNotifications = GET_PLAYER(pOldCity->getOwner()).GetNotifications();
