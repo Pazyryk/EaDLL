@@ -1550,14 +1550,14 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 
 			//ls612: Free Buildings
+			int iLoop;
 			if (trait->GetFreeBuilding() != NO_BUILDING)
 			{
 				m_paiFreeBuildings.push_back(trait->GetFreeBuilding());
 				for (int iI = 0; iI < m_paiFreeBuildings.size(); iI++)
 				{
-					for (int iJ = 0; iJ < m_pPlayer->getNumCities(); iJ++)
+					for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvCity* pCity = m_pPlayer->getCity(iJ);
 						pCity->GetCityBuildings()->SetNumFreeBuilding(m_paiFreeBuildings[iI], 1);
 					}
 				}
