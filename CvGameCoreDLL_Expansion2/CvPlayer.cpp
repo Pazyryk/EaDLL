@@ -8886,6 +8886,26 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 		iModifier /= 100;
 	}
 
+#ifdef EA_EVENT_TECH_COST_MOD		// Paz - GameEvents.PlayerTechCostMod
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GetID());
+		args->Push(eTech);
+
+		int iPlayerCostMod = 0;	// +/- % modifier
+		if (LuaSupport::CallAccumulator(pkScriptSystem, "PlayerTechCostMod", args.get(), iPlayerCostMod))
+		{
+			if (iPlayerCostMod < -90)
+				iPlayerCostMod = -90;
+
+			// Errr... I think this is what we want
+			iModifier = (iModifier * 100) / (100 + iPlayerCostMod);
+		}
+	}
+#endif
+
 	return iModifier;
 }
 
