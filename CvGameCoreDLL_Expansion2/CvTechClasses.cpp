@@ -1454,24 +1454,6 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
 	iResearchCost = iResearchCost * (100 + iMod) / 100;
 
-#ifdef EA_EVENT_TECH_COST_MOD		// Paz - GameEvents.PlayerTechCostMod
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem)
-	{
-		CvLuaArgsHandle args;
-		args->Push(m_pPlayer->GetID());
-		args->Push(eTech);
-
-		int iPlayerMod = 0;	// +/- % modifier
-		if (LuaSupport::CallAccumulator(pkScriptSystem, "PlayerTechCostMod", args.get(), iPlayerMod))
-		{
-			if (iPlayerMod < -90)
-				iPlayerMod = -90;
-			iResearchCost = iResearchCost * (100 + iPlayerMod) / 100;
-		}
-	}
-#endif
-
 	// We're going to round up so that the user wont get confused when the research progress seems to be equal to the research cost, but it is not acutally done.
 	// This is because the 'real' calculations use the GameCore's fixed point math where things are multiplied by 100
 	if((iResearchCost % 100) != 0)
