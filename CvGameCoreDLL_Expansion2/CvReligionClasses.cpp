@@ -879,19 +879,24 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 				}
 				else
 				{
-					CvTeam& kNotifyTeam = GET_TEAM(kNotifyPlayer.getTeam());
-
-					if(kNotifyTeam.isHasMet(kPlayer.getTeam()))
+					//ls612: in Ea a religion is founded by a hidden civ on turn 0. We don't need to show a notification for this.
+					if (GC.getGame().getGameTurn() != 0)
 					{
-						pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, replayText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-					}
-					else
-					{
-						Localization::String unknownCivText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_UNKNOWN");
-						unknownCivText << szReligionName;
+						CvTeam& kNotifyTeam = GET_TEAM(kNotifyPlayer.getTeam());
 
-						pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, unknownCivText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+						if (kNotifyTeam.isHasMet(kPlayer.getTeam()))
+						{
+							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, replayText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+						}
+						else
+						{
+							Localization::String unknownCivText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_UNKNOWN");
+							unknownCivText << szReligionName;
+
+							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, unknownCivText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+						}
 					}
+					
 				}
 			}
 		}
