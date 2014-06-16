@@ -115,6 +115,8 @@
 // Macros
 #define SHOW_PLOT_FLOATUP(pPlot, ePlayer, szMessage, fDelay)  if (pPlot->isVisible(GET_PLAYER(ePlayer).getTeam())) DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), szMessage, fDelay)
 
+// Miscallaneous Junk
+#define EA_NO_FIRST_TURN_NOTIFICATIONS		//ls612: Fixes notifications caused by Ea mechanics which shouldn't be shown.
 
 // Work in progress:
 //#define EA_LEADER_SCENE_BYPASS	// This is insane!  (needs support LeaderHead and related xml/lua)

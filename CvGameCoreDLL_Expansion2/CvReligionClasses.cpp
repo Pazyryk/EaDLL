@@ -880,8 +880,10 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 				else
 				{
 					//ls612: in Ea a religion is founded by a hidden civ on turn 0. We don't need to show a notification for this.
+#ifdef EA_NO_FIRST_TURN_NOTIFICATIONS
 					if (GC.getGame().getGameTurn() != 0)
 					{
+#endif
 						CvTeam& kNotifyTeam = GET_TEAM(kNotifyPlayer.getTeam());
 
 						if (kNotifyTeam.isHasMet(kPlayer.getTeam()))
@@ -895,8 +897,9 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 
 							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, unknownCivText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 						}
+#ifdef EA_NO_FIRST_TURN_NOTIFICATIONS
 					}
-					
+#endif
 				}
 			}
 		}
