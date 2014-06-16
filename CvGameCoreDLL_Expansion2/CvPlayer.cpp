@@ -14893,42 +14893,46 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 
 						if (eWinningTeam != NO_TEAM)
 						{
-							if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
+							//ls612: in Ea a hidden civ loses their capital on turn 0. We don't need to show the notification for this
+							if (GC.getGame().getGameTurn() != 0)
 							{
-								if (eWinningPlayer == GetID())
+								if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
 								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_YOU_WINNING");
-									localizedBuffer << iMostOriginalCapitals;
-								}
-								else if (eWinningPlayer != NO_PLAYER)
-								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_OTHER_WINNING");
-									if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+									if (eWinningPlayer == GetID())
 									{
-										localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
+										localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_YOU_WINNING");
+										localizedBuffer << iMostOriginalCapitals;
 									}
-									else
+									else if (eWinningPlayer != NO_PLAYER)
 									{
-										localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
+										localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_OTHER_WINNING");
+										if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+										{
+											localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
+										}
+										else
+										{
+											localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
+										}
+										localizedBuffer << iMostOriginalCapitals;
 									}
-									localizedBuffer << iMostOriginalCapitals;
+									else // if (eWinningTeam != NO_TEAM)
+									{
+										localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_TEAM_WINNING");
+										localizedBuffer << (int) eWinningTeam;
+										localizedBuffer << iMostOriginalCapitals;
+									}
 								}
-								else // if (eWinningTeam != NO_TEAM)
+								else
 								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_TEAM_WINNING");
-									localizedBuffer << (int)eWinningTeam;
+									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_UNMET_WINNING");
 									localizedBuffer << iMostOriginalCapitals;
 								}
 							}
 							else
 							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_UNMET_WINNING");
-								localizedBuffer << iMostOriginalCapitals;
+								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL");
 							}
-						}
-						else
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL");
 						}
 					}
 
