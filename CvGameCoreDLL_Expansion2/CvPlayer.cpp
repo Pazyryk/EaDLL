@@ -14893,50 +14893,53 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 
 						if (eWinningTeam != NO_TEAM)
 						{
-							//ls612: in Ea a hidden civ loses their capital on turn 0. We don't need to show the notification for this
-							if (GC.getGame().getGameTurn() != 0)
+							if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
 							{
-								if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
+								if (eWinningPlayer == GetID())
 								{
-									if (eWinningPlayer == GetID())
-									{
-										localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_YOU_WINNING");
-										localizedBuffer << iMostOriginalCapitals;
-									}
-									else if (eWinningPlayer != NO_PLAYER)
-									{
-										localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_OTHER_WINNING");
-										if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
-										{
-											localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
-										}
-										else
-										{
-											localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
-										}
-										localizedBuffer << iMostOriginalCapitals;
-									}
-									else // if (eWinningTeam != NO_TEAM)
-									{
-										localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_TEAM_WINNING");
-										localizedBuffer << (int) eWinningTeam;
-										localizedBuffer << iMostOriginalCapitals;
-									}
+									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_YOU_WINNING");
+									localizedBuffer << iMostOriginalCapitals;
 								}
-								else
+								else if (eWinningPlayer != NO_PLAYER)
 								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_UNMET_WINNING");
+									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_OTHER_WINNING");
+									if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+									{
+										localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
+									}
+									else
+									{
+										localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
+									}
+									localizedBuffer << iMostOriginalCapitals;
+								}
+								else // if (eWinningTeam != NO_TEAM)
+								{
+									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_TEAM_WINNING");
+									localizedBuffer << (int) eWinningTeam;
 									localizedBuffer << iMostOriginalCapitals;
 								}
 							}
 							else
 							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL");
+								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_UNMET_WINNING");
+								localizedBuffer << iMostOriginalCapitals;
 							}
 						}
+						else
+						{
+							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL");
+						}
 					}
-
-					pNotifications->Add(eNotificationType, localizedBuffer.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
+					//ls612: in Ea a hidden civ loses their capital on turn 0. We don't need to show a notification for this.
+#ifdef EA_NO_FIRST_TURN_NOTIFICATIONS
+					if (GC.getGame().getGameTurn() != 0)
+					{
+#endif
+						pNotifications->Add(eNotificationType, localizedBuffer.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
+#ifdef EA_NO_FIRST_TURN_NOTIFICATIONS
+					}
+#endif
 				}
 
 				//replay message
