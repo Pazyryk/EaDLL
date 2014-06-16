@@ -877,29 +877,26 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 
 					pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 				}
+#ifdef EA_NO_FIRST_TURN_NOTIFICATIONS	//ls612: in Ea a religion is founded by a hidden civ on turn 0. We don't need to show a notification for this.
+										//Paz: reverted original code to original indenting and spacing (for diff file consistency)
+				else if (GC.getGame().getGameTurn() != 0)
+#else
 				else
+#endif
 				{
-					//ls612: in Ea a religion is founded by a hidden civ on turn 0. We don't need to show a notification for this.
-#ifdef EA_NO_FIRST_TURN_NOTIFICATIONS
-					if (GC.getGame().getGameTurn() != 0)
+					CvTeam& kNotifyTeam = GET_TEAM(kNotifyPlayer.getTeam());
+
+					if(kNotifyTeam.isHasMet(kPlayer.getTeam()))
 					{
-#endif
-						CvTeam& kNotifyTeam = GET_TEAM(kNotifyPlayer.getTeam());
-
-						if (kNotifyTeam.isHasMet(kPlayer.getTeam()))
-						{
-							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, replayText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-						}
-						else
-						{
-							Localization::String unknownCivText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_UNKNOWN");
-							unknownCivText << szReligionName;
-
-							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, unknownCivText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-						}
-#ifdef EA_NO_FIRST_TURN_NOTIFICATIONS
+						pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, replayText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 					}
-#endif
+					else
+					{
+						Localization::String unknownCivText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_UNKNOWN");
+						unknownCivText << szReligionName;
+
+						pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, unknownCivText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					}
 				}
 			}
 		}
