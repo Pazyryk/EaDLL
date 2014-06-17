@@ -1735,6 +1735,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	if (isBarbarian())
 	{
 		pOldCity->kill();
+		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 		return;
 	}
 
