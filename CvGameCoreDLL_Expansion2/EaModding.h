@@ -66,7 +66,6 @@
 #define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
 #define EA_BUILD_AI_CHANGES					// Swap blight for fallout; allow for mulitple Builds for same improvement 
 #define EA_YIELD_FROM_SPECIAL_PLOTS_ONLY	// For Pantheistic restriction on plot yields
-#define EA_PLOT_VISIBILITY					// Add visibility from Seeing Eye plot effect
 // Buildings
 #define EA_NEGATIVE_BUILDING_HAPPINESS		// Allow negative values
 // Units
