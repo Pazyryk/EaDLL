@@ -9136,6 +9136,17 @@ bool CvUnit::CanUpgradeRightNow(bool bOnlyTestVisible) const
 	if(ePrereqTech != NO_TECH && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
 		return false;
 
+#ifdef EA_UNIT_UPGRADE_TECHS
+	for(int i = 0; i < GC.getNUM_UNIT_AND_TECH_PREREQS(); ++i)
+	{
+		TechTypes eTech = (TechTypes) m_pUnitInfo->GetPrereqAndTechs(i);
+		if(NO_TECH != eTech && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eTech))
+		{
+			return false;
+		}
+	}
+#endif
+
 	CvPlot* pPlot = plot();
 
 	// Show the upgrade, but don't actually allow it

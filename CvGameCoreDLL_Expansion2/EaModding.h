@@ -70,7 +70,7 @@
 #define EA_NEGATIVE_BUILDING_HAPPINESS		// Allow negative values
 // Units
 #define EA_GENERIC_WORKERS					//ls612: Remove hardcoded references to UNIT_WORKER
-
+#define EA_UNIT_UPGRADE_TECHS				// Added upgrade test for additional techs (added in Unit_TechTypes table)
 // Natural Wonders
 #define EA_NATURAL_WONDER_HAPPINESS			//ls612: Moving that out of lua into the DLL
 
