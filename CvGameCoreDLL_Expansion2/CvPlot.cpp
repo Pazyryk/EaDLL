@@ -1847,7 +1847,12 @@ void CvPlot::updateSight(bool bIncrement)
 		if(kPlayer.isAlive())
 		{
 			int iGlyphRange = getPlotEffectStrength() / 5;
-			changeAdjacentSight(kPlayer.getTeam(), iGlyphRange, bIncrement, (InvisibleTypes)0 /*INVISIBLE_SUBMARINE*/, NO_DIRECTION);
+			if (iGlyphRange < GC.getPLOT_VISIBILITY_RANGE())
+			{
+				iGlyphRange = GC.getPLOT_VISIBILITY_RANGE();
+			}
+
+			changeAdjacentSight(kPlayer.getTeam(), iGlyphRange, bIncrement, (InvisibleTypes)0 /*INVISIBLE_SUBMARINE*/, NO_DIRECTION, false);
 		}
 		else
 		{

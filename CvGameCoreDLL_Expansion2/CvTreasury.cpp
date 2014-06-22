@@ -586,6 +586,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 
 	iSupport = iBaseUnitCost + iExtraCost;
 
+#ifndef EA_DISABLE_UNIT_TURN_EXP_COSTS
 	// Game progress factor ranges from 0.0 to 1.0 based on how far into the game we are
 	double fGameProgressFactor = double(GC.getGame().getElapsedGameTurns()) / GC.getGame().getDefaultEstimateEndTurn();
 
@@ -598,6 +599,9 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 	fTempCost /= 100;	// Take this out of hundreds now
 
 	double dFinalCost = pow(fTempCost, fExponentialFactor);
+#else
+	double dFinalCost = iSupport / 50;		// gives 1 gpt per unit at Prince to Diety difficulty
+#endif
 
 	// A mod at the player level? (Policies, etc.)
 	if(m_pPlayer->GetUnitGoldMaintenanceMod() != 0)
@@ -650,6 +654,7 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 		iSupply /= 100;
 	}
 
+#ifndef EA_DISABLE_UNIT_TURN_EXP_COSTS
 	// Game progress factor ranges from 0.0 to 1.0 based on how far into the game we are
 	double fGameProgressFactor = float(GC.getGame().getElapsedGameTurns()) / GC.getGame().getEstimateEndTurn();
 
@@ -660,6 +665,9 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 
 	double fTempCost = fMultiplyFactor * iSupply;
 	int iFinalCost = (int) pow(fTempCost, fExponentialFactor);
+#else
+	int iFinalCost = iSupply;
+#endif
 
 	// A mod at the player level? (Policies, etc.)
 	if(m_pPlayer->GetUnitSupplyMod() != 0)
