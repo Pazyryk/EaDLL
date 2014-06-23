@@ -1840,29 +1840,34 @@ void CvPlot::updateSight(bool bIncrement)
 		}
 	}
 
+#ifdef EA_PLOTS						// Paz - visibility for Seeing Eye Glyph
+	if(getPlotEffectType() == 1)	// EA_PLOTEFFECT_SEEING_EYE_GLYPH (yes, it's awful hardcoding IDs, but it's well indicated in sql table)
+	{
+		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)getPlotEffectPlayer());
+		if(kPlayer.isAlive())
+		{
+			int iGlyphRange = getPlotEffectStrength() / 5;
+			if (iGlyphRange < GC.getPLOT_VISIBILITY_RANGE())
+			{
+				iGlyphRange = GC.getPLOT_VISIBILITY_RANGE();
+			}
+
+			changeAdjacentSight(kPlayer.getTeam(), iGlyphRange, bIncrement, (InvisibleTypes)0 /*INVISIBLE_SUBMARINE*/, NO_DIRECTION, false);
+		}
+		else
+		{
+			// player dead so remove Glyph
+			setPlotEffectType(-1);	// this will decriment ReconCount
+			setPlotEffectStrength(-1);
+			setPlotEffectPlayer(-1);
+			setPlotEffectCaster(-1);
+		}
+	}
+#endif
+
 	if(getReconCount() > 0)
 	{
-#ifdef EA_PLOT_VISIBILITY				// Paz - visibility for Seeing Eye Glyph
-		if(getPlotEffectType() == 1)	// EA_PLOTEFFECT_SEEING_EYE_GLYPH (yes, it's awful hardcoding IDs, but it's well indicated in sql table)
-		{
-			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)getPlotEffectPlayer());
-			if(kPlayer.isAlive())
-			{
-				int iGlyphRange = getPlotEffectStrength() / 5;
-				changeAdjacentSight(kPlayer.getTeam(), iGlyphRange, bIncrement, (InvisibleTypes)0 /*INVISIBLE_SUBMARINE*/, NO_DIRECTION);
-			}
-			else
-			{
-				// player dead so remove Glyph
-				setPlotEffectType(-1);	// this will decriment ReconCount
-				setPlotEffectStrength(-1);
-				setPlotEffectPlayer(-1);
-				setPlotEffectCaster(-1);
-			}
-			if(getReconCount() < 2)
-				return;		// prevent loop over all units below if this is the only cause for getReconCount > 0
-		}
-#endif
+
 		int iRange = GC.getRECON_VISIBILITY_RANGE();
 		for(iI = 0; iI < MAX_PLAYERS; ++iI)
 		{
@@ -9389,18 +9394,6 @@ int CvPlot::getPlotEffectType() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setPlotEffectType(const int iType)
 {
-	if(iType == 1)	// EA_PLOTEFFECT_SEEING_EYE_GLYPH
-	{
-		if(m_iPlotEffectType != 1)
-		{
-			changeReconCount(1);
-		}
-	}
-	else if(m_iPlotEffectType == 1)
-	{
-		changeReconCount(-1);
-	}
-	
 	m_iPlotEffectType = iType;
 }
 //	--------------------------------------------------------------------------------

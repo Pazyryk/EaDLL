@@ -66,18 +66,18 @@
 #define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
 #define EA_BUILD_AI_CHANGES					// Swap blight for fallout; allow for mulitple Builds for same improvement 
 #define EA_YIELD_FROM_SPECIAL_PLOTS_ONLY	// For Pantheistic restriction on plot yields
-#define EA_PLOT_VISIBILITY					// Add visibility from Seeing Eye plot effect
 // Buildings
 #define EA_NEGATIVE_BUILDING_HAPPINESS		// Allow negative values
 // Units
 #define EA_GENERIC_WORKERS					//ls612: Remove hardcoded references to UNIT_WORKER
-
+#define EA_UNIT_UPGRADE_TECHS				// Added upgrade test for additional techs (added in Unit_TechTypes table)
 // Natural Wonders
 #define EA_NATURAL_WONDER_HAPPINESS			//ls612: Moving that out of lua into the DLL
 
 // Disables
 #define EA_HIDDEN_CIVS_DISABLES				// Skip useless code for hidden civs that have no cities
 #define EA_DISABLE_TOURISM					// Not used by mod so don't calculate
+#define EA_DISABLE_UNIT_TURN_EXP_COSTS		// Handicap and Gamespeed xml tags disabled in dll, so I killed it here instead
 
 // Strategies
 #define EA_STRATEGY_CHANGES
