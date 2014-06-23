@@ -1367,6 +1367,12 @@ public:
 	void ChangeNumGreatPeople(int iValue);
 	// End New Victory Stuff
 
+	//ls612
+#ifdef EA_NO_WARMONGER_PENALTY
+	int getWarmongerModifier() const;
+	void setWarmongerModifier(int iNewValue);
+#endif
+
 	void DoAdoptedGreatPersonCityStatePolicy();
 	bool IsAlliesGreatPersonBiasApplied() const;
 	void SetAlliesGreatPersonBiasApplied(bool bValue);
@@ -1789,10 +1795,14 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iStrategicResourceMod;
 	FAutoVariable<int, CvPlayer> m_iSpecialistCultureChange;
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleSpawnCounter;
-
+	//ls612
 #ifdef EA_UNHAPPINESS
 	FAutoVariable<int, CvPlayer> m_iOtherHappiness;
 	FAutoVariable<int, CvPlayer> m_iOtherUnhappiness;
+#endif
+	//ls612
+#ifdef EA_NO_WARMONGER_PENALTY
+	FAutoVariable<int, CvPlayer> m_iWarmongerModifier;
 #endif
 
 	FAutoVariable<int, CvPlayer> m_iFreeTechCount;

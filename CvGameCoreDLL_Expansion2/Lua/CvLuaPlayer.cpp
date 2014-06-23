@@ -2363,6 +2363,30 @@ int CvLuaPlayer::lSetYieldFromSpecialPlotsOnly(lua_State* L)
 }
 #endif
 
+#ifdef EA_NO_WARMONGER_PENALTY //ls612
+//------------------------------------------------------------------------------
+//int GetWarmongerModifier();
+int CvLuaPlayer::lGetWarmongerModifier(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->getWarmongerModifier();
+	
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//void SetWarmongerModifier();
+int CvLuaPlayer::lSetWarmongerModifier(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->setWarmongerModifier(iValue);
+	return 1;
+}
+#endif
+
 //------------------------------------------------------------------------------
 //int GetJONSCultureEverGenerated();
 int CvLuaPlayer::lGetJONSCultureEverGenerated(lua_State* L)
