@@ -10012,7 +10012,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 			eAttackedPlayer = (PlayerTypes) iAttackedPlayerLoop;
 #ifndef EA_NO_WARMONGER_PENALTY
 			// Player must be on this team
-			if (GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
+			if(GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
 				continue;
 #endif
 
@@ -10097,6 +10097,7 @@ void CvDiplomacyAI::ChangeOtherPlayerWarmongerAmount(PlayerTypes ePlayer, int iC
 {
 	int iNewValue = m_paiOtherPlayerWarmongerAmount[ePlayer] + iChangeAmount;
 	iNewValue = max(0, iNewValue);
+	m_paiOtherPlayerWarmongerAmount[ePlayer] = iNewValue;
 }
 
 // The value of the warmonger amount adjusted by how much this player hates warmongers
