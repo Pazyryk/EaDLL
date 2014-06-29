@@ -10000,25 +10000,64 @@ void CvDiplomacyAI::SetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iVa
 /// Changes how many Majors have we seen this Player attack
 void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam)
 {
+#ifdef EA_NO_WARMONGER_PENALTY
+	int iModifier = 0;
+	int iCounter = 0;
+#endif
 	if(iChange > 0)
 	{
 		PlayerTypes eAttackedPlayer;
 		for(int iAttackedPlayerLoop = 0; iAttackedPlayerLoop < MAX_MAJOR_CIVS; iAttackedPlayerLoop++)
 		{
 			eAttackedPlayer = (PlayerTypes) iAttackedPlayerLoop;
-
+#ifndef EA_NO_WARMONGER_PENALTY
 			// Player must be on this team
 			if(GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
 				continue;
+#endif
 
 			// Don't ACTUALLY count this if we're at war with the guy also
 			if(IsAtWar(eAttackedPlayer))
 				return;
+
+#ifdef EA_NO_WARMONGER_PENALTY
+			// Player must be on this team
+			if (GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
+			{
+				continue;
+			}
+
+			//ls612: Take the average modifier of all players on this team
+			if (true)
+			{
+				iModifier += (100 - GET_PLAYER(eAttackedPlayer).getWarmongerModifier());
+				iCounter++;
+			}
+#endif
 		}
 	}
+#ifdef EA_NO_WARMONGER_PENALTY
+	//ls612: get the average. If for whatever reason there were no new players modifier is 0
+	if (iCounter != 0)
+	{
+		iModifier /= iCounter;
+	}
+	else
+	{
+		iModifier = 0;
+	}
+
+	int iWarmongerChange = (iChange * GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT()) * (100 - iModifier);
+	iWarmongerChange /= 100;
 
 	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
+	ChangeOtherPlayerWarmongerAmount(ePlayer, iWarmongerChange);
+#else
+	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
 	ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * /*250 */ GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT());
+#endif
+
+	
 }
 
 /// How many Majors have we seen this Player conquer
@@ -27778,7 +27817,9 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered)
 {
 	CvPlayer &kConqueringPlayer = GET_PLAYER(eConqueror);
-
+#ifdef EA_NO_WARMONGER_PENALTY 
+	int iModifier = kConqueringPlayer.getWarmongerModifier();
+#endif
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
@@ -27791,6 +27832,10 @@ void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(PlayerTypes eConqueror, Playe
 				int iNumCities = max(GET_PLAYER(eConquered).getNumCities(), 1);
 				int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(iNumCities);
 
+#ifdef EA_NO_WARMONGER_PENALTY //ls612: apply modifiers here for the status of the conquered
+				iWarmongerOffset *= (100 - iModifier);
+				iWarmongerOffset /= 100;
+#endif
 				// Half penalty if I'm also at war with conquered civ
 				if (kAffectedTeam.isAtWar(GET_PLAYER(eConquered).getTeam()))
 				{

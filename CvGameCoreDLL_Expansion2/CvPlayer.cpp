@@ -162,6 +162,9 @@ CvPlayer::CvPlayer() :
 	, m_iOtherHappiness("CvPlayer::m_iOtherHappiness", m_syncArchive)
 	, m_iOtherUnhappiness("CvPlayer::m_iOtherUnhappiness", m_syncArchive)
 #endif
+#ifdef EA_NO_WARMONGER_PENALTY //ls612
+	, m_iWarmongerModifier("CvPlayer::m_iWarmongerModifier", m_syncArchive)
+#endif
 	, m_iEspionageModifier(0)
 	, m_iSpyStartingRank(0)
 	, m_iExtraLeagueVotes(0)
@@ -957,6 +960,9 @@ void CvPlayer::uninit()
 	m_iNumFreeTenets = 0;
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
 	m_bYieldFromSpecialPlotsOnly = false;
+#endif
+#ifdef EA_NO_WARMONGER_PENALTY
+	m_iWarmongerModifier = 0;
 #endif
 	m_iNumFreeGreatPeople = 0;
 	m_iNumMayaBoosts = 0;
@@ -22272,6 +22278,9 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
 	kStream >> m_aiLeaderYieldBoost;
 #endif
+#ifdef EA_NO_WARMONGER_PENALTY //ls612
+	kStream >> m_iWarmongerModifier; 
+#endif
 	kStream >> m_aiSpecialistExtraYield;
 	kStream >> m_aiProximityToPlayer;
 	kStream >> m_aiResearchAgreementCounter;
@@ -22756,6 +22765,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_aiExtraYieldThreshold;
 #ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
 	kStream << m_aiLeaderYieldBoost;
+#endif
+#ifdef EA_NO_WARMONGER_PENALTY //ls612
+	kStream << m_iWarmongerModifier;
 #endif
 	kStream << m_aiSpecialistExtraYield;
 	kStream << m_aiProximityToPlayer;
@@ -24235,6 +24247,29 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 	return true;
 }
 
+#ifdef EA_NO_WARMONGER_PENALTY
+//ls612: This returns the penalty to warmonger levels OTHER players gain for taking actions against THIS player (default 0)
+//100 means actions against this player create NO warmonger effect for anyone 
+int CvPlayer::getWarmongerModifier() const
+{
+	if (m_iWarmongerModifier > 100)
+	{
+		return 100;
+	}
+	else if (m_iWarmongerModifier < 0)
+	{
+		return 0;
+	}
+	return m_iWarmongerModifier;
+}
+
+void CvPlayer::setWarmongerModifier(int iNewValue)
+{
+	CvAssertMsg(iNewValue <= 100, "Penalty to warmonger actionsi should always be less than or equal to 100");
+	CvAssertMsg(iNewValue >= 100, "Penalty to warmonger actionsi should always be greater than or equal to 0");
+	m_iWarmongerModifier = iNewValue;
+}
+#endif
 //////////////////////////////////////////////////////////////////////////
 // Tutorial Stuff...
 //////////////////////////////////////////////////////////////////////////

@@ -226,6 +226,10 @@ protected:
 	static int lIsYieldFromSpecialPlotsOnly(lua_State* L);
 	static int lSetYieldFromSpecialPlotsOnly(lua_State* L);
 #endif
+#ifdef EA_NO_WARMONGER_PENALTY
+	static int lGetWarmongerModifier(lua_State* L);
+	static int lSetWarmongerModifier(lua_State* L);
+#endif
 	static int lGetJONSCultureEverGenerated(lua_State* L);
 
 	static int lGetLastTurnLifetimeCulture(lua_State* L);
