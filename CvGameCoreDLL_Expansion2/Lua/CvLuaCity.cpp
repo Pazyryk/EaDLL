@@ -1965,6 +1965,12 @@ int CvLuaCity::lSetCityResidentYieldBoost(lua_State* L)
 }
 #endif
 
+//------------------------------------------------------------------------------
+//int GetFaithPerTurnFromSpecialists()
+int CvLuaCity::lGetFaithPerTurnFromSpecialists(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetFaithPerTurnFromSpecialists);
+}
 
 //------------------------------------------------------------------------------
 //int getWorkingPopulation();

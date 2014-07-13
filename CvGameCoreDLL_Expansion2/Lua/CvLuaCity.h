@@ -200,6 +200,10 @@ protected:
 	static int lSetCityResidentYieldBoost(lua_State* L);
 	static int lGetCityResidentYieldBoost(lua_State* L);
 #endif
+
+	//ls612: For Ea UI
+	static int lGetFaithPerTurnFromSpecialists(lua_State* L);
+
 	static int lGetGarrisonedUnit(lua_State* L);
 
 	static int lGetGameTurnFounded(lua_State* L);
