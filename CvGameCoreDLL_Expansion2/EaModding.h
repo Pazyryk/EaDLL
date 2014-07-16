@@ -50,10 +50,10 @@
 // Civ & Leader changing:
 #define EA_CIVILIZATION_TRAITS				// Traits can be from Leader OR Civilization [Requires new Civilization_Traits table]
 #define EA_CIV_LEADER_CHANGING				// Adds player:ChangeCivilizationType() and player:ChangeLeaderType() with trait resets
-// Civ contact:
+// Civ contact
 #define EA_EVENT_CAN_MEET_TEAM				// GameEvents.CanMeetTeam; prevents all contact including war state change, but can still start/end war via Lua
 #define EA_EVENT_CAN_CONTACT_MAJOR_TEAM		// GameEvents.CanContactMajorTeam; prevents UI and AI interaction after meeting
-// Animal player support:					! Mod must add CIVILIZATION_ANIMALS in Civilizations and ANIMALS_CIVILIZATION in PostDefines !
+// Animal player support					! Mod must add CIVILIZATION_ANIMALS in Civilizations and ANIMALS_CIVILIZATION in PostDefines !
 #define EA_ANIMAL_PLAYER					// Add as player 62 (define ANIMAL_PLAYER, ANIMAL_TEAM enums); all spawning logic on Lua side	
 #define EA_ANIMAL_BEHAVIOR					// Don't enter enemy borders; don't pillage trade route
 #define EA_ANIMAL_THREAT_ADJUSTMENTS		// NOT IMPLEMENTED YET! AI don't worry about animals if inside borders
@@ -79,6 +79,9 @@
 #define EA_DISABLE_TOURISM					// Not used by mod so don't calculate
 #define EA_DISABLE_UNIT_TURN_EXP_COSTS		// Handicap and Gamespeed xml tags disabled in dll, so I killed it here instead
 
+// Total Hacks
+#define EA_CALENDAR
+
 // Strategies
 #define EA_STRATEGY_CHANGES
 
@@ -89,9 +92,10 @@
 											// GameEvents.CityConnected.Add(function(iPlayer, iCityX, iCityY, iToCityX, iToCityY, bDomestic) return false end)
 
 // GameEvents
+#define EA_EVENT_GAME_SAVE					// GameEvents.GameSave() CallHook
 #define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
 #define EA_EVENT_CHANGE_EXPERIENCE			// GameEvents.CanChangeExperience(iPlayer, iUnit, iSummoner, iExperience, iMax, bFromCombat, bInBorders, bUpdateGlobal) CallTestAll
-// GameEvents.BarbExperienceDenied(iPlayer, iUnit, iSummoner, iExperience) CallHook
+											// GameEvents.BarbExperienceDenied(iPlayer, iUnit, iSummoner, iExperience) CallHook
 #define EA_UNIT_TAKING_PROMOTION			// GameEvents.UnitTakingPromotion(iPlayer, iUnit, promotionID) CallTestAll
 #define EA_EVENT_TECH_COST_MOD				// GameEvents.PlayerTechCostMod(techID, iPlayer); CallAccumulator that uses return integer as percent cost modifier
 #define EA_EVENT_MINOR_FRIENDSHIP			// GameEvents.PlayerMinorFriendshipAnchor(eMajor, eMinor); CallAccumulator
@@ -109,6 +113,7 @@
 #define EA_CITY_METHODS						// just SetNumFreeBuilding for now
 #define EA_UNHAPPINESS						//ls612: Allow unhappiness from miscallaneous sources provided by lua
 #define EA_NO_WARMONGER_PENALTY				//ls612: Allow lua to specify a reduction to warmonger penalty for actions against specific players
+
 
 //Lua Methods
 #define EA_EXTENDED_LUA_YIELD_METHODS		//ls612: Both player:SetLeaderYieldBoost(yieldTypeID, percentBoost) and city:SetCityResidentYieldBoost(yieldTypeID, percentBoost)

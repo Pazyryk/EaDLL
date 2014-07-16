@@ -19999,6 +19999,11 @@ bool CvUnit::IsCanAttackWithMoveNow() const
 		return false;
 	}
 
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS
+	if (IsGreatPerson())
+		return true;
+#endif
+
 	// Can't attack out of cities if there is more than 1 combat unit of the same domain in it.
 	// This does not apply to air units, which strangely don't show up as combat unit anyhow.
 	DomainTypes eSourceDomain = getDomainType();
@@ -20010,7 +20015,11 @@ bool CvUnit::IsCanAttackWithMoveNow() const
 		while(pUnitNode != NULL)
 		{
 			CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+#ifdef EA_BREAK_GP_OTHER_RESTRICTIONS
+			if(pLoopUnit && pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatPerson() && pLoopUnit->getDomainType() == eSourceDomain)
+#else
 			if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == eSourceDomain)
+#endif
 			{
 				iCount++;
 			}
