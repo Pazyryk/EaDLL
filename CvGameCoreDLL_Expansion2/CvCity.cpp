@@ -10358,11 +10358,11 @@ int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 //ls612: Food, Production, Gold, Science, Culture, Faith
 int CvCity::GetCityResidentYieldBoost(YieldTypes eYield) const
 {
-#ifdef EA_DEBUG_BUILD
-	char str[256];
-	const char* type = typeid(this).name();
-	GC.EA_DEBUG(str, "Getting CityResidentYieldBoost %d for City %d", type, (int)eYield, GetID());
-#endif
+//#ifdef EA_DEBUG_BUILD
+//	char str[256];
+//	const char* type = typeid(this).name();
+//	GC.EA_DEBUG(str, "Getting CityResidentYieldBoost %d for City %d", type, (int)eYield, GetID());
+//#endif
 
 	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
@@ -10398,6 +10398,21 @@ void CvCity::SetCityResidentYieldBoost(YieldTypes eYield, int iPercent)
 	auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
 	DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_PRODUCTION);
 
+}
+
+int CvCity::GetFaithPerTurnFromSpecialists() const
+{
+	int iResult = 0;
+	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+	{
+		SpecialistTypes eSpecialist = (SpecialistTypes) iI;
+		int iFaithFromSpecialist = GC.getSpecialistInfo(eSpecialist)->getYieldChange(YIELD_FAITH);
+		if (iFaithFromSpecialist != 0)
+		{
+			iResult += (GetCityCitizens()->GetSpecialistCount(eSpecialist) * iFaithFromSpecialist);
+		}
+	}
+	return iResult;
 }
 #endif
 

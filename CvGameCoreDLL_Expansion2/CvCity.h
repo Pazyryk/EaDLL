@@ -374,6 +374,8 @@ public:
 	//ls612: Yield percent modifiers stored as vectors
 	int GetCityResidentYieldBoost(YieldTypes eYield) const;
 	void SetCityResidentYieldBoost(YieldTypes eYield, int iPercent);
+
+	int GetFaithPerTurnFromSpecialists() const;
 #endif
 
 	int GetFaithPerTurn() const;
