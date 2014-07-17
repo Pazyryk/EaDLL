@@ -351,7 +351,7 @@ CvPlayer::CvPlayer() :
 	, m_aiCapitalYieldRateModifier("CvPlayer::m_aiCapitalYieldRateModifier", m_syncArchive)
 	, m_aiExtraYieldThreshold("CvPlayer::m_aiExtraYieldThreshold", m_syncArchive)
 	, m_aiSpecialistExtraYield("CvPlayer::m_aiSpecialistExtraYield", m_syncArchive)
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	, m_aiLeaderYieldBoost("CvPlayer::m_aiLeaderYieldBoost", m_syncArchive)
 #endif
 	, m_aiProximityToPlayer("CvPlayer::m_aiProximityToPlayer", m_syncArchive, true)
@@ -1048,7 +1048,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiExtraYieldThreshold.clear();
 	m_aiExtraYieldThreshold.resize(NUM_YIELD_TYPES, 0);
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	m_aiLeaderYieldBoost.clear();
 	m_aiLeaderYieldBoost.resize(NUM_YIELD_TYPES, 0);
 #endif
@@ -9340,7 +9340,7 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 
 	int iCulturePerTurn = 0;
 
-#ifndef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - add after Leader boost
+#ifndef EA_EXTENDED_YIELD_METHODS	// Paz - add after Leader boost
 	// Culture per turn from Cities
 	iCulturePerTurn += GetJONSCulturePerTurnFromCities();
 #endif
@@ -9363,7 +9363,7 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	// Temporary boost from bonus turns
 	iCulturePerTurn += GetCulturePerTurnFromBonusTurns();
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - Leader modifies all non-city sources (city already modified)
+#ifdef EA_EXTENDED_YIELD_METHODS	// Paz - Leader modifies all non-city sources (city already modified)
 
 	iCulturePerTurn *= (100 + GetLeaderYieldBoost(YIELD_CULTURE));
 	iCulturePerTurn /= 100;
@@ -10104,7 +10104,7 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	if(IsAnarchy())
 		return 0;
 
-#ifndef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - add after Leader boost
+#ifndef EA_EXTENDED_YIELD_METHODS	// Paz - add after Leader boost
 	// Faith per turn from Cities
 	iFaithPerTurn += GetFaithPerTurnFromCities();
 #endif
@@ -10115,7 +10115,7 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	// Faith per turn from Religion (Founder beliefs)
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - use leader modifier for non-city sources only
+#ifdef EA_EXTENDED_YIELD_METHODS	// Paz - use leader modifier for non-city sources only
 
 	iFaithPerTurn *= (100 + GetLeaderYieldBoost(YIELD_FAITH));
 	iFaithPerTurn /= 100;
@@ -16783,7 +16783,7 @@ void CvPlayer::updateExtraYieldThreshold(YieldTypes eIndex)
 	}
 }
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetLeaderYieldBoost(YieldTypes eIndex) const
 {
@@ -16826,7 +16826,7 @@ int CvPlayer::GetScienceTimes100() const
 
 	int iValue = 0;
 
-#ifndef EA_EXTENDED_LUA_YIELD_METHODS
+#ifndef EA_EXTENDED_YIELD_METHODS
 	// Science from our Cities
 	iValue += GetScienceFromCitiesTimes100(false);
 #endif
@@ -16840,7 +16840,7 @@ int CvPlayer::GetScienceTimes100() const
 	// Research Agreement bonuses
 	iValue += GetScienceFromResearchAgreementsTimes100();
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - Leader modifies non-city positive sources; then add city and deductions
+#ifdef EA_EXTENDED_YIELD_METHODS	// Paz - Leader modifies non-city positive sources; then add city and deductions
 
 	iValue *= (100 + GetLeaderYieldBoost(YIELD_SCIENCE));
 	iValue /= 100;
@@ -22275,7 +22275,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		m_aiGreatWorkYieldChange.resize(NUM_YIELD_TYPES, 0);
 	}
 	kStream >> m_aiExtraYieldThreshold;
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	kStream >> m_aiLeaderYieldBoost;
 #endif
 #ifdef EA_NO_WARMONGER_PENALTY //ls612
@@ -22763,7 +22763,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_aiCapitalYieldRateModifier;
 	kStream << m_aiGreatWorkYieldChange;
 	kStream << m_aiExtraYieldThreshold;
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	kStream << m_aiLeaderYieldBoost;
 #endif
 #ifdef EA_NO_WARMONGER_PENALTY //ls612

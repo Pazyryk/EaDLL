@@ -370,8 +370,7 @@ public:
 
 	// END Culture
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
-	//ls612: Yield percent modifiers stored as vectors
+#ifdef EA_EXTENDED_YIELD_METHODS	//ls612: Yield percent modifiers stored as vectors
 	int GetCityResidentYieldBoost(YieldTypes eYield) const;
 	void SetCityResidentYieldBoost(YieldTypes eYield, int iPercent);
 
@@ -944,7 +943,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatFreeExperience;
 	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatProductionModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_paiFreePromotionCount;
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	FAutoVariable<std::vector<int>, CvCity> m_paiCityResidentYieldBoosts;
 #endif
 

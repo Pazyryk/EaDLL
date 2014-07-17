@@ -174,9 +174,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(HurryPopulation);
 	Method(HurryProduction);
 	Method(MaxHurryPopulation);
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+#ifdef EA_EXTENDED_YIELD_METHODS
 	Method(SetCityResidentYieldBoost);
 	Method(GetCityResidentYieldBoost);
+	Method(GetFaithPerTurnFromSpecialists);
 #endif
 	Method(GetNumBuilding);
 	Method(IsHasBuilding);
@@ -1944,7 +1945,7 @@ int CvLuaCity::lSetHighestPopulation(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::setHighestPopulation);
 }
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 //------------------------------------------------------------------------------
 //int GetCityResidentYieldBoost(int iYieldID)
 int CvLuaCity::lGetCityResidentYieldBoost(lua_State* L)
@@ -1963,7 +1964,6 @@ int CvLuaCity::lSetCityResidentYieldBoost(lua_State* L)
 	pkCity->SetCityResidentYieldBoost((YieldTypes)iYield, iPercent);
 	return 1;
 }
-#endif
 
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromSpecialists()
@@ -1971,7 +1971,7 @@ int CvLuaCity::lGetFaithPerTurnFromSpecialists(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetFaithPerTurnFromSpecialists);
 }
-
+#endif
 //------------------------------------------------------------------------------
 //int getWorkingPopulation();
 //int CvLuaCity::lGetWorkingPopulation(lua_State* L)

@@ -66,6 +66,7 @@
 #define EA_NEW_BUILD_REQUIREMENTS			//ls612: We can now limit available builds for plots in so many ways!
 #define EA_BUILD_AI_CHANGES					// Swap blight for fallout; allow for mulitple Builds for same improvement 
 #define EA_YIELD_FROM_SPECIAL_PLOTS_ONLY	// For Pantheistic restriction on plot yields
+#define EA_EXTENDED_YIELD_METHODS			//ls612: SetLeaderYieldBoost, SetCityResidentYieldBoost, GetFaithPerTurnFromSpecialists (and used it!)
 // Buildings
 #define EA_NEGATIVE_BUILDING_HAPPINESS		// Allow negative values
 // Units
@@ -90,7 +91,6 @@
 #define EA_WH_EVENTS_CITY_CONNECTIONS		// Whoward's City Connections code: 
 											// GameEvents.CityConnections.Add(function(iPlayer, bDomestic) return false end)
 											// GameEvents.CityConnected.Add(function(iPlayer, iCityX, iCityY, iToCityX, iToCityY, bDomestic) return false end)
-
 // GameEvents
 #define EA_EVENT_GAME_SAVE					// GameEvents.GameSave() CallHook
 #define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
@@ -108,15 +108,14 @@
 #define EA_PLOTS							// Persisted plot data and methods for Ea's Living Terrain and plot effects (Glyphs, Runes and Wards)
 #define EA_UNIT_MORALE						// Set of Lua methods and persisted unit int for Ea's Morale system (needs UI Lua/XML support to show in unit panel)
 #define EA_UNIT_PERSON_INFO					// 2 persisted ints used for GPs, with Get, Set Lua methods
-#define EA_TEST_PROMOTION_READY				// unit:TestPromotionReady()
+#define EA_UNIT_METHODS						// TestPromotionReady, SetTurnProcessed
 #define EA_PATHFINDING						// unit:TurnsToReachTarget(CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
 #define EA_CITY_METHODS						// just SetNumFreeBuilding for now
 #define EA_UNHAPPINESS						//ls612: Allow unhappiness from miscallaneous sources provided by lua
 #define EA_NO_WARMONGER_PENALTY				//ls612: Allow lua to specify a reduction to warmonger penalty for actions against specific players
 
 
-//Lua Methods
-#define EA_EXTENDED_LUA_YIELD_METHODS		//ls612: Both player:SetLeaderYieldBoost(yieldTypeID, percentBoost) and city:SetCityResidentYieldBoost(yieldTypeID, percentBoost)
+
 
 // Macros
 #define SHOW_PLOT_FLOATUP(pPlot, ePlayer, szMessage, fDelay)  if (pPlot->isVisible(GET_PLAYER(ePlayer).getTeam())) DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), szMessage, fDelay)

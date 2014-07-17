@@ -479,8 +479,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetGPAttackState);
 	Method(SetGPAttackState);	
 #endif
-#ifdef EA_TEST_PROMOTION_READY
+#ifdef EA_UNIT_METHODS
 	Method(TestPromotionReady);
+	Method(SetTurnProcessed);
 #endif
 #ifdef EA_PATHFINDING
 	Method(TurnsToReachTarget);
@@ -4484,7 +4485,7 @@ int CvLuaUnit::lSetGPAttackState(lua_State* L)
 }
 //------------------------------------------------------------------------------
 #endif
-#ifdef EA_TEST_PROMOTION_READY
+#ifdef EA_UNIT_METHODS
 //void TestPromotionReady()
 int CvLuaUnit::lTestPromotionReady(lua_State* L)
 {
@@ -4493,6 +4494,12 @@ int CvLuaUnit::lTestPromotionReady(lua_State* L)
 	return 0;
 }
 //------------------------------------------------------------------------------	
+//void SetTurnProcessed(bool bValue);
+int CvLuaUnit::lSetTurnProcessed(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvUnit::SetTurnProcessed);
+}
+//------------------------------------------------------------------------------
 #endif
 #ifdef EA_PATHFINDING
 //int TurnsToReachTarget(CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)

@@ -463,7 +463,7 @@ public:
 	int getHappinessFromNWDiscovery() const;
 	void ChangeHappinessFromNWDiscovery(int iNewValue);
 #endif
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612: Player-wide Yield percent modifiers
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612: Player-wide Yield percent modifiers
 	int GetLeaderYieldBoost(YieldTypes eYield) const;
 	void SetLeaderYieldBoost(YieldTypes eYield, int iPercent);
 #endif
@@ -1845,7 +1845,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiExtraYieldThreshold;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSpecialistExtraYield;
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiLeaderYieldBoost;
 #endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiProximityToPlayer;

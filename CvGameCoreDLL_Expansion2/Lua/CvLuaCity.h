@@ -196,14 +196,11 @@ protected:
 #ifdef EA_EVENT_ACQUIRE_PLOT //ls612
 	static int lCanAcquirePlot(lua_State* L);
 #endif
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	static int lSetCityResidentYieldBoost(lua_State* L);
 	static int lGetCityResidentYieldBoost(lua_State* L);
+	static int lGetFaithPerTurnFromSpecialists(lua_State* L);	//ls612: For Ea UI
 #endif
-
-	//ls612: For Ea UI
-	static int lGetFaithPerTurnFromSpecialists(lua_State* L);
-
 	static int lGetGarrisonedUnit(lua_State* L);
 
 	static int lGetGameTurnFounded(lua_State* L);

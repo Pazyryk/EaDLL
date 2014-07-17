@@ -487,8 +487,9 @@ protected:
 	static int lGetGPAttackState(lua_State* L);
 	static int lSetGPAttackState(lua_State* L);	
 #endif
-#ifdef EA_TEST_PROMOTION_READY
+#ifdef EA_UNIT_METHODS
 	static int lTestPromotionReady(lua_State* L);
+	static int lSetTurnProcessed(lua_State* L);
 #endif
 #ifdef EA_PATHFINDING
 	static int lTurnsToReachTarget(lua_State* L);

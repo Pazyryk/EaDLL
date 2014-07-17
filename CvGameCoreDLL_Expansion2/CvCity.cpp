@@ -227,7 +227,7 @@ CvCity::CvCity() :
 	, m_paiUnitCombatFreeExperience("CvCity::m_paiUnitCombatFreeExperience", m_syncArchive)
 	, m_paiUnitCombatProductionModifier("CvCity::m_paiUnitCombatProductionModifier", m_syncArchive)
 	, m_paiFreePromotionCount("CvCity::m_paiFreePromotionCount", m_syncArchive)
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	, m_paiCityResidentYieldBoosts("CvCity::m_paiCityResidentYieldBoosts", m_syncArchive)
 #endif
 	, m_iBaseHappinessFromBuildings(0)
@@ -915,7 +915,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			m_paiFreePromotionCount.setAt(iI, 0);
 		}
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+#ifdef EA_EXTENDED_YIELD_METHODS
 		int iNumYields = NUM_YIELD_TYPES;
 		m_paiCityResidentYieldBoosts.clear();
 		m_paiCityResidentYieldBoosts.resize(iNumYields);
@@ -7538,7 +7538,7 @@ int CvCity::getJONSCulturePerTurn() const
 	{
 		iModifier += GC.getPUPPET_CULTURE_MODIFIER();
 	}
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS // Paz - Apply leader and resident effect at each city
+#ifdef EA_EXTENDED_YIELD_METHODS // Paz - Apply leader and resident effect at each city
 	// Leader
 	iModifier += GET_PLAYER(getOwner()).GetLeaderYieldBoost(YIELD_CULTURE);
 	// City Resident
@@ -7678,8 +7678,10 @@ int CvCity::GetFaithPerTurn() const
 	iFaith += GetFaithPerTurnFromTraits();
 	iFaith += GetFaithPerTurnFromReligion();
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //	Paz - Additive modifiers like everywhere else
-	int iModifier = 100;
+#ifdef EA_EXTENDED_YIELD_METHODS
+	iFaith += GetFaithPerTurnFromSpecialists();
+
+	int iModifier = 100; //	Paz - Additive modifiers like everywhere else
 
 	// Puppet?
 	if(IsPuppet())
@@ -9235,7 +9237,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	int iTempMod;
 
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - modify here so additive with other mods and to build help string
+#ifdef EA_EXTENDED_YIELD_METHODS	// Paz - modify here so additive with other mods and to build help string
 	// From Leader
 	iTempMod = GET_PLAYER(getOwner()).GetLeaderYieldBoost(eIndex);
 	iModifier += iTempMod;
@@ -10353,7 +10355,7 @@ int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 	return m_paiFreePromotionCount[eIndex];
 }
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+#ifdef EA_EXTENDED_YIELD_METHODS
 //	--------------------------------------------------------------------------------
 //ls612: Food, Production, Gold, Science, Culture, Faith
 int CvCity::GetCityResidentYieldBoost(YieldTypes eYield) const
@@ -13621,7 +13623,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_paiUnitCombatProductionModifier;
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiFreePromotionCount.dirtyGet());
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	kStream >> m_paiCityResidentYieldBoosts;
 #endif
 
@@ -13916,7 +13918,7 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_paiUnitCombatProductionModifier;
 
 	CvInfosSerializationHelper::WriteHashedDataArray<PromotionTypes, int>(kStream, m_paiFreePromotionCount);
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 	kStream << m_paiCityResidentYieldBoosts;
 #endif
 

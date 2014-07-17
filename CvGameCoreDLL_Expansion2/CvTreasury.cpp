@@ -461,7 +461,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// Gold from Cities
 	iNetGold = GetGoldFromCitiesTimes100();
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS	// Paz - Apply Leader effect to non-city positive income
+#ifdef EA_EXTENDED_YIELD_METHODS	// Paz - Apply Leader effect to non-city positive income
 	int iNetGoldToModify = 0;
 	iNetGoldToModify += GetGoldPerTurnFromDiplomacy() * 100;	
 	if (iNetGoldToModify < 0)				// Only modify diplomacy gold if positive

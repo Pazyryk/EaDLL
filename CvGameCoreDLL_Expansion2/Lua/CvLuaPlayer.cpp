@@ -228,7 +228,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetJONSCulture);
 	Method(ChangeJONSCulture);
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS
+#ifdef EA_EXTENDED_YIELD_METHODS
 	Method(GetLeaderYieldBoost);
 	Method(SetLeaderYieldBoost);
 #endif
@@ -2318,7 +2318,7 @@ int CvLuaPlayer::lChangeJONSCulture(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::changeJONSCulture);
 }
 
-#ifdef EA_EXTENDED_LUA_YIELD_METHODS //ls612
+#ifdef EA_EXTENDED_YIELD_METHODS //ls612
 //------------------------------------------------------------------------------
 //int GetLeaderYieldBoost(int eYieldIndex);
 int CvLuaPlayer::lGetLeaderYieldBoost(lua_State* L)
