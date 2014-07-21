@@ -884,21 +884,7 @@ void CvGame::regenerateMap()
 
 	GC.GetEngineUserInterface()->setCycleSelectionCounter(1);
 
-#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
-	{
-		CvLuaArgsHandle args;
-		args->Push(true);
-		args->Push(false);
-		bool bAllow = true;
-		LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
-		if(bAllow)
-			gDLL->AutoSave(true);
-	}
-#else
 	gDLL->AutoSave(true);
-#endif
 }
 
 
@@ -1498,21 +1484,7 @@ void CvGame::update()
 
 			if(getTurnSlice() == 0 && !isPaused())
 			{
-#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
-				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if(pkScriptSystem)
-				{
-					CvLuaArgsHandle args;
-					args->Push(true);
-					args->Push(false);
-					bool bAllow = true;
-					LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
-					if(bAllow)
-						gDLL->AutoSave(true);
-				}
-#else
 				gDLL->AutoSave(true);
-#endif
 			}
 
 			// If there are no active players, move on to the AI
@@ -3478,21 +3450,7 @@ void CvGame::doControl(ControlTypes eControl)
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
 			if (!isNetworkMultiPlayer() && kActivePlayer.isHuman() && GC.GetPostTurnAutosaves())
 			{
-#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
-				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if(pkScriptSystem)
-				{
-					CvLuaArgsHandle args;
-					args->Push(false);
-					args->Push(true);
-					bool bAllow = true;
-					LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
-					if(bAllow)
-						gDLL->AutoSave(false, true);
-				}
-#else
 				gDLL->AutoSave(false, true);
-#endif
 			}
 			kActivePlayer.GetPlayerAchievements().EndTurn();
 			gDLL->sendTurnComplete();
@@ -7545,21 +7503,7 @@ void CvGame::doTurn()
 
 	if(getAIAutoPlay())
 	{
-#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(false);
-			args->Push(false);
-			bool bAllow = true;
-			LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
-			if(bAllow)
-				gDLL->AutoSave(false);
-		}
-#else
 		gDLL->AutoSave(false);
-#endif
 	}
 
 	// END OF TURN
@@ -7721,21 +7665,7 @@ void CvGame::doTurn()
 
 	if(isNetworkMultiPlayer())
 	{//autosave after doing a turn
-#ifdef EA_EVENT_CANAUTOSAVE		// Paz - catch all autosaves so we can persist data on the Lua side
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(false);
-			args->Push(false);
-			bool bAllow = true;
-			LuaSupport::CallTestAll(pkScriptSystem, "CanAutoSave", args.get(), bAllow);
-			if(bAllow)
-				gDLL->AutoSave(false);
-		}
-#else
 		gDLL->AutoSave(false);
-#endif
 	}
 
 	gDLL->PublishNewGameTurn(getGameTurn());

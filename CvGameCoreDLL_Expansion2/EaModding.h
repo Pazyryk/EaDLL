@@ -93,7 +93,6 @@
 											// GameEvents.CityConnected.Add(function(iPlayer, iCityX, iCityY, iToCityX, iToCityY, bDomestic) return false end)
 // GameEvents
 #define EA_EVENT_GAME_SAVE					// GameEvents.GameSave() CallHook
-#define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
 #define EA_EVENT_CHANGE_EXPERIENCE			// GameEvents.CanChangeExperience(iPlayer, iUnit, iSummoner, iExperience, iMax, bFromCombat, bInBorders, bUpdateGlobal) CallTestAll
 											// GameEvents.BarbExperienceDenied(iPlayer, iUnit, iSummoner, iExperience) CallHook
 #define EA_UNIT_TAKING_PROMOTION			// GameEvents.UnitTakingPromotion(iPlayer, iUnit, promotionID) CallTestAll
@@ -134,9 +133,12 @@
 //#define EA_SET_FOUNDED_FIRST_CITY				// Added but never tested
 
 
-
 // Doesn't work or dangerous code
 //#define EA_FOUND_RELIGION_NO_FOUNDER		// Found religion without fouder or holy city or notification
+
+
+// Obsolete stuff that was removed from code
+//#define EA_EVENT_CANAUTOSAVE				// GameEvents.CanAutoSave(bInitial, bPostTurn) CallTestAll
 
 
 
