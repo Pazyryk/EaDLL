@@ -1929,11 +1929,7 @@ void resetGame()
 	s_era		 = (EraTypes)GC.getSTANDARD_ERA();				// NO_ option?
 	s_gameSpeed = (GameSpeedTypes)GC.getSTANDARD_GAMESPEED();	// NO_ option?
 	s_turnTimerType = (TurnTimerTypes)4;//GC.getSTANDARD_TURNTIMER();	// NO_ option?
-#ifdef EA_CALENDAR
-	s_calendar  = (CalendarTypes)2;		// Paz - this doesn't seem to update from Defines; set to CALENDAR_YEARS here
-#else
 	s_calendar  = (CalendarTypes)0;//GC.getSTANDARD_CALENDAR();	// NO_ option?
-#endif
 
 	// Data-defined victory conditions
 	s_numVictoryInfos = GC.getNumVictoryInfos();
