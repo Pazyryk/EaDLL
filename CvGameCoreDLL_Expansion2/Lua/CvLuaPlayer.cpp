@@ -236,7 +236,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsYieldFromSpecialPlotsOnly);
 	Method(SetYieldFromSpecialPlotsOnly);
 #endif
-
+#ifdef EA_NO_WARMONGER_PENALTY
+	Method(GetWarmongerModifier);
+	Method(SetWarmongerModifier);
+#endif
 	Method(GetJONSCultureEverGenerated);
 
 	Method(GetLastTurnLifetimeCulture);

@@ -385,10 +385,12 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 #ifdef EA_TRADE_EVENTS_METHODS
 	Method(CanCreateTradeRoute);
 #endif
-
 #ifdef EA_COMBAT_EVENTS_METHODS
 	Method(GetUnitPower);
 #endif
+//#ifdef EA_EVENT_GAME_SAVE
+//	Method(SetGameEventsSaveGame);
+//#endif
 }
 //------------------------------------------------------------------------------
 
@@ -2871,3 +2873,14 @@ int CvLuaGame::lGetUnitPower(lua_State* L)
 	return 1;
 }
 #endif
+
+//#ifdef EA_EVENT_GAME_SAVE
+//------------------------------------------------------------------------------
+//int CvLuaGame::lSetGameEventsSaveGame(lua_State* L)
+//{
+//	const bool bNewValue = lua_toboolean(L, 1);
+//	GC.getGame().SetGameEventsSaveGame(bNewValue);
+//	return 0;
+//}
+//#endif
+

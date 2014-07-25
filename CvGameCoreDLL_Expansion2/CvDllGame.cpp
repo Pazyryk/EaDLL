@@ -503,19 +503,10 @@ void CvDllGame::Read(FDataStream& kStream)
 //------------------------------------------------------------------------------
 void CvDllGame::Write(FDataStream& kStream) const
 {
-
-#ifdef EA_EVENT_GAME_SAVE	// Paz - This will fire before Civ5SavedGameDatabase.db serialization into the gamesave file
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem)
-	{
-		CvLuaArgsHandle args;
-		bool bResult;
-		LuaSupport::CallHook(pkScriptSystem, "GameSave", args.get(), bResult);
-	}
-
-#endif
-	
 	m_pGame->Write(kStream);
+#ifdef EA_EVENT_GAME_SAVE
+	m_pGame->SetGameEventsSaveGame(true);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvDllGame::ReadSupportingClassData(FDataStream& kStream)

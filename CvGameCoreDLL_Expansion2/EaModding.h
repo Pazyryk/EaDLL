@@ -89,7 +89,7 @@
 											// GameEvents.CityConnections.Add(function(iPlayer, bDomestic) return false end)
 											// GameEvents.CityConnected.Add(function(iPlayer, iCityX, iCityY, iToCityX, iToCityY, bDomestic) return false end)
 // GameEvents
-//#define EA_EVENT_GAME_SAVE					// GameEvents.GameSave() CallHook
+#define EA_EVENT_GAME_SAVE					// GameEvents.GameSave() CallHook
 #define EA_EVENT_CHANGE_EXPERIENCE			// GameEvents.CanChangeExperience(iPlayer, iUnit, iSummoner, iExperience, iMax, bFromCombat, bInBorders, bUpdateGlobal) CallTestAll
 											// GameEvents.BarbExperienceDenied(iPlayer, iUnit, iSummoner, iExperience) CallHook
 #define EA_UNIT_TAKING_PROMOTION			// GameEvents.UnitTakingPromotion(iPlayer, iUnit, promotionID) CallTestAll

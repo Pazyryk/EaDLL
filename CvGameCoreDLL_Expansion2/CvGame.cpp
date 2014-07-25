@@ -95,6 +95,9 @@ CvGame::CvGame() :
 	, m_bForceEndingTurn(false)
 	, m_pDiploResponseQuery(NULL)
 	, m_bFOW(true)
+#ifdef EA_EVENT_GAME_SAVE
+	, m_bGameEventsSaveGame(false)
+#endif
 	, m_bArchaeologyTriggered(false)
 	, m_lastTurnAICivsProcessed(-1)
 {
@@ -1027,6 +1030,9 @@ void CvGame::uninit()
 	m_bDebugMode = false;
 	m_bDebugModeCache = false;
 	m_bFOW = true;
+#ifdef EA_EVENT_GAME_SAVE
+	m_bGameEventsSaveGame = false;
+#endif
 	m_bFinalInitialized = false;
 	m_eWaitDiploPlayer = NO_PLAYER;
 	m_bPbemTurnSent = false;
@@ -9477,6 +9483,20 @@ void CvGame::ReadSupportingClassData(FDataStream& kStream)
 //	--------------------------------------------------------------------------------
 void CvGame::Write(FDataStream& kStream) const
 {
+
+#ifdef EA_EVENT_GAME_SAVE		//	 Paz - This will fire before Civ5SavedGameDatabase.db serialization into the gamesave file
+	if (m_bGameEventsSaveGame)	//	 But... running gDLL->GetScriptSystem on initial save causes a game hang, so skip first save
+	{
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "GameSave", args.get(), bResult);
+		}
+	}
+#endif
+
 	// Current version number
 	kStream << g_CurrentCvGameVersion;
 

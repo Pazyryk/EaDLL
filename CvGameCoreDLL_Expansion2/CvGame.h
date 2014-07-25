@@ -273,6 +273,13 @@ public:
 	void setFOW(bool bMode);
 	bool getFOW();
 
+#ifdef EA_EVENT_GAME_SAVE
+	void SetGameEventsSaveGame(bool bNewValue)
+	{
+		m_bGameEventsSaveGame = bNewValue;
+	};
+#endif
+
 	int getPitbossTurnTime() const;
 	void setPitbossTurnTime(int iHours);
 
@@ -629,6 +636,11 @@ protected:
 	PlayerTypes m_eWaitDiploPlayer;
 
 	bool m_bFOW;
+
+#ifdef EA_EVENT_GAME_SAVE
+	bool m_bGameEventsSaveGame;
+#endif
+
 
 	// slewis - tutorial values
 	bool m_bStaticTutorialActive;
