@@ -5551,6 +5551,12 @@ void CvPlayer::disband(CvCity* pCity)
 
 	{
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pCity));
+
+#ifdef EA_DEBUG_BUILD
+		char str[256];
+		const char* type = typeid(this).name();
+		GC.EA_DEBUG(str, "gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, %d) B", type, pCity->getDamage());
+#endif
 		gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pCity->getDamage());
 		gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 	}
@@ -24923,7 +24929,16 @@ void CvPlayer::checkInitialTurnAIProcessed()
 		{
 			m_lastGameTurnInitialAIProcessed = turn;
 			if(GC.getGame().getActivePlayer() == GetID())
+#ifdef EA_DEBUG_BUILD
+			{
+				char str[256];
+				const char* type = typeid(this).name();
+				GC.EA_DEBUG(str, "gDLL->sendPlayerInitialAIProcessed()", type, 0);
+#endif
 				gDLL->sendPlayerInitialAIProcessed();
+#ifdef EA_DEBUG_BUILD
+			}
+#endif
 		}
 	}
 }

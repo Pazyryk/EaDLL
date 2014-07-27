@@ -96,7 +96,7 @@ CvGame::CvGame() :
 	, m_pDiploResponseQuery(NULL)
 	, m_bFOW(true)
 #ifdef EA_EVENT_GAME_SAVE
-	, m_bGameEventsSaveGame(false)
+	, m_bSavedOnce(false)
 #endif
 	, m_bArchaeologyTriggered(false)
 	, m_lastTurnAICivsProcessed(-1)
@@ -1031,7 +1031,7 @@ void CvGame::uninit()
 	m_bDebugModeCache = false;
 	m_bFOW = true;
 #ifdef EA_EVENT_GAME_SAVE
-	m_bGameEventsSaveGame = false;
+	m_bSavedOnce = false;
 #endif
 	m_bFinalInitialized = false;
 	m_eWaitDiploPlayer = NO_PLAYER;
@@ -1457,6 +1457,7 @@ void CvGame::update()
 	}
 
 	// Send a Lua event at the start of the update
+#ifndef EA_DISABLE_EXPENSIVE_EVENTS			// Paz - used only for some scenarios (fires A LOT)
 	{
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if(pkScriptSystem)
@@ -1466,6 +1467,7 @@ void CvGame::update()
 			LuaSupport::CallHook(pkScriptSystem, "GameCoreUpdateBegin", args.get(), bResult);
 		}
 	}
+#endif
 
 	// if the game is single player, it's ok to block all processing until
 	// the user selects an extended match or quits.
@@ -1542,6 +1544,7 @@ void CvGame::update()
 	}
 
 	// Send a Lua event at the end of the update
+#ifndef EA_DISABLE_EXPENSIVE_EVENTS			// Paz - used only for some scenarios (fires A LOT)
 	{
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if(pkScriptSystem)
@@ -1551,6 +1554,7 @@ void CvGame::update()
 			LuaSupport::CallHook(pkScriptSystem, "GameCoreUpdateEnd", args.get(), bResult);
 		}
 	}
+#endif
 }
 
 //	---------------------------------------------------------------------------------------------------------
@@ -2012,6 +2016,11 @@ void CvGame::updateTestEndTurn()
 					if(pkIface->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
 					{
 						activePlayer.GetPlayerAchievements().EndTurn();
+#ifdef EA_DEBUG_BUILD
+						char str[256];
+						const char* type = typeid(this).name();
+						GC.EA_DEBUG(str, "gDLL->sendTurnComplete() A", type, 0);
+#endif
 						gDLL->sendTurnComplete();
 						CvAchievementUnlocker::EndTurn();
 						m_endTurnTimer.Start();
@@ -2094,6 +2103,11 @@ void CvGame::updateTestEndTurn()
 								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
 								{
 									activePlayer.GetPlayerAchievements().EndTurn();
+#ifdef EA_DEBUG_BUILD
+									char str[256];
+									const char* type = typeid(this).name();
+									GC.EA_DEBUG(str, "gDLL->sendTurnComplete() B", type, 0);
+#endif
 									gDLL->sendTurnComplete();
 									CvAchievementUnlocker::EndTurn();
 								}
@@ -3459,6 +3473,11 @@ void CvGame::doControl(ControlTypes eControl)
 				gDLL->AutoSave(false, true);
 			}
 			kActivePlayer.GetPlayerAchievements().EndTurn();
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = typeid(this).name();
+			GC.EA_DEBUG(str, "gDLL->sendTurnComplete() C", type, 0);
+#endif
 			gDLL->sendTurnComplete();
 			CvAchievementUnlocker::EndTurn();
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
@@ -3472,6 +3491,11 @@ void CvGame::doControl(ControlTypes eControl)
 		{
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
 			kActivePlayer.GetPlayerAchievements().EndTurn();
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = typeid(this).name();
+			GC.EA_DEBUG(str, "gDLL->sendTurnComplete() D", type, 0);
+#endif
 			gDLL->sendTurnComplete();
 			CvAchievementUnlocker::EndTurn();
 			SetForceEndingTurn(true);
@@ -4407,6 +4431,11 @@ void CvGame::setGameTurn(int iNewValue)
 		GC.GetEngineUserInterface()->setDirty(TurnTimer_DIRTY_BIT, true);
 		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 		m_sentAutoMoves = false;
+#ifdef EA_DEBUG_BUILD
+		char str[256];
+		const char* type = typeid(this).name();
+		GC.EA_DEBUG(str, "gDLL->GameplayTurnChanged(%d)", type, iNewValue);
+#endif
 		gDLL->GameplayTurnChanged(iNewValue);
 		endTurnTimerReset();
 	}
@@ -7520,7 +7549,11 @@ void CvGame::doTurn()
 
 	// If player unit cycling has been canceled for this turn, set it back to normal for the next
 	GC.GetEngineUserInterface()->setNoSelectionListCycle(false);
-
+#ifdef EA_DEBUG_BUILD
+	char str[256];
+	const char* type = typeid(this).name();
+	GC.EA_DEBUG(str, "gDLL->DoTurn()", type, 0);
+#endif
 	gDLL->DoTurn();
 
 	CvBarbarians::BeginTurn();
@@ -7673,7 +7706,9 @@ void CvGame::doTurn()
 	{//autosave after doing a turn
 		gDLL->AutoSave(false);
 	}
-
+#ifdef EA_DEBUG_BUILD
+	GC.EA_DEBUG(str, "gDLL->PublishNewGameTurn(%d)", type, getGameTurn());
+#endif
 	gDLL->PublishNewGameTurn(getGameTurn());
 }
 
@@ -8123,6 +8158,11 @@ void CvGame::updateMoves()
 				//before all clients have cleared the netbarrier locally.
 				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
 				kActivePlayer.GetPlayerAchievements().EndTurn();
+#ifdef EA_DEBUG_BUILD
+				char str[256];
+				const char* type = typeid(this).name();
+				GC.EA_DEBUG(str, "gDLL->sendTurnComplete() E", type, 0);
+#endif
 				gDLL->sendTurnComplete();
 				CvAchievementUnlocker::EndTurn();
 			}
@@ -9484,9 +9524,14 @@ void CvGame::ReadSupportingClassData(FDataStream& kStream)
 void CvGame::Write(FDataStream& kStream) const
 {
 
-#ifdef EA_EVENT_GAME_SAVE		//	 Paz - This will fire before Civ5SavedGameDatabase.db serialization into the gamesave file
-	if (m_bGameEventsSaveGame)	//	 But... running gDLL->GetScriptSystem on initial save causes a game hang, so skip first save
+#ifdef EA_EVENT_GAME_SAVE	//	 Paz - This will fire before Civ5SavedGameDatabase.db serialization into the gamesave file
+	if (m_bSavedOnce)		//	 But... running gDLL->GetScriptSystem on initial save causes a game hang, so skip first save
 	{
+#ifdef EA_DEBUG_BUILD
+		char str[256];
+		const char* type = typeid(this).name();
+		GC.EA_DEBUG(str, "About to call gDLL->GetScriptSystem for GameEvents.GameSave.", type, 0);
+#endif
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if (pkScriptSystem)
 		{
@@ -9671,6 +9716,12 @@ void CvGame::Write(FDataStream& kStream) const
 		long nilSize = 0;
 		kStream << nilSize;
 	}
+
+#ifdef EA_DEBUG_BUILD		// Paz - rule this out as source for CivilizationV_DX11.exe Access violation reading location 0x00000000.
+	char str[256];
+	const char* type = typeid(this).name();
+	GC.EA_DEBUG(str, "End of CvGame::Write().", type, 0);
+#endif
 }
 
 //	---------------------------------------------------------------------------
@@ -11697,6 +11748,11 @@ void CvGame::NetMessageStaticsReset()
 void CvGame::SetLastTurnAICivsProcessed()
 {
 	if(m_lastTurnAICivsProcessed != getGameTurn()){
+#ifdef EA_DEBUG_BUILD
+		char str[256];
+		const char* type = typeid(this).name();
+		GC.EA_DEBUG(str, "gDLL->SendAICivsProcessed()", type, 0);
+#endif
 		gDLL->SendAICivsProcessed();
 		m_lastTurnAICivsProcessed = getGameTurn();
 	}

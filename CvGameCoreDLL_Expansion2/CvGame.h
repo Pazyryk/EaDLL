@@ -276,7 +276,7 @@ public:
 #ifdef EA_EVENT_GAME_SAVE
 	void SetGameEventsSaveGame(bool bNewValue)
 	{
-		m_bGameEventsSaveGame = bNewValue;
+		m_bSavedOnce = bNewValue;
 	};
 #endif
 
@@ -638,7 +638,7 @@ protected:
 	bool m_bFOW;
 
 #ifdef EA_EVENT_GAME_SAVE
-	bool m_bGameEventsSaveGame;
+	bool m_bSavedOnce;
 #endif
 
 

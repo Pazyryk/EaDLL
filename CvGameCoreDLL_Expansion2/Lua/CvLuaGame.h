@@ -384,9 +384,6 @@ protected:
 #ifdef EA_COMBAT_EVENTS_METHODS
 	static int lGetUnitPower(lua_State* L);
 #endif
-//#ifdef EA_EVENT_GAME_SAVE
-//	static int lSetGameEventsSaveGame(lua_State* L);
-//#endif
 };
 
 #endif //CVLUAGAME_H

@@ -334,6 +334,11 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			kDefenderOwner.GetPlayerAchievements().KilledUnitWithUnit(pkDefender, pkAttacker);
 
 			auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = "CvUnitCombat";
+			GC.EA_DEBUG(str, "gDLL->GameplayUnitDestroyedInCombat() A", type, 0);
+#endif
 			gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 
 			if(iActivePlayerID == pkAttacker->getOwner())
@@ -357,6 +362,11 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
 
 			auto_ptr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkDefender);
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = "CvUnitCombat";
+			GC.EA_DEBUG(str, "gDLL->GameplayUnitDestroyedInCombat() B", type, 0);
+#endif
 			gDLL->GameplayUnitDestroyedInCombat(pDefender.get());
 
 			if(iActivePlayerID == pkAttacker->getOwner())
@@ -1035,6 +1045,11 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		else if(pkAttacker->IsDead())
 		{
 			auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = "CvUnitCombat";
+			GC.EA_DEBUG(str, "gDLL->GameplayUnitDestroyedInCombat() C", type, 0);
+#endif
 			gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 			if(pkAttacker->getOwner() == iActivePlayerID)
 			{
@@ -1347,6 +1362,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					if(pkAttacker->IsDead())
 					{
 						auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
+#ifdef EA_DEBUG_BUILD
+						char str[256];
+						const char* type = "CvUnitCombat";
+						GC.EA_DEBUG(str, "gDLL->GameplayUnitDestroyedInCombat() D", type, 0);
+#endif
 						gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 
 						CvPlayerAI& kDefenderOwner = GET_PLAYER(pkDefender->getOwner());
@@ -1688,6 +1708,11 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 				if(bAttackerDead)
 				{
 					auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
+#ifdef EA_DEBUG_BUILD
+					char str[256];
+					const char* type = "CvUnitCombat";
+					GC.EA_DEBUG(str, "gDLL->GameplayUnitDestroyedInCombat() E", type, 0);
+#endif
 					gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 
 					if(iActivePlayerID == pkAttacker->getOwner())
@@ -1710,6 +1735,11 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 				if(bAttackerDead)
 				{
 					auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
+#ifdef EA_DEBUG_BUILD
+					char str[256];
+					const char* type = "CvUnitCombat";
+					GC.EA_DEBUG(str, "gDLL->GameplayUnitDestroyedInCombat() F", type, 0);
+#endif
 					gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 
 					if(iActivePlayerID == pkAttacker->getOwner())
@@ -1731,6 +1761,11 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 				else if(bDefenderDead)
 				{
 					auto_ptr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkDefender);
+#ifdef EA_DEBUG_BUILD
+					char str[256];
+					const char* type = "CvUnitCombat";
+					GC.EA_DEBUG(str, "gDLL->GameplayUnitDestroyedInCombat() G", type, 0);
+#endif
 					gDLL->GameplayUnitDestroyedInCombat(pDefender.get());
 
 					if(iActivePlayerID == pkAttacker->getOwner())
@@ -2002,6 +2037,11 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 				if(kEntry.GetFinalDamage() >= pkCity->GetMaxHitPoints() && !pkCity->IsOriginalCapital())
 				{
 					auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkCity));
+#ifdef EA_DEBUG_BUILD
+					char str[256];
+					const char* type = "CvUnitCombat";
+					GC.EA_DEBUG(str, "gDLL->GameplayCitySetDamage() C", type, 0);
+#endif
 					gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pkCity->getDamage()); // to stop the fires
 					gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 
@@ -2769,6 +2809,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 				kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
 				auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+#ifdef EA_DEBUG_BUILD
+				char str[256];
+				const char* type = "CvUnitCombat";
+				GC.EA_DEBUG(str, "gDLL->GameplayUnitCombat() A", type, 0);
+#endif
 				uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 				// Set the combat units so that other missions do not continue until combat is over.
@@ -2856,6 +2901,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
 			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = "CvUnitCombat";
+			GC.EA_DEBUG(str, "gDLL->GameplayUnitCombat() B", type, 0);
+#endif
 			uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 			// Set the combat units so that other missions do not continue until combat is over.
@@ -2894,6 +2944,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
 			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = "CvUnitCombat";
+			GC.EA_DEBUG(str, "gDLL->GameplayCityCombat() A", type, 0);
+#endif
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());
 
 			CvCity* pkDefender = pPlot->getPlotCity();
@@ -2955,6 +3010,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
 			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = "CvUnitCombat";
+			GC.EA_DEBUG(str, "gDLL->GameplayUnitCombat() C", type, 0);
+#endif
 			uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 			// Set the combat units so that other missions do not continue until combat is over.
@@ -2991,6 +3051,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = "CvUnitCombat";
+			GC.EA_DEBUG(str, "gDLL->GameplayCityCombat() B", type, 0);
+#endif
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());
 
 			CvCity* pkDefender = targetPlot.getPlotCity();
@@ -3052,6 +3117,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
 			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = "CvUnitCombat";
+			GC.EA_DEBUG(str, "gDLL->GameplayUnitCombat() D", type, 0);
+#endif
 			uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 			// Set the combat units so that other missions do not continue until combat is over.
@@ -3148,6 +3218,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
 			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = "CvUnitCombat";
+			GC.EA_DEBUG(str, "gDLL->GameplayCityCombat() C", type, 0);
+#endif
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());
 
 			CvCity* pkDefender = plot.getPlotCity();
@@ -3262,6 +3337,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 		}
 
 		auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+#ifdef EA_DEBUG_BUILD
+		char str[256];
+		const char* type = "CvUnitCombat";
+		GC.EA_DEBUG(str, "gDLL->GameplayUnitCombat() E", type, 0);
+#endif
 		uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 		eResult = ATTACK_QUEUED;

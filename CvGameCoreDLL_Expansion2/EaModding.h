@@ -79,6 +79,7 @@
 #define EA_HIDDEN_CIVS_DISABLES				// Skip useless code for hidden civs that have no cities
 #define EA_DISABLE_TOURISM					// Not used by mod so don't calculate
 #define EA_DISABLE_UNIT_TURN_EXP_COSTS		// Handicap and Gamespeed xml tags disabled in dll, so I killed it here instead
+#define EA_DISABLE_EXPENSIVE_EVENTS			// GameCoreUpdateBegin and other expensive but unneeded GameEvents
 
 // Strategies
 #define EA_STRATEGY_CHANGES

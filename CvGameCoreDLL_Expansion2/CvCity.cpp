@@ -1012,6 +1012,11 @@ void CvCity::setupGraphical()
 	EraTypes eCurrentEra =(EraTypes) player.GetCurrentEra();
 
 	auto_ptr<ICvCity1> pkDllCity(new CvDllCity(this));
+#ifdef EA_DEBUG_BUILD
+	char str[256];
+	const char* type = typeid(this).name();
+	GC.EA_DEBUG(str, "gDLL->GameplayCityCreated()", type, 0);
+#endif
 	gDLL->GameplayCityCreated(pkDllCity.get(), eCurrentEra);
 	gDLL->GameplayCitySetDamage(pkDllCity.get(), getDamage(), 0);
 
@@ -1050,6 +1055,11 @@ void CvCity::setupWonderGraphics()
 			{
 				// display the wonder
 				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+#ifdef EA_DEBUG_BUILD
+				char str[256];
+				const char* type = typeid(this).name();
+				GC.EA_DEBUG(str, "gDLL->GameplayWonderCreated(%d, -, %d, -) A", type, (int)ePlayerID, (int)eBuilding);
+#endif
 				gDLL->GameplayWonderCreated(ePlayerID, pDllPlot.get(), eBuilding, 1);
 			}
 			else
@@ -1106,6 +1116,11 @@ void CvCity::setupWonderGraphics()
 					if (bShowHalfBuilt)
 					{
 						auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+#ifdef EA_DEBUG_BUILD
+						char str[256];
+						const char* type = typeid(this).name();
+						GC.EA_DEBUG(str, "gDLL->GameplayWonderCreated(%d, -, %d, -) B", type, (int)ePlayerID, (int)eBuilding);
+#endif
 						gDLL->GameplayWonderCreated(ePlayerID, pDllPlot.get(), eBuilding, 0);
 					}
 				}
@@ -1129,6 +1144,11 @@ void CvCity::setupBuildingGraphics()
 			if(iExists > 0 && buildingInfo->IsCityWall())
 			{
 				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+#ifdef EA_DEBUG_BUILD
+				char str[256];
+				const char* type = typeid(this).name();
+				GC.EA_DEBUG(str, "gDLL->GameplayWallCreated()", type, 0);
+#endif
 				gDLL->GameplayWallCreated(pDllPlot.get());
 			}
 		}
@@ -10605,6 +10625,11 @@ void CvCity::setDamage(int iValue, bool noMessage)
 	{
 		int iOldValue = getDamage();
 		auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
+#ifdef EA_DEBUG_BUILD
+		char str[256];
+		const char* type = typeid(this).name();
+		GC.EA_DEBUG(str, "gDLL->GameplayCitySetDamage(-, %d, %d) A", type, iValue, iOldValue);
+#endif
 		gDLL->GameplayCitySetDamage(pDllCity.get(), iValue, iOldValue);
 
 		// send the popup text if the player can see this plot
@@ -10845,11 +10870,11 @@ bool CvCity::EaCanAcquirePlot(int iPlotX, int iPlotY)
 		{
 			if (false == bResult)
 			{
-#ifdef EA_DEBUG_BUILD
-				char str[256];
-				const char* type = typeid(this).name();
-				GC.EA_DEBUG(str, "Lua rejected Plot (%d, %d) for acquisition.", type, iPlotX, iPlotY);
-#endif
+//#ifdef EA_DEBUG_BUILD
+//				char str[256];
+//				const char* type = typeid(this).name();
+//				GC.EA_DEBUG(str, "Lua rejected Plot (%d, %d) for acquisition.", type, iPlotX, iPlotY);
+//#endif
 				// Lua says we can't get this plot.
 				return false;
 			}
@@ -14436,6 +14461,11 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 			kCombatInfo.setVisualizeCombat(pPlot->isActiveVisible(false));
 
 			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+#ifdef EA_DEBUG_BUILD
+			char str[256];
+			const char* type = typeid(this).name();
+			GC.EA_DEBUG(str, "gDLL->GameplayCityCombat() D", type, 0);
+#endif
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());
 
 			// Set the combat units so that other missions do not continue until combat is over.
