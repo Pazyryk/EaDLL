@@ -85,6 +85,7 @@
 #define EA_STRATEGY_CHANGES
 
 // Trade
+#define EA_TRADE_YIELD_CHANGES				// Science based on total known rather than difference
 #define EA_TRADE_EVENTS_METHODS				// GameEvents.CanCreateTradeRoute(iOriginPlot, iDestPlot, iDestPlayer, eDomain, eConnectionType) CallTestAll and Game.CanCreateTradeRoute
 #define EA_WH_EVENTS_CITY_CONNECTIONS		// Whoward's City Connections code: 
 											// GameEvents.CityConnections.Add(function(iPlayer, bDomestic) return false end)

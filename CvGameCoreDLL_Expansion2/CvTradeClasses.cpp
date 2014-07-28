@@ -1810,6 +1810,11 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			}
 			else if (eYield == YIELD_SCIENCE)
 			{
+#ifdef EA_TRADE_YIELD_CHANGES	// Paz - tech diff doesn't work with Ea specialization, so use total techs known
+				CvTeamTechs* pTechs = GET_TEAM(GET_PLAYER(kTradeConnection.m_eDestOwner).getTeam()).GetTeamTechs();
+				int iTechsKnown = pTechs->GetNumRealTechsKnown();
+				return 100 * (int)ceil(iTechsKnown / 4.0f);
+#else
 				int iTechDifference = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
 				int iAdjustedTechDifference = 0;
 				if (iTechDifference > 0)
@@ -1823,6 +1828,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				iAdjustedTechDifference += iInfluenceBoost;
 
 				return iAdjustedTechDifference * 100;
+#endif
 			}
 		}
 	}
@@ -1830,6 +1836,11 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 	{
 		if (eYield == YIELD_SCIENCE)
 		{
+#ifdef EA_TRADE_YIELD_CHANGES	// Paz - tech diff doesn't work with Ea specialization, so use total techs known
+			CvTeamTechs* pTechs = GET_TEAM(GET_PLAYER(kTradeConnection.m_eOriginOwner).getTeam()).GetTeamTechs();
+			int iTechsKnown = pTechs->GetNumRealTechsKnown();
+			return 100 * (int)ceil(iTechsKnown / 4.0f);
+#else
 			int iTechDifference = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eDestOwner, kTradeConnection.m_eOriginOwner);
 			int iAdjustedTechDifference = 0;
 			if (iTechDifference > 0)
@@ -1839,6 +1850,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			}
 
 			return  iAdjustedTechDifference * 100;
+#endif
 		}
 		else
 		{
