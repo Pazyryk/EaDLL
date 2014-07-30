@@ -3506,6 +3506,13 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 			continue;
 		}
 
+#ifdef EA_GP_OTHER_CHANGES					// Paz - GPs are combat units now, but we still want to pass them over for disbanding consideration
+		if(pLoopUnit->IsGreatPerson())
+		{
+			continue;
+		}
+#endif
+
 		if(bLand && pLoopUnit->getDomainType() != DOMAIN_LAND)
 		{
 			continue;

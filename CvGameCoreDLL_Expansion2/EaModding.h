@@ -38,6 +38,7 @@
 #define EA_BREAK_GP_1UPT
 #define EA_BREAK_GP_OTHER_RESTRICTIONS
 #define EA_GP_SPECIAL_ATTACK_CONTROL		// Modifies CvUnit::canMoveInto and CvUnit::isBetterDefenderThan [and CvDangerPlots::ShouldIgnoreUnit?] to handle special GP attack rules
+#define EA_GP_OTHER_CHANGES					// Pass over GPs for disbanding (they are combat units now so would be considered)
 #define EA_PERSISTENT_SETTABLE_INVISIBILITY
 #define EA_INVISIBILITY_YOU_CANT_SEE
 
