@@ -184,6 +184,10 @@ protected:
 
 	static int lAddVoteCommitment(lua_State* L); // Too many args for template, defined in cpp
 
+#ifdef EA_RENOUCE_MALEFICIUM
+	static int lAddRenounceMaleficiumTrade(lua_State* L);
+#endif
+
 	static int lChangeGoldTrade(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::ChangeGoldTrade);
@@ -235,6 +239,10 @@ protected:
 		return BasicLuaMethod(L, &CvDeal::RemoveThirdPartyEmbargo);
 	};
 	static int lRemoveVoteCommitment(lua_State* L); // Too many args for template, defined in cpp
+
+#ifdef EA_RENOUCE_MALEFICIUM
+	static int lRemoveRenounceMaleficiumTrade(lua_State* L);
+#endif
 
 	static TradedItemList::iterator m_iterator;
 };

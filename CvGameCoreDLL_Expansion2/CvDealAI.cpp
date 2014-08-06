@@ -523,6 +523,9 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				case TRADE_ITEM_THIRD_PARTY_PEACE:
 				case TRADE_ITEM_THIRD_PARTY_WAR:
 				case TRADE_ITEM_THIRD_PARTY_EMBARGO:
+#ifdef EA_RENOUCE_MALEFICIUM
+				case TRADE_ITEM_RENOUCE_MALEFICIUM:
+#endif
 				default:
 					eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
 					break;
@@ -939,6 +942,11 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		iItemValue = GetThirdPartyWarValue(bFromMe, eOtherPlayer, /*eWithTeam*/ (TeamTypes) iData1);
 	else if(eItem == TRADE_ITEM_VOTE_COMMITMENT)
 		iItemValue = GetVoteCommitmentValue(bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, bUseEvenValue);
+
+#ifdef EA_RENOUCE_MALEFICIUM	
+	else if(eItem == TRADE_ITEM_RENOUCE_MALEFICIUM)
+		iItemValue = GetRenounceMaleficiumValue(bFromMe, eOtherPlayer);
+#endif
 
 	CvAssertMsg(iItemValue >= 0, "DEAL_AI: Trade Item value is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
@@ -2421,6 +2429,57 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	return iValue;
 }
 
+#ifdef EA_RENOUCE_MALEFICIUM
+/// How much is Renounce Maleficium worth?
+int CvDealAI::GetRenounceMaleficiumValue(bool bFromMe, PlayerTypes eOtherPlayer)
+{
+	int iItemValue = 0;
+	
+	if(bFromMe)
+	{
+		iItemValue = GetPlayer()->GetMaleficiumLevel() * 500;
+			// Adjust for how well a war against this player would go (or is going)
+		switch(GetPlayer()->GetDiplomacyAI()->GetWarProjection(eOtherPlayer))
+		{
+		case WAR_PROJECTION_DESTRUCTION:
+			iItemValue *= 100;
+			break;
+		case WAR_PROJECTION_DEFEAT:
+			iItemValue *= 180;
+			break;
+		case WAR_PROJECTION_STALEMATE:
+			iItemValue *= 220;
+			break;
+		case WAR_PROJECTION_UNKNOWN:
+			iItemValue *= 250;
+			break;
+		case WAR_PROJECTION_GOOD:
+			iItemValue *= 400;
+			break;
+		case WAR_PROJECTION_VERY_GOOD:
+			iItemValue *= 400;
+			break;
+		default:
+			CvAssertMsg(false, "DEAL_AI: AI player has no valid War Projection for City valuation.")
+			iItemValue *= 300;
+			break;
+		}
+		iItemValue /= 100;
+	}
+	else
+	{
+		iItemValue = -GET_PLAYER(eOtherPlayer).GetMaleficiumLevel() * GetPlayer()->GetMaleficiumLevel() * 100;
+		if (iItemValue < 0)
+			iItemValue = 0;
+	}
+#ifdef EA_DEBUG_BUILD
+	char str[256];
+	GC.EA_DEBUG(str, "GetRenounceMaleficiumValue; bFromMe = %d, me = %d, them = %d, value = %d", typeid(this).name(), (int)bFromMe, GetPlayer()->GetID(), (int)eOtherPlayer, iItemValue);
+#endif
+	return iItemValue;
+}
+#endif
+
 /// See if adding Vote Commitment to their side of the deal helps even out pDeal
 void CvDealAI::DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeTheirExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountOverWeWillRequest, bool bUseEvenValue)
 {
@@ -3366,6 +3425,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	bool bGiveUpStratResources = false;
 	bool bGiveUpLuxuryResources = false;
 
+#ifndef EA_RENOUCE_MALEFICIUM	// Paz - moved and modified below
 	// Setup what needs to be given up based on the level of the treaty
 	switch (eTreaty)
 	{
@@ -3417,6 +3477,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		iPercentGoldToGive = 100;
 		break;
 	}
+#endif
 
 	int iDuration = GC.getGame().GetDealDuration();
 
@@ -3424,6 +3485,99 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	CvPlayer* pLosingPlayer = &GET_PLAYER(eLosingPlayer);
 	PlayerTypes eWinningPlayer = bMeSurrendering ? eOtherPlayer : GetPlayer()->GetID();
 	CvPlayer* pWinningPlayer = &GET_PLAYER(eWinningPlayer);
+
+#ifdef EA_RENOUCE_MALEFICIUM						// Paz - all tests for Renounce Maleficium trade item done here
+	bool bCanRenounceMaleficium = false;			// It is only ever offered as part of peace deal
+	if (pLosingPlayer->GetMaleficiumLevel() > 0 && pWinningPlayer->GetMaleficiumLevel() < 0)	// Loser is fallen and winner is not
+		bCanRenounceMaleficium = true;
+	bool bOfferRenounceMaleficium = false;
+
+	// Setup what needs to be given up based on the level of the treaty
+	switch (eTreaty)
+	{
+	case PEACE_TREATY_WHITE_PEACE:
+		// White Peace: nothing changes hands
+		break;
+
+	case PEACE_TREATY_ARMISTICE:
+		iPercentGoldToGive = 50;
+		iPercentGPTToGive = 50;
+		break;
+
+	case PEACE_TREATY_SETTLEMENT:
+		iPercentGoldToGive = 100;
+		iPercentGPTToGive = 100;
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 4)	// Paz - level is techs-tiers + 2 * policies committed to this path
+		{																		// e.g., Maleficium or 1 policy
+			bOfferRenounceMaleficium = true;										
+			iPercentGoldToGive = 75;
+			iPercentGPTToGive = 75;
+		}
+		break;
+
+	case PEACE_TREATY_BACKDOWN:
+		iPercentGoldToGive = 100;
+		iPercentGPTToGive = 100;
+		bGiveOpenBorders = true;
+		bGiveUpStratResources = true;
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 6)	// e.g., has Lycanthropy (5)
+		{
+			bOfferRenounceMaleficium = true;
+			bGiveUpStratResources = false;
+		}
+		break;
+
+	case PEACE_TREATY_SUBMISSION:
+		iPercentGoldToGive = 100;
+		iPercentGPTToGive = 100;
+		bGiveOpenBorders = true;
+		bGiveUpStratResources = true;
+		bGiveUpLuxuryResources = true;
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 8)	// e.g., has Reanimation plus 1 policy (7)
+		{
+			bOfferRenounceMaleficium = true;
+			bGiveUpLuxuryResources = false;
+		}
+		break;
+
+	case PEACE_TREATY_SURRENDER:
+		bGiveOnlyOneCity = true;
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 10)	// e.g., has Necromancy (9)
+		{
+			bOfferRenounceMaleficium = true;
+		}
+		break;
+
+	case PEACE_TREATY_CESSION:
+		iPercentCitiesGiveUp = 25;
+		iPercentGoldToGive = 50;
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 12)	// e.g., has Necromancy + 1 policy (11)
+		{
+			bOfferRenounceMaleficium = true;
+			iPercentCitiesGiveUp = 15;
+		}
+		break;
+
+	case PEACE_TREATY_CAPITULATION:
+		iPercentCitiesGiveUp = 33;
+		iPercentGoldToGive = 100;
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 14)	// e.g., has Necromancy + Summoning (12)
+		{
+			bOfferRenounceMaleficium = true;
+			iPercentCitiesGiveUp = 25;
+		}
+		break;
+
+	case PEACE_TREATY_UNCONDITIONAL_SURRENDER:
+		iPercentCitiesGiveUp = 100;
+		iPercentGoldToGive = 100;
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 16)	// e.g., has Soul Binding (14) or Breach (15)
+		{
+			bOfferRenounceMaleficium = true;
+		}
+		break;
+	}
+#endif
 
 	DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
 
@@ -3619,6 +3773,14 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			}
 		}
 	}
+
+#ifdef EA_RENOUCE_MALEFICIUM
+	// Renounce Maleficium
+	if (bOfferRenounceMaleficium)
+	{
+		pDeal->AddRenounceMaleficiumTrade(eLosingPlayer);
+	}
+#endif
 }
 
 /// What are we willing to give/receive for peace with the active human player?

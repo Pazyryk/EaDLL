@@ -230,6 +230,10 @@ protected:
 	static int lGetWarmongerModifier(lua_State* L);
 	static int lSetWarmongerModifier(lua_State* L);
 #endif
+#ifdef EA_RENOUCE_MALEFICIUM
+	static int lGetMaleficiumLevel(lua_State* L);
+	static int lSetMaleficiumLevel(lua_State* L);
+#endif
 	static int lGetJONSCultureEverGenerated(lua_State* L);
 
 	static int lGetLastTurnLifetimeCulture(lua_State* L);

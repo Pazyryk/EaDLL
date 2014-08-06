@@ -240,6 +240,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarmongerModifier);
 	Method(SetWarmongerModifier);
 #endif
+#ifdef EA_RENOUCE_MALEFICIUM
+	Method(GetMaleficiumLevel);
+	Method(SetMaleficiumLevel);
+#endif
 	Method(GetJONSCultureEverGenerated);
 
 	Method(GetLastTurnLifetimeCulture);
@@ -2390,6 +2394,28 @@ int CvLuaPlayer::lSetWarmongerModifier(lua_State* L)
 }
 #endif
 
+#ifdef EA_RENOUCE_MALEFICIUM	// Paz - SetWarmongerModifier on Lua side so dll can decide when to offer Renounce Maleficium in trade deal
+//------------------------------------------------------------------------------
+//int GetMaleficiumLevel();
+int CvLuaPlayer::lGetMaleficiumLevel(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetMaleficiumLevel();
+	
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void SetMaleficiumLevel(int iValue);
+int CvLuaPlayer::lSetMaleficiumLevel(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetMaleficiumLevel(iValue);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetJONSCultureEverGenerated();
 int CvLuaPlayer::lGetJONSCultureEverGenerated(lua_State* L)

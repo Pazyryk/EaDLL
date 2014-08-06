@@ -777,6 +777,21 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
 			return false;
 	}
+#ifdef EA_RENOUCE_MALEFICIUM
+	// Renounce Maleficium and enabled techs
+	else if(eItem == TRADE_ITEM_RENOUCE_MALEFICIUM)	// Paz - player is fallen and other player is not
+	{
+		//if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
+		//	return false;
+
+		if(!bFinalizing && IsRenounceMaleficiumTrade(ePlayer))
+			return false;
+
+		if (GET_PLAYER(ePlayer).GetMaleficiumLevel() < 1 || GET_PLAYER(eToPlayer).GetMaleficiumLevel() > 0)
+			return false;
+
+	}
+#endif
 
 	return true;
 }
@@ -1320,6 +1335,28 @@ void CvDeal::AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteCh
 	}
 }
 
+#ifdef EA_RENOUCE_MALEFICIUM
+/// Insert Renounce Maleficium (immediate)
+void CvDeal::AddRenounceMaleficiumTrade(PlayerTypes eFrom)
+{
+	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!");
+	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_RENOUCE_MALEFICIUM))
+	{
+#ifdef EA_DEBUG_BUILD
+		char str[256];
+		GC.EA_DEBUG(str, "CvDeal::AddRenounceMaleficiumTrade for player %d.", typeid(this).name(), (int)eFrom);
+#endif
+		CvTradedItem item;
+		item.m_eItemType = TRADE_ITEM_RENOUCE_MALEFICIUM;
+		item.m_iDuration = 0;
+		item.m_iFinalTurn = -1;
+		item.m_iData1 = -1;
+		item.m_eFromPlayer = eFrom;
+		m_TradedItems.push_back(item);
+	}
+}
+#endif
+
 int CvDeal::GetGoldTrade(PlayerTypes eFrom)
 {
 	TradedItemList::iterator it;
@@ -1572,6 +1609,21 @@ bool CvDeal::IsVoteCommitmentTrade(PlayerTypes eFrom)
 	return false;
 }
 
+#ifdef EA_RENOUCE_MALEFICIUM	
+bool CvDeal::IsRenounceMaleficiumTrade(PlayerTypes eFrom)
+{
+	TradedItemList::iterator it;
+	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if(it->m_eItemType == TRADE_ITEM_RENOUCE_MALEFICIUM && it->m_eFromPlayer == eFrom)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+#endif
+
 CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 {
 	switch(eTradeItem)
@@ -1587,6 +1639,9 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_THIRD_PARTY_PEACE:
 	case TRADE_ITEM_THIRD_PARTY_WAR:
 	case TRADE_ITEM_VOTE_COMMITMENT:
+#ifdef EA_RENOUCE_MALEFICIUM
+	case TRADE_ITEM_RENOUCE_MALEFICIUM:
+#endif
 		return DEAL_NONRENEWABLE;
 		break;
 
@@ -1763,6 +1818,23 @@ void CvDeal::RemoveVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVot
 		}
 	}
 }
+
+#ifdef EA_RENOUCE_MALEFICIUM	
+/// Delete Renounce Maleficium
+void CvDeal::RemoveRenounceMaleficiumTrade(PlayerTypes eFrom)
+{
+	TradedItemList::iterator it;
+	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if(it->m_eItemType == TRADE_ITEM_RENOUCE_MALEFICIUM && it->m_eFromPlayer == eFrom)
+		{
+			m_TradedItems.erase(it);
+			break;
+		}
+	}
+}
+#endif
+
 
 void CvDeal::ChangeThirdPartyWarDuration(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, int iNewDuration)
 {
@@ -2234,6 +2306,22 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
 					GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eTargetTeam, iLockedTurns);
 				}
+#ifdef EA_RENOUCE_MALEFICIUM	// Paz - all effects on Lua side so use a GameEvents hook
+				// Renounce Maleficium
+				else if(it->m_eItemType == TRADE_ITEM_RENOUCE_MALEFICIUM)
+				{
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push((int)eAcceptedFromPlayer);	// only one of these can be fallen player, so figure it out on Lua side
+						args->Push((int)eAcceptedToPlayer);
+						bool bResult;
+						LuaSupport::CallHook(pkScriptSystem, "RenounceMaleficium", args.get(), bResult);
+					}
+				}
+#endif
+
 				// **** Peace Treaty **** this should always be the last item processed!!!
 				else if(it->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 				{
@@ -3163,6 +3251,11 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			case TRADE_ITEM_VOTE_COMMITMENT:
 				strTemp.Format("***** Vote Commitment: ID %d, Choice %d *****", itemIter->m_iData1, itemIter->m_iData2);
 				break;
+#ifdef EA_RENOUCE_MALEFICIUM
+			case TRADE_ITEM_RENOUCE_MALEFICIUM:
+				strTemp.Format("***** Renounce Maleficium *****");
+				break;
+#endif
 			default:
 				strTemp.Format("***** UNKNOWN TRADE!!! *****");
 				break;

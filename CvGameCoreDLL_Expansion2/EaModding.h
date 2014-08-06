@@ -85,6 +85,9 @@
 // Strategies
 #define EA_STRATEGY_CHANGES
 
+// Trade Deals
+#define EA_RENOUCE_MALEFICIUM				// Support for "Reounouce Maleficium" trade item
+
 // Trade
 #define EA_TRADE_YIELD_CHANGES				// Science based on total known rather than difference
 #define EA_TRADE_EVENTS_METHODS				// GameEvents.CanCreateTradeRoute(iOriginPlot, iDestPlot, iDestPlayer, eDomain, eConnectionType) CallTestAll and Game.CanCreateTradeRoute
@@ -101,7 +104,7 @@
 #define EA_EVENT_ACQUIRE_PLOT				// GameEvents.CityCanAcquirePlot(iPlayer, iCity, x, y) CallTestAll
 #define EA_EVENT_CAN_CAPTURE_CIVILIAN		// GameEvents.CanCaptureCivilian(iPlayer, iUnit) CallTestAll
 #define EA_EVENT_UNIT_CAPTURED				// GameEvents.UnitCaptured(iPlayer, iUnit) CallHook
-
+#define EA_EVENT_POLICY_FINISHER			// GameEvents.FinisherPolicy(iPlayer, policyID) CallHook
 
 // Misc extended Lua support:
 #define EA_PLOTS							// Persisted plot data and methods for Ea's Living Terrain and plot effects (Glyphs, Runes and Wards)

@@ -411,6 +411,9 @@ CvPlayer::CvPlayer() :
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
 	, m_bYieldFromSpecialPlotsOnly(false)
 #endif
+#ifdef EA_RENOUCE_MALEFICIUM	
+	, m_iMaleficiumLevel(0)
+#endif
 	, m_iNumFreeGreatPeople(0)
 	, m_iNumMayaBoosts(0)
 	, m_iNumFaithGreatPeople(0)
@@ -960,6 +963,9 @@ void CvPlayer::uninit()
 	m_iNumFreeTenets = 0;
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
 	m_bYieldFromSpecialPlotsOnly = false;
+#endif
+#ifdef EA_RENOUCE_MALEFICIUM	
+	m_iMaleficiumLevel = 0;
 #endif
 #ifdef EA_NO_WARMONGER_PENALTY
 	m_iWarmongerModifier = 0;
@@ -22223,6 +22229,9 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
 	kStream >> m_bYieldFromSpecialPlotsOnly;
 #endif
+#ifdef EA_RENOUCE_MALEFICIUM	
+	kStream >> m_iMaleficiumLevel;
+#endif
 	kStream >> m_iNumFreeGreatPeople;
 	kStream >> m_iNumMayaBoosts;
 	kStream >> m_iNumFaithGreatPeople;
@@ -22728,6 +22737,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iNumFreeTenets;
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
 	kStream << m_bYieldFromSpecialPlotsOnly;
+#endif
+#ifdef EA_RENOUCE_MALEFICIUM	
+	kStream << m_iMaleficiumLevel;
 #endif
 	kStream << m_iNumFreeGreatPeople;
 	kStream << m_iNumMayaBoosts;
@@ -24276,6 +24288,7 @@ void CvPlayer::setWarmongerModifier(int iNewValue)
 	m_iWarmongerModifier = iNewValue;
 }
 #endif
+
 //////////////////////////////////////////////////////////////////////////
 // Tutorial Stuff...
 //////////////////////////////////////////////////////////////////////////
@@ -24507,6 +24520,19 @@ bool CvPlayer::IsYieldFromSpecialPlotsOnly() const
 void CvPlayer::SetYieldFromSpecialPlotsOnly(bool bValue)
 {
 	m_bYieldFromSpecialPlotsOnly = bValue;
+}
+#endif
+
+#ifdef EA_RENOUCE_MALEFICIUM	// Paz - Set on Lua side
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetMaleficiumLevel() const
+{
+	return m_iMaleficiumLevel;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetMaleficiumLevel(int iValue)
+{
+	m_iMaleficiumLevel = iValue;
 }
 #endif
 

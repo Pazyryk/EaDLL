@@ -749,6 +749,9 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(TRADE_ITEM_ALLOW_EMBASSY);
 	RegisterEnum(TRADE_ITEM_DECLARATION_OF_FRIENDSHIP);
 	RegisterEnum(TRADE_ITEM_VOTE_COMMITMENT);
+#ifdef EA_RENOUCE_MALEFICIUM
+	RegisterEnum(TRADE_ITEM_RENOUCE_MALEFICIUM);
+#endif
 	RegisterEnum(NUM_TRADEABLE_ITEMS);
 	EnumEnd(L);
 

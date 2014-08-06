@@ -2324,6 +2324,19 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 					{
 						GetPlayer()->setHasPolicy(eFinisher, true);
 						GetPlayer()->ChangeNumFreePoliciesEver(1);
+
+#ifdef EA_EVENT_POLICY_FINISHER			// Paz - GameEvents.FinisherPolicy
+						ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+						if (pkScriptSystem)
+						{
+							CvLuaArgsHandle args;
+							args->Push(GetPlayer()->GetID());
+							args->Push((int)eFinisher);
+
+							bool bResult;
+							LuaSupport::CallHook(pkScriptSystem, "FinisherPolicy", args.get(), bResult);
+						}
+#endif
 					}
 				}
 			}

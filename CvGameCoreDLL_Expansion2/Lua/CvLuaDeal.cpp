@@ -70,6 +70,9 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(AddThirdPartyEmbargo);
 	Method(AddDeclarationOfFriendship);
 	Method(AddVoteCommitment);
+#ifdef EA_RENOUCE_MALEFICIUM
+	Method(AddRenounceMaleficiumTrade);
+#endif
 
 	Method(RemoveByType);
 	Method(RemoveResourceTrade);
@@ -79,6 +82,9 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(RemoveThirdPartyWar);
 	Method(RemoveThirdPartyEmbargo);
 	Method(RemoveVoteCommitment);
+#ifdef EA_RENOUCE_MALEFICIUM
+	Method(RemoveRenounceMaleficiumTrade);
+#endif
 
 	Method(ChangeGoldTrade);
 	Method(ChangeGoldPerTurnTrade);
@@ -205,3 +211,25 @@ int CvLuaDeal::lRemoveVoteCommitment(lua_State* L)
 	pkDeal->RemoveVoteCommitment(eFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
 	return 0;
 }
+
+#ifdef EA_RENOUCE_MALEFICIUM
+//------------------------------------------------------------------------------
+int CvLuaDeal::lAddRenounceMaleficiumTrade(lua_State* L)
+{
+	CvDeal* pkDeal = GetInstance(L);
+	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	pkDeal->AddRenounceMaleficiumTrade(eFromPlayer);
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaDeal::lRemoveRenounceMaleficiumTrade(lua_State* L)
+{
+	CvDeal* pkDeal = GetInstance(L);
+	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	pkDeal->RemoveRenounceMaleficiumTrade(eFromPlayer);
+	return 0;
+}	
+#endif
