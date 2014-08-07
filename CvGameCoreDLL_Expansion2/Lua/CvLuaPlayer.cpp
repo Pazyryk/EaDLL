@@ -240,7 +240,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarmongerModifier);
 	Method(SetWarmongerModifier);
 #endif
-#ifdef EA_RENOUCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM
 	Method(GetMaleficiumLevel);
 	Method(SetMaleficiumLevel);
 #endif
@@ -2394,7 +2394,7 @@ int CvLuaPlayer::lSetWarmongerModifier(lua_State* L)
 }
 #endif
 
-#ifdef EA_RENOUCE_MALEFICIUM	// Paz - SetWarmongerModifier on Lua side so dll can decide when to offer Renounce Maleficium in trade deal
+#ifdef EA_RENOUNCE_MALEFICIUM	// Paz - SetWarmongerModifier on Lua side so dll can decide when to offer Renounce Maleficium in trade deal
 //------------------------------------------------------------------------------
 //int GetMaleficiumLevel();
 int CvLuaPlayer::lGetMaleficiumLevel(lua_State* L)

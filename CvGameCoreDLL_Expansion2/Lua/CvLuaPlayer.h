@@ -230,7 +230,7 @@ protected:
 	static int lGetWarmongerModifier(lua_State* L);
 	static int lSetWarmongerModifier(lua_State* L);
 #endif
-#ifdef EA_RENOUCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM
 	static int lGetMaleficiumLevel(lua_State* L);
 	static int lSetMaleficiumLevel(lua_State* L);
 #endif

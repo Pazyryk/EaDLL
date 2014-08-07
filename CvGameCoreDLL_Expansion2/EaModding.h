@@ -85,8 +85,9 @@
 // Strategies
 #define EA_STRATEGY_CHANGES
 
-// Trade Deals
-#define EA_RENOUCE_MALEFICIUM				// Support for "Reounouce Maleficium" trade item
+// Renounce Maleficium Trade Item
+#define EA_RENOUNCE_MALEFICIUM				// Support for "Reounouce Maleficium" trade item
+#define EA_RENOUNCE_MALEFICIUM_VALUE_DEFINES // Defines so we can balance on Lua/SQL side
 
 // Trade
 #define EA_TRADE_YIELD_CHANGES				// Science based on total known rather than difference

@@ -1401,7 +1401,7 @@ public:
 	bool IsYieldFromSpecialPlotsOnly() const;
 	void SetYieldFromSpecialPlotsOnly(bool bValue);
 #endif
-#ifdef EA_RENOUCE_MALEFICIUM	// Paz - how much does this player value Renounce Maleficium for trade?
+#ifdef EA_RENOUNCE_MALEFICIUM	// Paz - how much does this player value Renounce Maleficium for trade?
 	int GetMaleficiumLevel() const;
 	void SetMaleficiumLevel(int iValue);
 #endif
@@ -2012,7 +2012,7 @@ protected:
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY		// Paz - use for Pantheistic civs that can't get yield from not-resource (& non-special feature) plots
 	bool m_bYieldFromSpecialPlotsOnly;
 #endif
-#ifdef EA_RENOUCE_MALEFICIUM	// Paz - how much does this player value Renounce Maleficium for trade?
+#ifdef EA_RENOUNCE_MALEFICIUM	// Paz - how much does this player value Renounce Maleficium for trade?
 	int m_iMaleficiumLevel;		// positive means player has it and could offer it; negative magnitude is how much this player wants others to give it up
 #endif
 

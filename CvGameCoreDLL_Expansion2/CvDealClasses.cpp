@@ -777,7 +777,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
 			return false;
 	}
-#ifdef EA_RENOUCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM
 	// Renounce Maleficium and enabled techs
 	else if(eItem == TRADE_ITEM_RENOUCE_MALEFICIUM)	// Paz - player is fallen and other player is not
 	{
@@ -1335,7 +1335,7 @@ void CvDeal::AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteCh
 	}
 }
 
-#ifdef EA_RENOUCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM
 /// Insert Renounce Maleficium (immediate)
 void CvDeal::AddRenounceMaleficiumTrade(PlayerTypes eFrom)
 {
@@ -1609,7 +1609,7 @@ bool CvDeal::IsVoteCommitmentTrade(PlayerTypes eFrom)
 	return false;
 }
 
-#ifdef EA_RENOUCE_MALEFICIUM	
+#ifdef EA_RENOUNCE_MALEFICIUM	
 bool CvDeal::IsRenounceMaleficiumTrade(PlayerTypes eFrom)
 {
 	TradedItemList::iterator it;
@@ -1639,7 +1639,7 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_THIRD_PARTY_PEACE:
 	case TRADE_ITEM_THIRD_PARTY_WAR:
 	case TRADE_ITEM_VOTE_COMMITMENT:
-#ifdef EA_RENOUCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM
 	case TRADE_ITEM_RENOUCE_MALEFICIUM:
 #endif
 		return DEAL_NONRENEWABLE;
@@ -1819,7 +1819,7 @@ void CvDeal::RemoveVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVot
 	}
 }
 
-#ifdef EA_RENOUCE_MALEFICIUM	
+#ifdef EA_RENOUNCE_MALEFICIUM	
 /// Delete Renounce Maleficium
 void CvDeal::RemoveRenounceMaleficiumTrade(PlayerTypes eFrom)
 {
@@ -2306,7 +2306,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
 					GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eTargetTeam, iLockedTurns);
 				}
-#ifdef EA_RENOUCE_MALEFICIUM	// Paz - all effects on Lua side so use a GameEvents hook
+#ifdef EA_RENOUNCE_MALEFICIUM	// Paz - all effects on Lua side so use a GameEvents hook
 				// Renounce Maleficium
 				else if(it->m_eItemType == TRADE_ITEM_RENOUCE_MALEFICIUM)
 				{
@@ -3251,7 +3251,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			case TRADE_ITEM_VOTE_COMMITMENT:
 				strTemp.Format("***** Vote Commitment: ID %d, Choice %d *****", itemIter->m_iData1, itemIter->m_iData2);
 				break;
-#ifdef EA_RENOUCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM
 			case TRADE_ITEM_RENOUCE_MALEFICIUM:
 				strTemp.Format("***** Renounce Maleficium *****");
 				break;

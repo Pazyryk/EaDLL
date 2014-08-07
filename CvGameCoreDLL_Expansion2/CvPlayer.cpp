@@ -411,7 +411,7 @@ CvPlayer::CvPlayer() :
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
 	, m_bYieldFromSpecialPlotsOnly(false)
 #endif
-#ifdef EA_RENOUCE_MALEFICIUM	
+#ifdef EA_RENOUNCE_MALEFICIUM	
 	, m_iMaleficiumLevel(0)
 #endif
 	, m_iNumFreeGreatPeople(0)
@@ -964,7 +964,7 @@ void CvPlayer::uninit()
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
 	m_bYieldFromSpecialPlotsOnly = false;
 #endif
-#ifdef EA_RENOUCE_MALEFICIUM	
+#ifdef EA_RENOUNCE_MALEFICIUM	
 	m_iMaleficiumLevel = 0;
 #endif
 #ifdef EA_NO_WARMONGER_PENALTY
@@ -22229,7 +22229,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
 	kStream >> m_bYieldFromSpecialPlotsOnly;
 #endif
-#ifdef EA_RENOUCE_MALEFICIUM	
+#ifdef EA_RENOUNCE_MALEFICIUM	
 	kStream >> m_iMaleficiumLevel;
 #endif
 	kStream >> m_iNumFreeGreatPeople;
@@ -22738,7 +22738,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #ifdef EA_YIELD_FROM_SPECIAL_PLOTS_ONLY
 	kStream << m_bYieldFromSpecialPlotsOnly;
 #endif
-#ifdef EA_RENOUCE_MALEFICIUM	
+#ifdef EA_RENOUNCE_MALEFICIUM	
 	kStream << m_iMaleficiumLevel;
 #endif
 	kStream << m_iNumFreeGreatPeople;
@@ -24523,7 +24523,7 @@ void CvPlayer::SetYieldFromSpecialPlotsOnly(bool bValue)
 }
 #endif
 
-#ifdef EA_RENOUCE_MALEFICIUM	// Paz - Set on Lua side
+#ifdef EA_RENOUNCE_MALEFICIUM	// Paz - Set on Lua side
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMaleficiumLevel() const
 {
