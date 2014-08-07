@@ -85,8 +85,8 @@
 // Strategies
 #define EA_STRATEGY_CHANGES
 
-// Renounce Maleficium Trade Item
-#define EA_RENOUNCE_MALEFICIUM				// Support for "Reounouce Maleficium" trade item
+// Diplo Trade Items
+#define EA_RENOUNCE_MALEFICIUM_TRADE		// Support for "Reounouce Maleficium" trade item
 #define EA_RENOUNCE_MALEFICIUM_VALUE_DEFINES // Defines so we can balance on Lua/SQL side
 
 // Trade
@@ -106,6 +106,7 @@
 #define EA_EVENT_CAN_CAPTURE_CIVILIAN		// GameEvents.CanCaptureCivilian(iPlayer, iUnit) CallTestAll
 #define EA_EVENT_UNIT_CAPTURED				// GameEvents.UnitCaptured(iPlayer, iUnit) CallHook
 #define EA_EVENT_POLICY_FINISHER			// GameEvents.FinisherPolicy(iPlayer, policyID) CallHook
+
 
 // Misc extended Lua support:
 #define EA_PLOTS							// Persisted plot data and methods for Ea's Living Terrain and plot effects (Glyphs, Runes and Wards)

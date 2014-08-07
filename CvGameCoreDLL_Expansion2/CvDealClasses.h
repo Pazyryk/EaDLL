@@ -35,7 +35,7 @@ enum TradeableItems
     TRADE_ITEM_ALLOW_EMBASSY,
 	TRADE_ITEM_DECLARATION_OF_FRIENDSHIP,	// Only "traded" between human players
 	TRADE_ITEM_VOTE_COMMITMENT,
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 	TRADE_ITEM_RENOUCE_MALEFICIUM,
 #endif
     NUM_TRADEABLE_ITEMS,
@@ -188,7 +188,7 @@ public:
 	void AddThirdPartyEmbargo(PlayerTypes eFrom, PlayerTypes eThirdParty, int iDuration);
 	void AddDeclarationOfFriendship(PlayerTypes eFrom);
 	void AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 	void AddRenounceMaleficiumTrade(PlayerTypes eFrom);
 #endif
 
@@ -214,7 +214,7 @@ public:
 	bool IsThirdPartyPeaceTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
 	bool IsThirdPartyWarTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
 	bool IsVoteCommitmentTrade(PlayerTypes eFrom);
-#ifdef EA_RENOUNCE_MALEFICIUM	
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE	
 	bool IsRenounceMaleficiumTrade(PlayerTypes eFrom);
 #endif
 
@@ -230,7 +230,7 @@ public:
 	void RemoveThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
 	void RemoveThirdPartyEmbargo(PlayerTypes eFrom, PlayerTypes eThirdParty);
 	void RemoveVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
-#ifdef EA_RENOUNCE_MALEFICIUM	
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE	
 	void RemoveRenounceMaleficiumTrade(PlayerTypes eFrom);
 #endif
 

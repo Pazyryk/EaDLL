@@ -70,7 +70,7 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(AddThirdPartyEmbargo);
 	Method(AddDeclarationOfFriendship);
 	Method(AddVoteCommitment);
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 	Method(AddRenounceMaleficiumTrade);
 #endif
 
@@ -82,7 +82,7 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(RemoveThirdPartyWar);
 	Method(RemoveThirdPartyEmbargo);
 	Method(RemoveVoteCommitment);
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 	Method(RemoveRenounceMaleficiumTrade);
 #endif
 
@@ -212,7 +212,7 @@ int CvLuaDeal::lRemoveVoteCommitment(lua_State* L)
 	return 0;
 }
 
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 //------------------------------------------------------------------------------
 int CvLuaDeal::lAddRenounceMaleficiumTrade(lua_State* L)
 {

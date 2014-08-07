@@ -523,7 +523,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				case TRADE_ITEM_THIRD_PARTY_PEACE:
 				case TRADE_ITEM_THIRD_PARTY_WAR:
 				case TRADE_ITEM_THIRD_PARTY_EMBARGO:
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 				case TRADE_ITEM_RENOUCE_MALEFICIUM:
 #endif
 				default:
@@ -943,7 +943,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 	else if(eItem == TRADE_ITEM_VOTE_COMMITMENT)
 		iItemValue = GetVoteCommitmentValue(bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, bUseEvenValue);
 
-#ifdef EA_RENOUNCE_MALEFICIUM	
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE	
 	else if(eItem == TRADE_ITEM_RENOUCE_MALEFICIUM)
 		iItemValue = GetRenounceMaleficiumValue(bFromMe, eOtherPlayer);
 #endif
@@ -2429,7 +2429,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	return iValue;
 }
 
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 /// How much is Renounce Maleficium worth?
 int CvDealAI::GetRenounceMaleficiumValue(bool bFromMe, PlayerTypes eOtherPlayer)
 {
@@ -2482,6 +2482,7 @@ int CvDealAI::GetRenounceMaleficiumValue(bool bFromMe, PlayerTypes eOtherPlayer)
 #ifdef EA_DEBUG_BUILD
 	char str[256];
 	GC.EA_DEBUG(str, "GetRenounceMaleficiumValue; bFromMe = %d, me = %d, them = %d, value = %d", typeid(this).name(), (int)bFromMe, GetPlayer()->GetID(), (int)eOtherPlayer, iItemValue);
+	GC.EA_DEBUG(str, "getAI_RENOUNCE_MALEFICIUM_BASE_VALUE = %d, getAI_RENOUNCE_MALEFICIUM_PEACE_MULTIPLIER = %d, getAI_RENOUNCE_MALEFICIUM_RECEIVER_VALUE = %d", typeid(this).name(), GC.getAI_RENOUNCE_MALEFICIUM_BASE_VALUE(), GC.getAI_RENOUNCE_MALEFICIUM_PEACE_MULTIPLIER(), GC.getAI_RENOUNCE_MALEFICIUM_RECEIVER_VALUE());
 #endif
 	return iItemValue;
 }
@@ -3432,7 +3433,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	bool bGiveUpStratResources = false;
 	bool bGiveUpLuxuryResources = false;
 
-#ifndef EA_RENOUNCE_MALEFICIUM	// Paz - moved and modified below
+#ifndef EA_RENOUNCE_MALEFICIUM_TRADE	// Paz - moved and modified below
 	// Setup what needs to be given up based on the level of the treaty
 	switch (eTreaty)
 	{
@@ -3493,7 +3494,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	PlayerTypes eWinningPlayer = bMeSurrendering ? eOtherPlayer : GetPlayer()->GetID();
 	CvPlayer* pWinningPlayer = &GET_PLAYER(eWinningPlayer);
 
-#ifdef EA_RENOUNCE_MALEFICIUM						// Paz - all tests for Renounce Maleficium trade item done here
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE						// Paz - all tests for Renounce Maleficium trade item done here
 	bool bCanRenounceMaleficium = false;			// It is only ever offered as part of peace deal
 	if (pLosingPlayer->GetMaleficiumLevel() > 0 && pWinningPlayer->GetMaleficiumLevel() < 0)	// Loser is fallen and winner is not
 		bCanRenounceMaleficium = true;
@@ -3781,7 +3782,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		}
 	}
 
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 	// Renounce Maleficium
 	if (bOfferRenounceMaleficium)
 	{

@@ -184,7 +184,7 @@ protected:
 
 	static int lAddVoteCommitment(lua_State* L); // Too many args for template, defined in cpp
 
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 	static int lAddRenounceMaleficiumTrade(lua_State* L);
 #endif
 
@@ -240,7 +240,7 @@ protected:
 	};
 	static int lRemoveVoteCommitment(lua_State* L); // Too many args for template, defined in cpp
 
-#ifdef EA_RENOUNCE_MALEFICIUM
+#ifdef EA_RENOUNCE_MALEFICIUM_TRADE
 	static int lRemoveRenounceMaleficiumTrade(lua_State* L);
 #endif
 
