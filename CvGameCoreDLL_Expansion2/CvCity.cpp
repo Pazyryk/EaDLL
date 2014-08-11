@@ -1412,6 +1412,10 @@ void CvCity::kill()
 	PlayerTypes eOwner = getOwner();
 	bool bCapital = isCapital();
 
+#ifdef EA_EVENT_CITY_KILLED
+	int iCity = GetID();		// Paz - not sure if this still works at event below
+#endif
+
 	IDInfo* pUnitNode;
 	CvUnit* pLoopUnit;
 	pUnitNode = pPlot->headUnitNode();
@@ -1468,6 +1472,21 @@ void CvCity::kill()
 
 	// clean up
 	PostKill(bCapital, pPlot, eOwner);
+
+#ifdef EA_EVENT_CITY_KILLED		// Paz - GameEvents.CityKilled(iPlayer, iCity, iPlot, bCapital) CallHook
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push((int)eOwner);
+		args->Push(iCity);
+		args->Push(pPlot->GetPlotIndex());
+		args->Push(bCapital);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "CityKilled", args.get(), bResult);
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------

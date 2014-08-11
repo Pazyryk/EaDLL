@@ -82,6 +82,9 @@
 #define EA_DISABLE_UNIT_TURN_EXP_COSTS		// Handicap and Gamespeed xml tags disabled in dll, so I killed it here instead
 #define EA_DISABLE_EXPENSIVE_EVENTS			// GameCoreUpdateBegin and other expensive but unneeded GameEvents
 
+// Misc Changes
+#define EA_NO_BARB_CITIES
+
 // Strategies
 #define EA_STRATEGY_CHANGES
 
@@ -106,6 +109,7 @@
 #define EA_EVENT_CAN_CAPTURE_CIVILIAN		// GameEvents.CanCaptureCivilian(iPlayer, iUnit) CallTestAll
 #define EA_EVENT_UNIT_CAPTURED				// GameEvents.UnitCaptured(iPlayer, iUnit) CallHook
 #define EA_EVENT_POLICY_FINISHER			// GameEvents.FinisherPolicy(iPlayer, policyID) CallHook
+#define EA_EVENT_CITY_KILLED				// GameEvents.CityKilled(iPlayer, iCity, iPlot, bCapital) CallHook
 
 
 // Misc extended Lua support:

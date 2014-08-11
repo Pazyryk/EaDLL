@@ -1742,7 +1742,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-	//ls612: we never want barbs to own a city. 
+#ifdef EA_NO_BARB_CITIES	//ls612: we never want barbs to own a city. 
 	//If for whatever reason they would acquire it (due to new Ea mechanics) destroy it instead
 	if (isBarbarian())
 	{
@@ -1750,6 +1750,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 		return;
 	}
+#endif
 
 	if(bConquest)
 	{
