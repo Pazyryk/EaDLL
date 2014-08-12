@@ -3515,7 +3515,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	case PEACE_TREATY_SETTLEMENT:
 		iPercentGoldToGive = 100;
 		iPercentGPTToGive = 100;
-		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 4)	// Paz - level is techs-tiers + 2 * policies committed to this path
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 4)	// Paz - level is 1 + techs-tiers + 2 * policies committed to this path
 		{																		// e.g., Maleficium or 1 policy
 			bOfferRenounceMaleficium = true;										
 			iPercentGoldToGive = 75;
@@ -3528,7 +3528,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		iPercentGPTToGive = 100;
 		bGiveOpenBorders = true;
 		bGiveUpStratResources = true;
-		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 6)	// e.g., has Lycanthropy (5)
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 7)	// e.g., has Lycanthropy (6)
 		{
 			bOfferRenounceMaleficium = true;
 			bGiveUpStratResources = false;
@@ -3541,7 +3541,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		bGiveOpenBorders = true;
 		bGiveUpStratResources = true;
 		bGiveUpLuxuryResources = true;
-		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 8)	// e.g., has Reanimation plus 1 policy (7)
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 9)	// e.g., has Reanimation plus 1 policy (8)
 		{
 			bOfferRenounceMaleficium = true;
 			bGiveUpLuxuryResources = false;
@@ -3550,7 +3550,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 	case PEACE_TREATY_SURRENDER:
 		bGiveOnlyOneCity = true;
-		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 10)	// e.g., has Necromancy (9)
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 11)	// e.g., has Necromancy (10)
 		{
 			bOfferRenounceMaleficium = true;
 		}
@@ -3559,7 +3559,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	case PEACE_TREATY_CESSION:
 		iPercentCitiesGiveUp = 25;
 		iPercentGoldToGive = 50;
-		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 12)	// e.g., has Necromancy + 1 policy (11)
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 13)	// e.g., has Necromancy + 1 policy (12)
 		{
 			bOfferRenounceMaleficium = true;
 			iPercentCitiesGiveUp = 15;
@@ -3569,7 +3569,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	case PEACE_TREATY_CAPITULATION:
 		iPercentCitiesGiveUp = 33;
 		iPercentGoldToGive = 100;
-		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 14)	// e.g., has Necromancy + Summoning (12)
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 15)	// e.g., has Necromancy + Summoning (13)
 		{
 			bOfferRenounceMaleficium = true;
 			iPercentCitiesGiveUp = 25;
@@ -3579,7 +3579,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	case PEACE_TREATY_UNCONDITIONAL_SURRENDER:
 		iPercentCitiesGiveUp = 100;
 		iPercentGoldToGive = 100;
-		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 16)	// e.g., has Soul Binding (14) or Breach (15)
+		if (bCanRenounceMaleficium && pLosingPlayer->GetMaleficiumLevel() < 17)	// e.g., has Soul Binding (15) or Breach (16)
 		{
 			bOfferRenounceMaleficium = true;
 		}
