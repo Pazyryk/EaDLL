@@ -5086,11 +5086,13 @@ void CvUnit::DoAttrition()
 	}
 
 	// slewis - helicopters take attrition when ending their turn over mountains.
+#ifndef EA_DISABLE_MOUNTAIN_DAMAGE
 	if(getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain())
 	{
 		strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 		changeDamage(50, NO_PLAYER, 0.0, &strAppendText);
 	}
+#endif
 
 	if(getDamage() >= GC.getMAX_HIT_POINTS())
 	{

@@ -16811,6 +16811,9 @@ void CvPlayer::SetLeaderYieldBoost(YieldTypes eIndex, int iPercent)
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
+	if(iPercent == m_aiLeaderYieldBoost[eIndex])
+		return;
+
 #ifdef EA_DEBUG_BUILD
 	char str[256];
 	GC.EA_DEBUG(str, "Setting LeaderYieldBoost for Civ %d to %d%.", typeid(this).name(), GetID(), iPercent);
