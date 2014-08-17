@@ -158,6 +158,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CanResearch);
 	Method(CanResearchForFree);
 	Method(GetCurrentResearch);
+#ifdef EA_RESEARCH_METHODS
+	Method(GetQueuedResearch);
+#endif
 	Method(IsCurrentResearchRepeat);
 	Method(IsNoResearchAvailable);
 	Method(GetResearchTurnsLeft);
@@ -1915,6 +1918,23 @@ int CvLuaPlayer::lGetCurrentResearch(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+
+#ifdef EA_RESEARCH_METHODS
+//------------------------------------------------------------------------------
+//TechTypes GetQueuedResearch();
+int CvLuaPlayer::lGetQueuedResearch(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iPosition = lua_tointeger(L, 2);
+	const TechTypes iResult = pkPlayer->GetQueuedResearch(iPosition);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+#endif
+
+
 //------------------------------------------------------------------------------
 //bool isCurrentResearchRepeat();
 int CvLuaPlayer::lIsCurrentResearchRepeat(lua_State* L)

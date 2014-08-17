@@ -24540,6 +24540,14 @@ void CvPlayer::SetMaleficiumLevel(int iValue)
 }
 #endif
 
+#ifdef EA_RESEARCH_METHODS	// Paz - added for Lua
+/// Accessor: Which tech is at queue position?
+TechTypes CvPlayer::GetQueuedResearch(int iPosition) const
+{
+	return m_researchQueue.nodeNum(iPosition - 1)->m_data;	// -1 to be consistent with GetResearchPosition
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetNumFreeGreatPeople() const
 {

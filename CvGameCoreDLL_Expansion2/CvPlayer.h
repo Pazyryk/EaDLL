@@ -1405,7 +1405,9 @@ public:
 	int GetMaleficiumLevel() const;
 	void SetMaleficiumLevel(int iValue);
 #endif
-
+#ifdef EA_RESEARCH_METHODS
+	TechTypes GetQueuedResearch(int iPosition) const;
+#endif
 	int GetNumFreeGreatPeople() const;
 	void SetNumFreeGreatPeople(int iValue);
 	void ChangeNumFreeGreatPeople(int iChange);

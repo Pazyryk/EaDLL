@@ -151,6 +151,9 @@ protected:
 	static int lCanResearch(lua_State* L);
 	static int lCanResearchForFree(lua_State* L);
 	static int lGetCurrentResearch(lua_State* L);
+#ifdef EA_RESEARCH_METHODS
+	static int lGetQueuedResearch(lua_State* L);
+#endif
 	static int lIsCurrentResearchRepeat(lua_State* L);
 	static int lIsNoResearchAvailable(lua_State* L);
 	static int lGetResearchTurnsLeft(lua_State* L);
