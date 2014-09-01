@@ -566,7 +566,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeCivilizationType);
 	Method(ChangeLeaderType);
 #endif
-
 	Method(IsMinorCiv);
 	Method(GetMinorCivType);
 	Method(GetMinorCivTrait);
@@ -6064,6 +6063,7 @@ int CvLuaPlayer::lChangeLeaderType(lua_State* L)
 	return 0;
 }
 #endif
+
 //------------------------------------------------------------------------------
 //bool isMinorCiv();
 int CvLuaPlayer::lIsMinorCiv(lua_State* L)

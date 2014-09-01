@@ -2686,8 +2686,8 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 									bIsNormalCombatDefender = true;
 								}
 							}
-							else
-								return false;		// GPs can't capture civilians
+							//else
+							//	return false;		// GPs can't capture civilians
 						}
 					}
 				}
